@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+#Others
+m_SEM/
+models/
+figures/
+checking/
