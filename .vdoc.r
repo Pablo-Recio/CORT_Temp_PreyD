@@ -466,7 +466,9 @@ SEM_df <- clean_df %>%
 #
 #
 data_sem_OB <- SEM_df %>%
-  filter(region == "OB")
+  filter(region == "OB") %>%
+  mutate(obs = as.integer(c(1:80))) %>%
+  mutate(vec = rep(0, length(obs)))
 # Create the models
 #
 refit <- FALSE
@@ -474,13 +476,13 @@ refit <- FALSE
 #
 if(refit){
   m_OB <- brm(
-    bf(t_D ~ cort + mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch)) +
-    bf(mean_dnadamage ~ age_euthanasia + mean_ros + (1|clutch)) +
-    bf(mean_peroxidation ~ age_euthanasia + mean_ros + (1|clutch)) +
-    bf(mean_ros ~ mean_mitodensity + mean_potential + (1|clutch)) +
-  set_rescor(TRUE),
+    bf(t_D | se(vec, sigma = TRUE) ~ cort + mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
+    bf(mean_dnadamage | se(vec, sigma = TRUE) ~ age_euthanasia + mean_ros + (1|clutch) + (1|p|obs)) +
+    bf(mean_peroxidation | se(vec, sigma = TRUE) ~ age_euthanasia + mean_ros + (1|clutch)+ (1|p|obs)) +
+    bf(mean_ros | se(vec, sigma = TRUE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
+  set_rescor(FALSE),
   family = gaussian(),
-  data = data_sem_OB, 
+  data = data_sem_OB,
   chains = 4, cores = 4, iter = 8000, warmup = 2000,
   control = list(adapt_delta = 0.99, max_treedepth = 11))
   # Save the model
@@ -488,6 +490,37 @@ if(refit){
 } else {
   m_OB <- readRDS(here("output/m_SEM/m_OB.rds"))
 }
+#
+#
+#
+#
+#Chcking residual correlations
+m_OB <- brm(
+  bf(t_D | se(vec, sigma = FALSE) ~ cort + mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
+  bf(mean_dnadamage | se(vec, sigma = FALSE) ~ age_euthanasia + mean_ros + (1|clutch) + (1|p|obs)) +
+  bf(mean_peroxidation | se(vec, sigma = FALSE) ~ age_euthanasia + mean_ros + (1|clutch)+ (1|p|obs)) +
+  bf(mean_ros | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
+set_rescor(FALSE),
+family = gaussian(),
+data = data_sem_OB,
+chains = 2, cores = 4, iter = 2000, warmup = 1000,
+control = list(adapt_delta = 0.99, max_treedepth = 11))
+#
+m_OB2 <- brm(
+  bf(t_D ~ cort + mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
+  bf(mean_dnadamage ~ age_euthanasia + mean_ros + (1|clutch) + (1|p|obs)) +
+  bf(mean_peroxidation ~ age_euthanasia + mean_ros + (1|clutch)+ (1|p|obs)) +
+  bf(mean_ros ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
+set_rescor(FALSE),
+family = gaussian(),
+data = data_sem_OB,
+chains = 2, cores = 4, iter = 2000, warmup = 1000,
+prior = c(
+    prior(normal(0, 1e-10), class = "sigma")),
+control = list(adapt_delta = 0.99, max_treedepth = 11))
+#
+#
+m_OB_rescorT <- readRDS(here("output/m_SEM/m_OB_rescorT.rds"))
 #
 #
 #
