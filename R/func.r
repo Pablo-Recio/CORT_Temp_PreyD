@@ -303,6 +303,7 @@ plotting <- function(df, lab){
   geom_segment(data = db_bars, aes(y = Mean - SD, yend = Mean + SD, x = Treatment, xend = Treatment), size = 1.5, color = "black") +
   ylim(min(db_violin$Estimate), max(db_violin$Estimate)) +
   coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
   theme_classic() +
   labs(y = lab, x = "Treatments") +
   theme(plot.margin = margin(3, 3, 3, 3, "mm"),
