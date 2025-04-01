@@ -491,9 +491,9 @@ refit <- FALSE
 #
 if(refit){
   m_OB <- brm(
-    bf(t_D | se(vec, sigma = FALSE) ~ cort + mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
-    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ age_euthanasia + mean_ros + (1|clutch) + (1|p|obs)) +
-    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ age_euthanasia + mean_ros + (1|clutch)+ (1|p|obs)) +
+    bf(t_D | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
+    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|p|obs)) +
+    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch)+ (1|p|obs)) +
     bf(mean_ros | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
   set_rescor(FALSE),
   family = gaussian(),
@@ -521,27 +521,15 @@ post_sem_OB <- as_draws_df(m_OB)
 #### A) Get the direct paths per each variable
 # 
 # A.1) Detection
-OB_coeff_cort_det <- post_sem_OB$b_tD_cortCORT
-det_sem_OB_control <- post_sem_OB %>%
-  dplyr::select(-b_tD_cortCORT) %>%
-  dplyr::sample_n(size = 12000, replace = FALSE) # We take here 12000 random values for all the variables to get estimates for Control treatment, which is the reference level
-det_sem_OB_cort <- post_sem_OB %>%
-  mutate(across(everything(), ~.x + b_tD_cortCORT)) %>%
-  dplyr::sample_n(size = 12000, replace = FALSE) %>% # We take here 12000 random values for all the variables AFTER adding to b_tD_cortCORT to all columns to get estimates for CORT lizards, which is NOT the reference level
-  dplyr::select(-b_tD_cortCORT)
-det_sem_OB_controlled <- bind_rows(det_sem_OB_control, det_sem_OB_cort)
-#
-OB_coeff_mitodensity_det <- det_sem_OB_controlled$b_tD_mean_mitodensity
-OB_coeff_potential_det <- det_sem_OB_controlled$b_tD_mean_potential
-OB_coeff_dna_det <- det_sem_OB_controlled$b_tD_mean_dnadamage
-OB_coeff_perox_det <- det_sem_OB_controlled$b_tD_mean_peroxidation
+OB_coeff_mitodensity_det <- post_sem_OB$b_tD_mean_mitodensity
+OB_coeff_potential_det <- post_sem_OB$b_tD_mean_potential
+OB_coeff_dna_det <- post_sem_OB$b_tD_mean_dnadamage
+OB_coeff_perox_det <- post_sem_OB$b_tD_mean_peroxidation
 # 
 # A.2) DNA damage
-OB_coeff_age_dna <- post_sem_OB$b_meandnadamage_age_euthanasia
 OB_coeff_ros_dna <- post_sem_OB$b_meandnadamage_mean_ros
 #
 # A.3) Lipid peroxidation
-OB_coeff_age_perox <- post_sem_OB$b_meanperoxidation_age_euthanasia
 OB_coeff_ros_perox <- post_sem_OB$b_meanperoxidation_mean_ros
 #
 # A.4) ROS
@@ -555,7 +543,6 @@ OB_coeff_potential_ros <- post_sem_OB$b_meanros_mean_potential
 OB_undir_ros_det <- OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_ros_perox * OB_coeff_perox_det
 OB_undir_mitodensity_det <- OB_coeff_mitodensity_ros * OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_mitodensity_ros * OB_coeff_ros_perox * OB_coeff_perox_det
 OB_undir_potential_det <- OB_coeff_potential_ros * OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_potential_ros * OB_coeff_ros_perox * OB_coeff_perox_det
-OB_undir_age_det <- OB_coeff_age_dna * OB_coeff_dna_det + OB_coeff_age_perox * OB_coeff_perox_det
 #
 # B.2) DNA damage
 OB_undir_mitodensity_dna <- OB_coeff_mitodensity_ros * OB_coeff_ros_dna
@@ -569,22 +556,18 @@ OB_undir_potential_perox <- OB_coeff_potential_ros * OB_coeff_ros_perox
 #### C) Get the total effects for each variable
 #
 # C.1) Detection
-OB_total_cort_det <- OB_coeff_cort_det
 OB_total_mitodensity_det <- OB_undir_mitodensity_det
 OB_total_potential_det <- OB_undir_potential_det
 OB_total_ros_det <- OB_undir_ros_det
 OB_total_dna_det <- OB_coeff_dna_det
 OB_total_perox_det <- OB_coeff_perox_det
-OB_total_age_det <- OB_undir_age_det
 #
 # C.2) DNA damage
-OB_total_age_dna <- OB_coeff_age_dna
 OB_total_ros_dna <- OB_coeff_ros_dna
 OB_total_mitodensity_dna <- OB_undir_mitodensity_dna
 OB_total_potential_dna <- OB_undir_potential_dna
 #
 # C.3) Lipid peroxidation
-OB_total_age_perox <- OB_coeff_age_perox
 OB_total_ros_perox <- OB_coeff_ros_perox
 OB_total_mitodensity_perox <- OB_undir_mitodensity_perox
 OB_total_potential_perox <- OB_undir_potential_perox
@@ -598,31 +581,23 @@ OB_total_potential_ros <- OB_coeff_potential_ros
 #
 # D.1) Detection (for example)
 det_results_semOB <- data.frame(
-  reference_variable = rep("t_D", 7),
-  predictor_modulator = c("cort",
-                          "age",
-                          "mean_mitodensity",
+  reference_variable = rep("t_D", 5),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS",
                           "mean_dnadamage",
                           "mean_peroxidation"),
-  direct_effects = I(list(OB_coeff_cort_det,
-                          NA,
-                          OB_coeff_mitodensity_det,
+  direct_effects = I(list(OB_coeff_mitodensity_det,
                           OB_coeff_potential_det,
                           NA,
                           OB_coeff_dna_det,
                           OB_coeff_perox_det)),
-  indirect_effects = I(list(NA,
-                          OB_undir_age_det,
-                          OB_undir_mitodensity_det,
+  indirect_effects = I(list(OB_undir_mitodensity_det,
                           OB_undir_potential_det,
                           OB_undir_ros_det,
                           NA,
                           NA)),
-  total_effects = I(list(OB_total_cort_det,
-                        OB_total_age_det,
-                        OB_total_mitodensity_det,
+  total_effects = I(list(OB_total_mitodensity_det,
                         OB_total_potential_det,
                         OB_total_ros_det,
                         OB_total_dna_det,
@@ -644,21 +619,17 @@ det_results_semOB <- data.frame(
 #
 # D.2) DNA damage
 dna_results_semOB <- data.frame(
-  reference_variable = rep("DNA damage", 4),
-  predictor_modulator = c("age",
-                          "mean_mitodensity",
+  reference_variable = rep("DNA damage", 3),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS"),
-  direct_effects = I(list(OB_coeff_age_dna,
-                          NA,
+  direct_effects = I(list(NA,
                           NA,
                           OB_coeff_ros_dna)),
-  indirect_effects = I(list(NA,
-                          OB_undir_mitodensity_dna,
+  indirect_effects = I(list(OB_undir_mitodensity_dna,
                           OB_undir_potential_dna,
                           NA)),
-  total_effects = I(list(OB_total_age_dna,
-                        OB_total_mitodensity_dna,
+  total_effects = I(list(OB_total_mitodensity_dna,
                         OB_total_potential_dna,
                         OB_total_ros_dna))) %>% 
   group_by(predictor_modulator) %>%
@@ -677,21 +648,17 @@ dna_results_semOB <- data.frame(
 #
 # D.3) Lipid peroxidation
 perox_results_semOB <- data.frame(
-  reference_variable = rep("lipid peroxidation", 4),
-  predictor_modulator = c("age",
-                          "mean_mitodensity",
+  reference_variable = rep("lipid peroxidation", 3),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS"),
-  direct_effects = I(list(OB_coeff_age_perox,
-                          NA,
+  direct_effects = I(list(NA,
                           NA,
                           OB_coeff_ros_perox)),
-  indirect_effects = I(list(NA,
-                          OB_undir_mitodensity_perox,
+  indirect_effects = I(list(OB_undir_mitodensity_perox,
                           OB_undir_potential_perox,
                           NA)),
-  total_effects = I(list(OB_total_age_perox,
-                        OB_total_mitodensity_perox,
+  total_effects = I(list(OB_total_mitodensity_perox,
                         OB_total_potential_perox,
                         OB_total_ros_perox))) %>% 
   group_by(predictor_modulator) %>%
@@ -747,9 +714,6 @@ _Detection of chemical stimulus and its relation with mitochondrial physiology i
 #| fig-name: "fig-sem_results_OB"
 #
 # A) Getting all the direct coefficients
-OB_cort_det <- paste0(format_dec(mean(OB_coeff_cort_det), 3),
-                  " [", format_dec(quantile(OB_coeff_cort_det, 0.05), 3),
-                  ", ", format_dec(quantile(OB_coeff_cort_det, 0.95), 3), "]")
 OB_density_det <- paste0(format_dec(mean(OB_coeff_mitodensity_det), 3),
                   " [", format_dec(quantile(OB_coeff_mitodensity_det, 0.05), 3),
                   ", ", format_dec(quantile(OB_coeff_mitodensity_det, 0.95), 3), "]")
@@ -763,16 +727,10 @@ OB_perox_det <- paste0(format_dec(mean(OB_coeff_perox_det), 3),
                   " [", format_dec(quantile(OB_coeff_perox_det, 0.05), 3),
                   ", ", format_dec(quantile(OB_coeff_perox_det, 0.95), 3), "]")
 #
-OB_age_dna <- paste0(format_dec(mean(OB_coeff_age_dna), 3),
-                  " [", format_dec(quantile(OB_coeff_age_dna, 0.05), 3),
-                  ", ", format_dec(quantile(OB_coeff_age_dna, 0.95), 3), "]")
 OB_ros_dna <- paste0(format_dec(mean(OB_coeff_ros_dna), 3),
                   " [", format_dec(quantile(OB_coeff_ros_dna, 0.05), 3),
                   ", ", format_dec(quantile(OB_coeff_ros_dna, 0.95), 3), "]")
 #
-OB_age_perox <- paste0(format_dec(mean(OB_coeff_age_perox), 3),
-                  " [", format_dec(quantile(OB_coeff_age_perox, 0.05), 3),
-                  ", ", format_dec(quantile(OB_coeff_age_perox, 0.95), 3), "]")
 OB_ros_perox <- paste0(format_dec(mean(OB_coeff_ros_perox), 3),
                   " [", format_dec(quantile(OB_coeff_ros_perox, 0.05), 3),
                   ", ", format_dec(quantile(OB_coeff_ros_perox, 0.95), 3), "]")
@@ -784,22 +742,20 @@ OB_potential_ros <- paste0(format_dec(mean(OB_coeff_potential_ros), 3),
                   " [", format_dec(quantile(OB_coeff_potential_ros, 0.05), 3),
                   ", ", format_dec(quantile(OB_coeff_potential_ros, 0.95), 3), "]")
 #
-imgOB <- readPNG(here("Others", "SEM_OB.png"))
+imgOB <- readPNG(here("Others", "SEM.png"))
 plot_SEM_OB <- rasterGrob(imgOB, interpolate = TRUE)
 #
 fig_SEM_OB <- ggdraw(plot_SEM_OB) +
-  annotate("text", x = 0.815, y = 0.59, label = OB_cort_det, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.35, y = 0.26, label = OB_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.35, y = 0.918, label = OB_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.83, y = 0.745, label = OB_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.83, y = 0.455, label = OB_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.55, y = 0.538, label = OB_age_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.525, y = 0.813, label = OB_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.57, y = 0.115, label = OB_age_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.525, y = 0.365, label = OB_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.285, y = 0.355, label = OB_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.285, y = 0.825, label = OB_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
-ggsave(here("./output/figures/text/SEM_OB.png"), plot = fig_SEM_OB, width = 21, height = 10, units = "cm", dpi = 600, bg = "white")
+  draw_image("./Others/OB.png", x = 0.855, y = 0.67, width = 0.18, height = 0.3) +
+  annotate("text", x = 0.52, y = 0.075, label = OB_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.52, y = 0.94, label = OB_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.715, label = OB_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.335, label = OB_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.525, y = 0.805, label = OB_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.515, y = 0.215, label = OB_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.282, y = 0.2, label = OB_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.282, y = 0.82, label = OB_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
+ggsave(here("./output/figures/text/SEM_OB.png"), plot = fig_SEM_OB, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/SEM_OB.png")
 ```
 
@@ -822,8 +778,8 @@ refit <- FALSE
 if(refit){
   m_OT <- brm(
     bf(t_D | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|p|obs)) +
-    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ cort*temp + sex + mean_ros + (1|clutch) + (1|q|obs)) +
-    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ cort*temp + age_euthanasia + mean_ros + (1|clutch) + (1|q|obs)) +
+    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|q|obs)) +
+    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|q|obs)) +
     bf(mean_ros | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
   set_rescor(FALSE),
   family = gaussian(),
@@ -857,107 +813,10 @@ OT_coeff_dna_det <- post_sem_OT$b_tD_mean_dnadamage
 OT_coeff_perox_det <- post_sem_OT$b_tD_mean_peroxidation
 #
 # A.2) DNA damage
-#
-# Getting CORT coefficient for both temperatures controlling for each sex
-dna_sem_OT_male <- post_sem_OT %>%
-  dplyr::select(-b_meandnadamage_sexFemale)
-dna_sem_OT_fem <- post_sem_OT %>%
-  mutate(across(everything(), ~.x + b_meandnadamage_sexFemale)) %>%
-  dplyr::select(-b_meandnadamage_sexFemale) # Add effect of sex to everything to see estimates on females (males the reference level for sex)
-
-dna_sem_OT_male_trt <- dna_sem_OT_male %>%
-  dplyr::sample_n(size = 12000, replace = FALSE)
-dna_sem_OT_fem_trt <- dna_sem_OT_fem %>%
-  dplyr::sample_n(size = 12000, replace = FALSE)
-
-dna_sem_OT_trt <- bind_rows(dna_sem_OT_male_trt, dna_sem_OT_fem_trt)
-
-OT_coeff_cort_dna_cold <- dna_sem_OT_trt$b_meandnadamage_cortCORT
-OT_coeff_cort_dna_hot <- dna_sem_OT_trt$b_meandnadamage_Intercept + dna_sem_OT_trt$b_meandnadamage_cortCORT + dna_sem_OT_trt$b_meandnadamage_tempHot + dna_sem_OT_trt$`b_meandnadamage_cortCORT:tempHot` - (dna_sem_OT_trt$b_meandnadamage_Intercept + dna_sem_OT_trt$b_meandnadamage_tempHot)
-# Getting ros coefficient controlling for each level of the cort-temp interaction and controlling for each sex
-dna_sem_OT_male_controlcold <- dna_sem_OT_male %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_male_controlhot <- dna_sem_OT_male %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_tempHot)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_male_cortcold <- dna_sem_OT_male %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_male_corthot <- dna_sem_OT_male %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT + b_meandnadamage_tempHot +
-                `b_meandnadamage_cortCORT:tempHot`)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
- 
-dna_sem_OT_fem_controlcold <- dna_sem_OT_fem %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_fem_controlhot <- dna_sem_OT_fem %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_tempHot)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_fem_cortcold <- dna_sem_OT_fem %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
-dna_sem_OT_fem_corthot <- dna_sem_OT_fem %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT + b_meandnadamage_tempHot +
-                `b_meandnadamage_cortCORT:tempHot`)) %>%
-  dplyr::sample_n(size = 3000, replace = FALSE)
- 
-dna_sem_OT_controlled <- bind_rows(dna_sem_OT_male_cortcold,
-                                  dna_sem_OT_male_corthot,
-                                  dna_sem_OT_male_controlcold,
-                                  dna_sem_OT_male_controlhot,
-                                  dna_sem_OT_fem_cortcold,
-                                  dna_sem_OT_fem_corthot,
-                                  dna_sem_OT_fem_controlcold,
-                                  dna_sem_OT_fem_controlhot)
-
-OT_coeff_ros_dna <- dna_sem_OT_controlled$b_meandnadamage_mean_ros
-#
-# Getting sex coefficient controlling for each level of the cort-temp interaction
-dna_sem_OT_controlcold <- post_sem_OT %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-dna_sem_OT_cortcold <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-dna_sem_OT_controlhot <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_tempHot)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-dna_sem_OT_corthot <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meandnadamage_cortCORT + b_meandnadamage_tempHot +
-                `b_meandnadamage_cortCORT:tempHot`)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-
-dna_sem_OT_sex <- bind_rows(dna_sem_OT_cortcold,
-                            dna_sem_OT_controlcold,
-                            dna_sem_OT_corthot,
-                            dna_sem_OT_controlhot)
-
-OT_coeff_sex_dna <- dna_sem_OT_sex$b_meandnadamage_sexFemale
+OT_coeff_ros_dna <- post_sem_OT$b_meandnadamage_mean_ros
 #
 # A.3) Lipid peroxidation
-OT_coeff_cort_perox_cold <- post_sem_OT$b_meanperoxidation_cortCORT
-OT_coeff_cort_perox_hot <- post_sem_OT$b_meanperoxidation_Intercept + post_sem_OT$b_meanperoxidation_cortCORT + post_sem_OT$b_meanperoxidation_tempHot + post_sem_OT$`b_meanperoxidation_cortCORT:tempHot` - (post_sem_OT$b_meanperoxidation_Intercept + post_sem_OT$b_meanperoxidation_tempHot)
-
-# Getting the coefficient of age and ros controlling for each level of the cort-temp interaction
-perox_sem_OT_controlcold <- post_sem_OT %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-perox_sem_OT_cortcold <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meanperoxidation_cortCORT)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-perox_sem_OT_controlhot <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meanperoxidation_tempHot)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-perox_sem_OT_corthot <- post_sem_OT %>%
-  dplyr::mutate(across(everything(), ~.x + b_meanperoxidation_cortCORT + b_meanperoxidation_tempHot +
-                `b_meanperoxidation_cortCORT:tempHot`)) %>%
-  dplyr::sample_n(size = 6000, replace = FALSE)
-
-perox_sem_OT_controlled <- bind_rows(perox_sem_OT_cortcold,
-                            perox_sem_OT_controlcold,
-                            perox_sem_OT_corthot,
-                            perox_sem_OT_controlhot)
-
-OT_coeff_ros_perox <- perox_sem_OT_controlled$b_meanperoxidation_mean_ros
-OT_coeff_age_perox <- perox_sem_OT_controlled$b_meanperoxidation_age_euthanasia
+OT_coeff_ros_perox <- post_sem_OT$b_meanperoxidation_mean_ros
 #
 # A.4) ROS
 OT_coeff_mitodensity_ros <- post_sem_OT$b_meanros_mean_mitodensity
@@ -967,10 +826,6 @@ OT_coeff_potential_ros <- post_sem_OT$b_meanros_mean_potential
 #### B) Get the indirect paths for each variable
 #
 # B.1) Detection
-OT_undir_cort_det_COLD <- OT_coeff_cort_dna_cold * OT_coeff_dna_det + OT_coeff_cort_perox_cold * OT_coeff_perox_det
-OT_undir_cort_det_HOT <- OT_coeff_cort_dna_hot * OT_coeff_dna_det + OT_coeff_cort_perox_hot * OT_coeff_perox_det
-OT_undir_age_det <- OT_coeff_age_perox * OT_coeff_perox_det
-OT_undir_sex_det <- OT_coeff_sex_dna * OT_coeff_dna_det
 OT_undir_ros_det <- OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_ros_perox * OT_coeff_perox_det
 OT_undir_mitodensity_det <- OT_coeff_mitodensity_ros * OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_mitodensity_ros * OT_coeff_ros_perox * OT_coeff_perox_det
 OT_undir_potential_det <- OT_coeff_potential_ros * OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_potential_ros * OT_coeff_ros_perox * OT_coeff_perox_det
@@ -987,10 +842,6 @@ OT_undir_potential_perox <- OT_coeff_potential_ros * OT_coeff_ros_perox
 #### C) Get the total effects for each variable
 #
 # C.1) Detection
-OT_total_cort_det_COLD <- OT_undir_cort_det_COLD
-OT_total_cort_det_HOT <- OT_undir_cort_det_HOT
-OT_total_age_det <- OT_undir_age_det
-OT_total_sex_det <- OT_undir_sex_det
 OT_total_mitodensity_det <- OT_undir_mitodensity_det
 OT_total_potential_det <- OT_undir_potential_det
 OT_total_ros_det <- OT_undir_ros_det 
@@ -998,17 +849,11 @@ OT_total_dna_det <- OT_coeff_dna_det
 OT_total_perox_det <- OT_coeff_perox_det 
 #
 # C.2) DNA damage
-OT_total_cort_dna_COLD <- OT_coeff_cort_dna_cold
-OT_total_cort_dna_HOT <- OT_coeff_cort_dna_hot
-OT_total_sex_dna <- OT_coeff_sex_dna
 OT_total_ros_dna <- OT_coeff_ros_dna 
 OT_total_mitodensity_dna <- OT_undir_mitodensity_dna
 OT_total_potential_dna <- OT_undir_potential_dna
 #
 # C.3) Lipid peroxidation
-OT_total_cort_perox_COLD <- OT_coeff_cort_perox_cold
-OT_total_cort_perox_HOT <- OT_coeff_cort_perox_hot
-OT_total_age_perox <- OT_coeff_age_perox
 OT_total_ros_perox <- OT_coeff_ros_perox 
 OT_total_mitodensity_perox <- OT_undir_mitodensity_perox
 OT_total_potential_perox <- OT_undir_potential_perox
@@ -1022,39 +867,23 @@ OT_total_potential_ros <- OT_coeff_potential_ros
 #
 # D.1) Detection
 det_results_semOT <- data.frame(
-  reference_variable = rep("t_D", 9),
-  predictor_modulator = c("cort_cold",
-                          "cort_hot",
-                          "age",
-                          "sex",
-                          "mean_mitodensity",
+  reference_variable = rep("t_D", 5),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS",
                           "mean_dnadamage",
                           "mean_peroxidation"),
-  direct_effects = I(list(NA,
-                          NA,
-                          NA,
-                          NA,
-                          OT_coeff_mitodensity_det,
+  direct_effects = I(list(OT_coeff_mitodensity_det,
                           OT_coeff_potential_det,
                           NA,
                           OT_coeff_dna_det,
                           OT_coeff_perox_det)),
-  indirect_effects = I(list(OT_undir_cort_det_COLD,
-                          OT_undir_cort_det_HOT,
-                          OT_undir_age_det,
-                          OT_undir_sex_det,
-                          OT_undir_mitodensity_det,
+  indirect_effects = I(list(OT_undir_mitodensity_det,
                           OT_undir_potential_det,
                           OT_undir_ros_det,
                           NA,
                           NA)),
-  total_effects = I(list(OT_total_cort_det_COLD,
-                        OT_total_cort_det_HOT,
-                        OT_total_age_det,
-                        OT_total_sex_det,
-                        OT_total_mitodensity_det,
+  total_effects = I(list(OT_total_mitodensity_det,
                         OT_total_potential_det,
                         OT_total_ros_det,
                         OT_total_dna_det,
@@ -1077,29 +906,17 @@ det_results_semOT <- data.frame(
 #
 # D.2) DNA damage
 dna_results_semOT <- data.frame(
-  reference_variable = rep("DNA damage", 6),
-  predictor_modulator = c("cort_cold",
-                          "cort_hot",
-                          "sex",
-                          "mean_mitodensity",
+  reference_variable = rep("DNA damage", 3),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS"),
-  direct_effects = I(list(OT_coeff_cort_dna_cold,
-                          OT_coeff_cort_dna_hot,
-                          OT_coeff_sex_dna,
-                          NA,
+  direct_effects = I(list(NA,
                           NA,
                           OT_coeff_ros_dna)),
-  indirect_effects = I(list(NA,
-                          NA,
-                          NA,
-                          OT_undir_mitodensity_dna,
+  indirect_effects = I(list(OT_undir_mitodensity_dna,
                           OT_undir_potential_dna,
                           NA)),
-  total_effects = I(list(OT_total_cort_dna_COLD,
-                        OT_total_cort_dna_HOT,
-                        OT_total_sex_dna,
-                        OT_total_mitodensity_dna,
+  total_effects = I(list(OT_total_mitodensity_dna,
                         OT_total_potential_dna,
                         OT_total_ros_dna))
   ) %>% 
@@ -1120,29 +937,17 @@ dna_results_semOT <- data.frame(
 #
 # D.3) Lipid peroxidation
 perox_results_semOT <- data.frame(
-  reference_variable = rep("Lipid peroxidation", 6),
-  predictor_modulator = c("cort_cold",
-                          "cort_hot",
-                          "age",
-                          "mean_mitodensity",
+  reference_variable = rep("Lipid peroxidation", 3),
+  predictor_modulator = c("mean_mitodensity",
                           "mean_potential",
                           "ROS"),
-  direct_effects = I(list(OT_coeff_cort_perox_cold,
-                          OT_coeff_cort_perox_hot,
-                          OT_coeff_age_perox,
-                          NA,
+  direct_effects = I(list(NA,
                           NA,
                           OT_coeff_ros_perox)),
-  indirect_effects = I(list(NA,
-                          NA,
-                          NA,
-                          OT_undir_mitodensity_perox,
+  indirect_effects = I(list(OT_undir_mitodensity_perox,
                           OT_undir_potential_perox,
                           NA)),
-  total_effects = I(list(OT_total_cort_perox_COLD,
-                        OT_total_cort_perox_HOT,
-                        OT_total_age_perox,
-                        OT_total_mitodensity_perox,
+  total_effects = I(list(OT_total_mitodensity_perox,
                         OT_total_potential_perox,
                         OT_total_ros_perox))
   ) %>% 
@@ -1214,28 +1019,10 @@ OT_perox_det <- paste0(format_dec(mean(OT_coeff_perox_det), 3),
                   " [", format_dec(quantile(OT_coeff_perox_det, 0.05), 3),
                   ", ", format_dec(quantile(OT_coeff_perox_det, 0.95), 3), "]")
 #
-OT_cort_dna_cold <- paste0(format_dec(mean(OT_coeff_cort_dna_cold), 3),
-                      " [", format_dec(quantile(OT_coeff_cort_dna_cold, 0.05), 3),
-                      ", ", format_dec(quantile(OT_coeff_cort_dna_cold, 0.95), 3), "]")
-OT_cort_dna_hot <- paste0(format_dec(mean(OT_coeff_cort_dna_hot), 3),
-                      " [", format_dec(quantile(OT_coeff_cort_dna_hot, 0.05), 3),
-                     ", ", format_dec(quantile(OT_coeff_cort_dna_hot, 0.95), 3), "]")
-OT_sex_dna <- paste0(format_dec(mean(OT_coeff_sex_dna), 3),
-                  " [", format_dec(quantile(OT_coeff_sex_dna, 0.05), 3),
-                  ", ", format_dec(quantile(OT_coeff_sex_dna, 0.95), 3), "]")
 OT_ros_dna <- paste0(format_dec(mean(OT_coeff_ros_dna), 3),
                   " [", format_dec(quantile(OT_coeff_ros_dna, 0.05), 3),
                   ", ", format_dec(quantile(OT_coeff_ros_dna, 0.95), 3), "]")
 #
-OT_cort_perox_cold <- paste0(format_dec(mean(OT_coeff_cort_perox_cold), 3),
-                          " [", format_dec(quantile(OT_coeff_cort_perox_cold, 0.05), 3),
-                          ", ", format_dec(quantile(OT_coeff_cort_perox_cold, 0.95), 3), "]")
-OT_cort_perox_hot <- paste0(format_dec(mean(OT_coeff_cort_perox_hot), 3),
-                      " [", format_dec(quantile(OT_coeff_cort_perox_hot, 0.05), 3),
-                     ", ", format_dec(quantile(OT_coeff_cort_perox_hot, 0.95), 3), "]")
-OT_age_perox <- paste0(format_dec(mean(OT_coeff_age_perox), 3),
-                  " [", format_dec(quantile(OT_coeff_age_perox, 0.05), 3),
-                  ", ", format_dec(quantile(OT_coeff_age_perox, 0.95), 3), "]")
 OT_ros_perox <- paste0(format_dec(mean(OT_coeff_ros_perox), 3),
                   " [", format_dec(quantile(OT_coeff_ros_perox, 0.05), 3),
                   ", ", format_dec(quantile(OT_coeff_ros_perox, 0.95), 3), "]")
@@ -1248,25 +1035,20 @@ OT_potential_ros <- paste0(format_dec(mean(OT_coeff_potential_ros), 3),
                   ", ", format_dec(quantile(OT_coeff_potential_ros, 0.95), 3), "]")
 #
 #
-imgOT <- readPNG(here("Others", "SEM_OT.png"))
+imgOT <- readPNG(here("Others", "SEM.png"))
 plot_SEM_OT <- rasterGrob(imgOT, interpolate = TRUE)
 #
 fig_SEM_OT <- ggdraw(plot_SEM_OT) +
-  annotate("text", x = 0.35, y = 0.26, label = OT_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.35, y = 0.918, label = OT_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.83, y = 0.745, label = OT_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.83, y = 0.455, label = OT_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.58, y = 0.533, label = OT_sex_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.525, y = 0.813, label = OT_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.79, y = 0.533, label = OT_cort_dna_cold, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen", fontface = "italic") +
-  annotate("text", x = 0.79, y = 0.567, label = OT_cort_dna_hot, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.57, y = 0.115, label = OT_age_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.525, y = 0.365, label = OT_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.78, y = 0.27, label = OT_cort_perox_cold, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen", fontface = "italic") +
-  annotate("text", x = 0.78, y = 0.305, label = OT_cort_perox_hot, hjust = 1, vjust = 1, size = 2.8, family = "Times", color = "darkgreen") +
-  annotate("text", x = 0.285, y = 0.355, label = OT_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
-  annotate("text", x = 0.285, y = 0.825, label = OT_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
-ggsave(here("./output/figures/text/SEM_OT.png"), plot = fig_SEM_OT, width = 21, height = 10, units = "cm", dpi = 600, bg = "white")
+  draw_image("./Others/OT.png", x = 0.86, y = 0.67, width = 0.16, height = 0.3) +
+  annotate("text", x = 0.52, y = 0.075, label = OT_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.52, y = 0.94, label = OT_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.715, label = OT_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.335, label = OT_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.525, y = 0.805, label = OT_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.515, y = 0.215, label = OT_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.285, y = 0.2, label = OT_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.285, y = 0.82, label = OT_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
+ggsave(here("./output/figures/text/SEM_OT.png"), plot = fig_SEM_OT, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/SEM_OT.png")
 ```
 
@@ -1617,9 +1399,9 @@ OT_table
 cat("\\newpage")
 ```
 
-#### Results of the multivariate models
+#### Results of the SEM
 
-Table S5. Compiled direct, indirect, and total effects of multivariate models for OB/Chemical stimulus
+Table S5. Compiled direct, indirect, and total effects of SEM for OB/Chemical stimulus
 ```{r, table_sem_results_OB}
 #| label: table_sem_results_OB
 #| fig-cap: ""
@@ -1640,8 +1422,6 @@ table_semOB_df <- sem_results_OB %>%
         predictor_modulator == "mean_dnadamage" ~ "DNA damage",
         predictor_modulator == "mean_peroxidation" ~ "Lipid peroxidation",
         predictor_modulator == "ROS" ~ "ROS",
-        predictor_modulator == "cort" ~ "CORT",
-        predictor_modulator == "age" ~ "Age",
         TRUE ~ predictor_modulator
       ),
       source = case_when(
@@ -1656,9 +1436,7 @@ table_semOB_df <- sem_results_OB %>%
       `Total effects` = case_when(`Total effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Total effects`)) %>%
   rename(Predictor = predictor_modulator, Response = source) %>%
   mutate(Response = factor(Response, levels = c("Detection latency", "DNA damage", "Lipid peroxidation", "ROS")),
-         Predictor = factor(Predictor, levels = c("CORT",
-                                                "Age",
-                                                "Mitochondrial density",
+         Predictor = factor(Predictor, levels = c("Mitochondrial density",
                                                 "Mitochondrial potential",
                                                 "ROS",
                                                 "DNA damage",
@@ -1672,8 +1450,8 @@ set_flextable_defaults(
 #
 table_semOB <- flextable(table_semOB_df) %>%
   align(align = "center", part = "header") %>%
-  flextable::compose(i = c(2:7, 9:11, 13:15, 17), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
-  flextable::hline(i = c(7, 11, 15), part = "body") %>% 
+  flextable::compose(i = c(2:5,7,8,10,11,13), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(5,8,11), part = "body") %>% 
   autofit()
 #
 table_semOB
@@ -1684,7 +1462,7 @@ cat("\\newpage")
 ```
 
 
-Table S6. Compiled direct, indirect, and total effects  of multivariate models for OT/Visual stimulus
+Table S6. Compiled direct, indirect, and total effects  of SEM for OT/Visual stimulus
 ```{r, table_sem_results_OT}
 #| label: table_sem_results_OT
 #| fig-cap: ""
@@ -1705,11 +1483,6 @@ table_semOT_df <- sem_results_OT %>%
         predictor_modulator == "mean_dnadamage" ~ "DNA damage",
         predictor_modulator == "mean_peroxidation" ~ "Lipid peroxidation",
         predictor_modulator == "ROS" ~ "ROS",
-        predictor_modulator == "cort" ~ "CORT",
-        predictor_modulator == "age" ~ "Age",
-        predictor_modulator == "sex" ~ "Sex",
-        predictor_modulator == "cort_cold" ~ "CORT when Cold",
-        predictor_modulator == "cort_hot" ~ "CORT when Hot",
         TRUE ~ predictor_modulator
       ),
       source = case_when(
@@ -1724,11 +1497,7 @@ table_semOT_df <- sem_results_OT %>%
       `Total effects` = case_when(`Total effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Total effects`)) %>%
   rename(Predictor = predictor_modulator, Response = source) %>%
   mutate(Response = factor(Response, levels = c("Detection latency", "DNA damage", "Lipid peroxidation", "ROS")),
-         Predictor = factor(Predictor, levels = c("CORT when Cold",
-                                                "CORT when Hot",
-                                                "Age",
-                                                "Sex",
-                                                "Mitochondrial density",
+         Predictor = factor(Predictor, levels = c("Mitochondrial density",
                                                 "Mitochondrial potential",
                                                 "ROS",
                                                 "DNA damage",
@@ -1742,8 +1511,8 @@ set_flextable_defaults(
 #
 table_semOT <- flextable(table_semOT_df) %>%
   align(align = "center", part = "header") %>%
-  flextable::compose(i = c(2:9, 11:15, 17:21, 23), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
-  flextable::hline(i = c(9, 15, 21), part = "body") %>% 
+  flextable::compose(i = c(2:5,7,8,10,11,13), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(5,8,11), part = "body") %>% 
   autofit()
 #
 table_semOT
