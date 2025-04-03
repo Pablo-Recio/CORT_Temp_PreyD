@@ -1,35 +1,35 @@
----
-title: "The role of prenatal conditions on brain mitochondrial physiology and prey detection in a lizard"
-docx: 
-reference-doc: "./bib/tmpl.docx"
-csl: "./bib/proceedings-of-the-royal-society-b.csl"
-bibliography: "./bib/refs.bib"
-execute:
-  echo: false
-  error: false
-  cache: false
-  warning: false
-crossref:  
-  fig-title: Figure    # (default is "Figure")
-  title-delim: —     # (default is ":")
-  fig-prefix: Fig.   # (default is "Figure")
-  tbl-prefix: Tab.   # (default is "Table")
-editor_options: 
-  chunk_output_type: console
----
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: setup
 pacman::p_load(tidyverse, flextable, emmeans, DHARMa, brms, here, ggplot2, lme4, zoo, lmerTest, broom, tidybayes, ggh4x, cowplot, fitdistrplus, MASS, goftest, forcats, nortest, fitdistrplus, ggh4x, PupillometryR, png, grid, remotes, ggthemes, bayestestR, HDInterval, DiagrammeR, magick)
-```
-
-```{r, cleandata}
+#
+#
+#
 #| label: cleandata
 # Obtain the main df using "./R/1_data_process.R"
 source(here("R", "data_process.R"))
-```
-
-```{r, sampleSize}
+#
+#
+#
 #| label: sampleSize
 # List with the sample sizes from the main database.
 source(here("R", "func.R"))
@@ -46,118 +46,118 @@ for(k in 1:length(hormone)){
   }
 }
 #
-```
-
-```{r, countclutches}
+#
+#
+#
 #| label: countclutches
 # Count the number of clutches per species
 #
 clutches <- clean_df %>% 
   distinct(clutch) %>% 
   nrow()
-```
-
-Pablo Recio^1^,$\ddagger$ , Dalton C. Leibold^1^, Ondi L. Crino ^1,2^, Christopher R. Friesen^3^, Daniel W.A. Noble^1^
-
-^1^ Division of Ecology and Evolution, Research School of Biology, The Australian National University, Canberra, ACT 2601, Australia  
-^2^ Flinder's University, College of Science and Engineering, Bedford Park, SA 5042, Australia  
-^3^ University of Wollongong, Wollongong, NSW 2500, Australia  
-$\ddagger$ Corresponding author: pablo.reciosantiago@anu.edu.au  
-
-ORCID: 
-
-Pablo Recio ORCID: 0000-0002-5890-0218  
-Dalton C. Leibold ORCID: 0000-0001-9645-2033  
-Ondi L. Crino ORCID: 0000-0001-5700-1387  
-Christopher R. Friesen ORCID: 0000-0001-5338-7454  
-Daniel W.A. Noble ORCID: 0000-0001-9460-8743  
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-## Abstract
-Cognitive processes such as the ability to perceive prey, are crucial for survival and reproduction. However, early-life conditions like stress-related hormones or thermal environments, can shape cognitive abilities by influencing brain structure and function. Mitochondrial physiology is a central mechanism underlying these effects. Here, we investigated the combined influence of prenatal corticosterone (CORT) — a key stress hormone in reptiles — and incubation temperature on mitochondrial function and prey detection in the delicate skink (_Lampropholis delicata_). We manipulated egg CORT levels and incubation temperature, then assessed hatchlings’ ability to detect chemical and visual prey stimuli. Using flow cytometry, we measured mitochondrial function, reactive oxygen species (ROS) production, and oxidative stress in the olfactory bulbs and optic tecta — two brain regions involved in sensory processing. We predicted that CORT exposure and high temperatures would interact to shape perception of prey via changes in mitochondrial respiration and oxidative damage. While mitochondrial function remained robust to early conditions, CORT and temperature interacted to influence oxidative stress in the optic tecta but not the olfactory bulbs. Additionally, CORT-treated lizards responded faster when presented with chemical cues but not visual stimuli. However, mitochondrial function and oxidative stress were not directly related to prey detection performance. These findings suggest that prenatal conditions can have lasting effects on brain physiology and cognition, though the role of mitochondrial function in these processes remains unclear. Future research should explore alternative mechanisms linking early-life stress, metabolic function, and cognitive performance.  
-
-## Introduction
-
-Cognition encompasses how animals acquire, process, and store information, enabling perception, learning, memory, and decision-making [@shettleworth]. It is essential for survival and reproduction, allowing individuals to adapt to their environment effectively [@dukas_evolutionary_2004]. However, cognitive abilities can vary considerably between individuals, with differences arising from genetic factors, environmental conditions, or a combination of both [@sakata_neural_2000; @dukas_evolutionary_2004]. The prenatal environment, in particular, plays a critical role in shaping brain development and cognition across a wide range of species [@sakata_neural_2000; @zhu_prenatal_2004; @crino_corticosterone_2014-learn; @amiel_effects_2017]. For instance,  studies have identified how prenatal conditions can influence learning abilities and memory across different taxa [@zhu_prenatal_2004; @crino_corticosterone_2014-learn; @bebus_associative_2016; @abayarathna_effects_2020]. However, the impact of early-life environments on other cognitive domains has been poorly studied [but see @burger_antipredator_1998; @vila_pouca_quantity_2019]. Perception is an often overlooked, but fundamental skill [@shettleworth]. Perceiving different stimuli is essential for locating food, avoiding predators, or interacting with conspecifics [@burger_antipredator_1998; @desfilis2003stimulus; @recio2023conspecific]. Variation in the ability to detect or recognize relevant stimuli can have significant consequences for an individual’s fitness [@pyke1984optimal]. For example, visual acuity in the bluegill sunfish (_Lepomis macrochirus_) allow animals to detect prey at larger distances, which can increase their foraging efficiency and energy intake [@hairston1982fish]. Therefore, understanding how prenatal conditions affect the ability to detect prey can be essential to understanding the broader consequences of early-life environments on fitness. Yet, little is known about how prenatal conditions influence prey-related cognition [but see @burger_effects_1990].  
-
-Prenatal environments influence cognitive abilities because the brain is particularly sensitive to environmental inputs during early stages of development [@zhu_prenatal_2004]. Early-life conditions can shape cognition by altering gene expression [@zhou2020effects], neurotransmitter production [@amani2021perinatal], or brain structure and function [@amiel_effects_2017]. Long-lasting effects on energy production and oxidative stress in the brain may be a key mechanism by which cognitive function is impacted by developmental environments  [@siegel1994basic; @du_dynamic_2009; @picard_mitochondria_2014; @picard_energetic_2018]. Given the high energetic demands of cognitive processes [@mcnay_decreases_2000; @mann_coupling_2021; @alexandrov_neuronal_2022], cognitive performance is expected to depend on efficient mitochondrial respiration. Additionally, high cognitive abilities are typically associated with increased neuron density and functionality [@lefebvre_taxonomic_2011; @amiel_effects_2017], both of which can be impaired by excessive reactive oxygen species (ROS) production and oxidative stress [@finkel_oxidants_2000; @zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011; @hoffmann_mitochondrion_2018]. For instance, Hara et al. (2014) found that performance in visuospatial working-memory tasks correlated negatively with the number of round-shaped mitochondria — associated with higher oxidative stress — per presynaptic terminal. These findings emphasize the role of mitochondrial action in shaping cognitive abilities. However, how the early environment influences mitochondrial physiology and how it may translate into cognitive consequences remains largely unknown in non-mammalian animals [see @chaudhari2022early for a review]. In particular, whether and how these interactions affect perceptual abilities, such as prey detection, is still largely unexplored.  
-
-Maternal conditions can play a crucial role in shaping mitochondrial function in the offspring. Because mitochondria are maternally inherited, a mother’s physiological state can directly impact mitochondria through trans-generational effects [@zhu_prenatal_2004; @song2009prenatal; @picard_mitochondria_2014]. One key factor in this process is the action of glucocorticoids (GCs), hormones that regulate energy metabolism and stress responses [@sapolsky_how_2000]. Under stressful situations, animals instigate adaptive physiological and behavioural adjustments that involve increases in GCs. These GCs can be transmitted to the offspring and influence their mitochondrial functioning [@picard_mitochondria_2014]. For instance, prenatal stress or elevated yolk GCs increase oxidative stress in Sprague-Dawley rats (_Rattus norvegicus_) and domestic chickens (_Gallus domesticus_) [@zhu_prenatal_2004; @song2009prenatal; @haussmann_embryonic_2012].  
-
-In ectotherms, thermal stress experienced by mothers can increase maternal circulating glucocorticoids. Activation of the physiological stress response and higher GC concentrations can subsequently impact offspring [see @Crino_2023]. However, temperature is also known to directly affect offspring development beyond maternal effects, particularly during early life [@noble_developmental_2018; @crino2024eggs]. The prenatal thermal environment can play a critical role in shaping mitochondrial function, altering energy metabolism or oxidative stress [@stier2022experimental; @crino2024eggs]. For example, Red-eared slider turtle (_Trachemys scripta elegans_) hatchlings incubated at 26.5 ºC exhibited greater oxidative damage compared to those incubated at temperatures 0.7 to 1.2 ºC warmer [@treidel2016temperature]. Therefore, the combined effects of prenatal GCs and temperature can have profound consequences for metabolic function, with significant repercussions for brain development and cognition. Yet, we have little evidence of how the interactive effects of prenatal GCs and temperature can impact cognitive abilities by developmental programming of metabolic pathways.  
-
-Here, we investigated the combined effects of prenatal temperature and corticosterone (CORT) - the main GC in reptiles - on mitochondrial function and prey detection in the delicate skink (_Lampropholis delicata_). We manipulated eggs' CORT levels and incubation temperature, then assessed hatchlings’ prey detection ability and mitochondrial function in brain regions related to processing chemical and visual cues. We hypothesized that CORT would impair prey detection through mitochondrial pysiology by decreasing respiration efficiency [@gong_chronic_2011;  but see @crino2024eggs] and increasing oxidative stress [reviewed in @costantini2011meta]. In contrast, we predicted that low incubation temperatures would only enhance beahvioural performance if the benefits of mitochondrial efficiency outweigh the costs of higher oxidative stress [@treidel2016temperature; @crino2024eggs]. We also expected complex interactions between CORT and temperature, as they have opposing effects on mitochondrial efficiency. Finally, we predicted region-dependet effects of early-life conditions on mitochondrial function [@coomber_independent_1997] that would lead to stimulus-specific differences in prey detection.
-
-## Methods
-
-#### Animal husbandry  
-*Breeding colony* -- The lizards tested came from a breeding colony established in the laboratory since 2019. This colony consisted of 270 adults of *L. delicata* housed in plastic containers (41.5 L x 30.5 W x 21 H cm) with six lizards (two males and four females) per enclosure. Enclosures were provided with non-stick matting, shelter, and several small water dishes. Water was given daily, and the lizards were fed approx. 40 mid-size crickets (_Acheta domestica_) per enclosure three days a week. Crickets were dusted with calcium weekly and multivitamin and calcium biweekly. Room temperatures were set to 22-24 ºC, but to ensure a temperature gradient, we provided the enclosures with a heat chord and a heat lamp following a 12 h light:12 h dark cycle keeping warm side of enclosures is usually at 34 ºC.
-
-*Eggs collection and incubation* -- Between mid-October 2022 and the end of February 2023, we provide females with a place to lay the eggs by placing a small box (12.5 L x 8.3 W x 5 H cm) with moist vermiculite in one side of the communal enclosures. These boxes were checked three days a week for eggs. After collection, we measured length and width of eggs with a digital caliper to the nearest 0.1 mm and weight them with a digital scale ± 0.001g error. Then eggs were treated with CORT or vehicle (see CORT and temperature manipulation below) and were placed in individual cups (80 mL) with moist vermiculite (12 parts water to 4 parts vermiculite). The cups were covered with cling wrap to retain moisture and left in two incubators at two different temperatures (see CORT and temperature manipulation below) until hatching.
-
-*Hatchlings* -- Incubators were checked three times a week for hatchlings. We measured and weighted lizards immediately after hatching. We used a ruler to measure snout-vent length (SVL) and tail length (TL) to the nearest mm, and a digital scale (± 0.001g error) to measure mass. We then placed hatchlings in individual enclosures (18.7L x 13.2W x 6.3H cm) and provided them with nonstick matting and a small water dish until the beginning of the experiment. During this period, lizards were given water daily and received 3-6 small *A. domestica* crickets three times a week. All care otherwise follows similar protocols to adults (see above).  
- 
-#### CORT and Temperature manipulation
-
-To test the interactive effects of CORT and incubation temperature, we manipulated CORT concentrations in eggs and incubated them under one of two temperature regimes (see @fig-Methods A). We used a partial split clutch design where eggs from a given clutch were distributed equally across the four treatments when clutch sizes were larger than four and randomly across treatments when less than four. Eggs were topically supplied with either: a) 5 µL of crystalline corticosterone (Sigma, Cat. No. C2505) dissolved in 100% ethanol at a final 10 pg CORT/mL concentration (CORT treatment), or b) an equal volume of 100% Ethanol (Control treatment). We selected doses based on our previous study where CORT treatment increased mean yolk CORT levels ~3.7x higher than control eggs [@crino2024eggs]. Eggs were then incubated at either cold  (23 ± 3 ºC) or hot (28 ± 3 ºC) incubation temperatures in a 2x2 factorial design (Fig. 1 A). These temperatures are within the natural limits in _L. delicata_ [@cheetham2011embryonic].
-
-#### Prey discrimination tests
-Two weeks before we started the tests (see below), lizards were moved to the experimental arena (see Fig. 1) for acclimatization. The arenas were individual medium size (41 L x 29.7 W x 22 H cm) plastic containers with a shelter (9 L x 6 W x 1.5 H cm) on one of the extremes and a water dish on the middle of the arena. These arenas were placed in two rooms in six racks, each with its own CCTV system (device model DVR-HP210475) that allowed us to record lizards’ behaviour during the experiment (see details below). The number of lizards per treatment in each rack was counterbalanced to control for any effect of the room or the position of the lizard in the rack. During acclimatization, lizards were fed with only one cricket per day dusted with calcium and multivitamin, and water was supplied ad libitum. We provided a temperature gradient by means of a heat cord and heat lamps in a 12 h light: 12 h dark cycle. The room temperature was set to between 22-24 Celsius. After the tests, animals were euthanized and metabolic function was analyzed in various brain regions (see Brain mitochondrial activity protocol below).
-
-The experiment involved presenting lizards with various stimuli from different prey types, then recording and analyzing their behaviour towards each stimulus. We followed the methods employed by @desfilis2003stimulus and @recio_prey_2021, with some modifications relevant to the objectives of this study. Lizards were presented chemical or visual stimuli from a familiar and unfamiliar prey, with a total of four trials per individual (@fig-Methods C).  
-
-We used crickets (_A. domestica_) as the familiar prey and mealworm larvae (_Tenebrio molitor_) as the unfamiliar prey. We expected to see differences between known and unknown prey because previous experience may influence stimuli perception through habituation or sensitisation [@burger_effects_1990; @burger_effects_1991; @desfilis2003stimulus], and we included familiarity with the prey as a factor in our analyses (see below).  
-
-Each stimulus was presented inside a transparent plastic vessel containing a white, two-chambered device (see @fig-Methods B) made of polylactic acid (PLA). In chemical trials, the prey was placed in the closed chamber at the back of the device, making it invisible to the lizard, while in visual trials, the prey was placed in the front chamber. Holes in both the device and the front sides of the transparent vessel (see @fig-Methods B, C) allowed chemical cues to be released; however, these holes were sealed with silicone in the visual trials. To increase the availability of chemical cues, we glued a piece of filter paper (left for at least 8 hours in one of the prey's enclosures: _A. domestica_ or _T. molitor_) to the device during chemical trials. In visual trials, the filter paper was placed in an empty box for the same duration under identical conditions. In both chemical and visual trials, the prey remained inside the vessel to control for potential acoustic cues. The order of stimulus presentation was counterbalanced across treatments.  
-
-Each trial began by placing the experimental device at the side of the arena opposite to the shelter (see arena in @fig-Methods A), and then removing the shelter. The water cup had already been removed. We recorded the lizard's behaviour for approximately one hour. We assessed lizards' ability to detect each stimulus ('Detection latency') by recording the time from when the lizard resumed normal activity (i.e., walking for at least 5 consecutive seconds; T~0~ in @fig-Methods D) until the first interaction with the stimulus (T~D~ in @fig-Methods D). Lizards were considered to have interacted with the object when the lizard touched the front of the vessel or the filter paper with its snout for more than five consecutive seconds.   
-
-To control for potential differences in hunger levels, all lizards were fasted for two days before the experiment, a period considered harmless for this species [@young2022physiological]. After each trial, the lizards were also given a cricket to assess their motivation to forage. The cricket was left in the enclosure for one hour, and we recorded whether the lizard ate it (recorded as 1) or not (recorded as 0). In `r sum(is.na(clean_df$motivation))` videos, the camera stopped recording before the end of the motivation test (T~f~ in @fig-Methods D), so motivation was recorded as NA. We used their performance in the motivation test as a covariate in the analyses (see below).   
-
-All trials were conducted between 1100 and 1300 h, when the lizards were most active. To control for potential effects of neophobia, we simulated test conditions for two days prior to the experiment by removing the shelter and water cup, and exposing the subjects to the vessel without a stimulus. This simulation lasted for 1 hour at the same time of day as the tests, but no behavior was recorded.  
-
-```{r, fig-Methods}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: fig-Methods
 #| fig-cap: "Scheme of our experimental design. In panel A, we show the different stages of our experiment and the main manipulations. In panel B, we show the experimental device used to present the stimuli in the behavioural tests. In panel C, we show the experimental setup for the prey discrimination tests. In panel D, we show the relevant times from our behavioural tests."
 #
 knitr::include_graphics("./Others/Methods.png")
-```
-
-
-#### Brain metabolic function
-
-_Brain dissection and homogenization_
-Two months after the completion of the tests, we euthanized lizards using an injectable anaesthetic followed by decapitation. We injected peritoneally 10 mg/kg of a 10 mg/mL alfaxan solution and then, after several minutes, we evaluated the lizard’s righting response and pinching reflex in one of the front limbs. Lizards without responses were decapitated with surgical scissors. This protocol was approved by the Animal Ethics Committee of the Australian National University (Protocol number: A2022_33). After decapitation, the head was opened and the brain was dissected. We extracted manually two main regions of the brain, the olfactory bulbs and the optic tecta, as they are associated with chemical and visual perception in lizards [@wyneken2007reptilian]. Both regions were transferred immediately to 1.5mL centrifuge tubes containing 100µL of 1X phosphate buffered saline (PBS).
-
-Tissue suspected in PBS was then homogenized. For the olfactory bulbs, the tissue was mechanically homogenized by placing the tissue in the well of a 100 µm mesh filter (pluriStrainer) affixed atop a 1.5 mL centrifuge tube, then mashed with the rubber end of an insulin syringe stopper. The resulting olfactory bulb homogenate was then rinsed through the filter with 1 mL of cold 1X. Optic tecta were mechanically homogenized the same way as olfactory bulbs, but were first enzymatically digested by incubating the tissue in 100µL of 125 U/mL collagenase (type II).
-
-Homogenates were split among two aliquots: one was used fresh to measure mitochondrial density, membrane potential and ROS, while the other one was cryopreserved for later measurements of DNA damage and lipid peroxidation. Cryopreservation was made by suspending the homogenates in 1 mL solution of 1% Neutral-Buffered Formalin, 1X Tris-EDTA, and 10% DMSO, then stored at -20 °C until oxidative damage assays.
-
-_Metabolic function and ROS_
-Fresh homogenate suspensions were stained with 5 µL of a fluorescent probe mix containing equal parts 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, and 50 µM MitoSOX Red. We used these fluorescent probes as indicators of mitochondrial density, mitochondrial membrane potential - a metric of mitochondrial metabolic capacity [@martinez2016tca] - and superoxide (ROS) production, respectively. We also added 5 µL of #µM Hoechst 33342 Nuclear Viability Dye to each sample, which we used to distinguish live, viable, intact cells from cellular debris. Within two hours after dissection, these samples were analyzed by flow cytometry.
-
-_Oxidative Damage_
-Assays of oxidative damage from cryopreserved samples were performed within 6 months of the initial processing and analysis of fresh samples. On the day of oxidative damage assays, we rapidly thawed frozen samples, removed the cryopreservation solution (see above), and resuspended samples in 1 mL warm 1X Tris-EDTA. Afterward, the Tris-EDTA was removed, and samples were resuspended in 200 µL of warm 1X PBS containing 20 µL of #µM Hoechst 33342 Nuclear Viability Dye (for cell viability) and 20 µL of 100 µM BODIPY 665/676 Lipid Peroxidation Sensor (to measure lipid peroxidation). Following staining, we permeabilized the cell membranes incubating the samples in 200 µL warm 1X PBS containing 5 mM (6.14 mg/mL) digitonin. After permeabilization, we stained the samples with 20 µL of 70 µM 8-OHdG Polyclonal Antibody to measure oxidative damage on DNA. We left the homogenate overnight (~12 hours). The following day we counterstained the cells with 20 µL of #µM (100 µg/mL) H+G Goat Anti-Rabbit Conjugate Antibody with Alexa-Fluor 488 and analyze the samples in the flow cytometer.
-
-_Flow Cytometry_
-Flow cytometry assays were performed using a Becton Dickson LSRFortessa X-20 flow cytometer with the default wavelength filters on detectors. The detectors and voltage settings used in data acquisition for each were determined during pilot trials and kept consistent throughout the experiment. Data was imported into FlowJo (v. 10.1) for processing. We obtained the mean fluorescent intensity for mitochondrial density, metabolic capacity, ROS production, DNA damage, and lipid peroxidation. For further details on the homogenization, staining, or flow cytometry assays, see Methods: flow cytometry in Supplementary Material
-
-#### Statistical analyses
-We performed the analyses for each brain region/stimulus and each variable (mitochondrial density, metabolic capacity, ROS, DNA damage, lipid peroxidation, and detection latency) separately. We first fitted a set of preliminary models for all the interest varaibles (detection latency, mitochondrial density, metabolic capacity, ROS, DNA damage, and lipid peroxidation) where we included the main effects of hormone (CORT versus Control), temperature (Cold versus Hot), and their interaction . Models also included the sex and age of the lizards at the time where the trials started (for detection latency) or when the lizards were euthanized (for all mitochondrial-related variables). For detection latency, we also included previous experience with the prey (familiar versus unknown), their performance on the motivation test [if they ate the cricket (1), or not (0)], and the interaction between CORT and motivation as fixed effects. We included the interaction between CORT and motivation because CORT can impact appetite [@conde2018stress]. All models included clutch identity as a random factor to account for clutch effects. For models of detection latency we also included a random effect of lizard identity because of our repeated measures design. The structure and results of these models are provided on Tables S1-S12 of the Supplementary Material. After the preliminary models, we simplified models by re-fitting to exclude factors that were not significant. However, our models always included the main interest factors: CORT, temperature and their interaction. Random factors remain the same for the final models. All the response variables were mean centered and standardized by dividing by two times the standard deviation [@gelman2008scaling]. Before standardization, mitochondrial density, DNA damage, lipid peroxidation, and detection latency were log-transformed.
-
-All models were fit using using brm models from stan [@stan] in R (version 4.4. 0) [@R]. The error structure was modelled assuming a gaussian distribution for all variables. We ran four parallel MCMC chains of 8000 iterations for each model, with a warmup period of 2000 iterations. To test for differences between treatments, we made contrasts between treatments using the posterior distribution of relevant parameters. Significance was assessed by calculating the probability distribution parameter estimates and contrasts to test whether were they different from zero [@endo2019introduction]. We considered an effect statistically significant if pMCMC < 0.05.  
-
-To further explore the relationships between mitochondrial physiology and detection latency, we used a Structural Equations Modelling (SEM) approach. We fitted a multivariate brm from stan [@stan] in R (version 4.4.0) [@R] for each brain region/stimulus separately. We included in the model all the variables of interest and their interactions structured following a specific hypothesis (see @fig-sem_results_OB and @fig-sem_results_OT). Because experience with prey did not affect lizards’ behaviour (see Tables S11, S12), and to reduce the complexity of the models, we averaged lizards detection latency across both types of prey and excluded lizard identity from the random factors. Clutch identity was included as a random factor for all variables. For our SEM model, the error structure was modelled assuming a gaussian distribution and we estimated residual correlations among all variables. 
-
-We obtained direct, indirect, and total effects from posterior estimates in the multivariate models. Direct effects represent the posterior estimates of a predictor’s effect on the response variable, while indirect effects were calculated by multiplying these effects on a mediator by the mediator’s effect on the response [@kline2005principles]. Total effects are the sum of direct and indirect effects.    
-
-## Results
-Final sample size for mitochondrial assays was 80 lizards from a total of `r clutches` clutches (n = 20 per treatment). Each lizard was subjected to 4 tests for a total of n = 320 behavioural observations (n = `r sum(is.na(clean_df$t_D))` with missing data). 
-
-```{r, models_mitochondrial}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: models_mitochondrial
 #
 # Run models mitochondrial physiology (each region separately)
@@ -199,9 +199,9 @@ for (p in var_m){
           envir = .GlobalEnv)  # Assign to the global environment
   }
 } 
-```
-
-```{r, models_behaviour}
+#
+#
+#
 #| label: models_behaviour
 # Fitting the model and extraction of posteriors for Detection Latency (log-normal).
 source(here("R", "func.R"))
@@ -225,9 +225,9 @@ for (s in stimuli){
                              refit = FALSE),
           envir = .GlobalEnv)  # Assign to the global environment
 }
-```
-
-```{r, organise_posteriors}
+#
+#
+#
 #| label: organise_posteriors
 #
 # Organising the posteriors of the previous models to fit the tables below
@@ -259,9 +259,9 @@ for (r in region) {
     }
   }
 }
-```
-
-```{r, values_posteriors}
+#
+#
+#
 #| label: values_posteriors
 #
 # Extracting the posteriors for the models and the values of interest. Here, I am creating dfs for each of the variables with the values for all the prenatal conditions to make contrasts easier to write.
@@ -284,14 +284,14 @@ ROS_OT <- post_values(m_def_mean_ros_OT, "none")
 DNA_OT <- post_values(m_def_mean_dnadamage_OT, "sex")
 LP_OT <- post_values(m_def_mean_peroxidation_OT, "none")
 DET_OT <- post_values(m_def_t_D_Visual, "none")
-```
-
-#### Does prenatal CORT and temperature affect mitochondrial function and oxidative stress in the brain?
-Models explained between 37.8 to 50.4 % of the variation in mitochondrial function and 39.9 to 59 % for oxidative stress (see Table S1).
-
-_Olfactory bulbs_: age significantly increased DNA damage and lipid peroxidation (Table S3). However, we did not find any significant effects of CORT, temperature, or their interaction on mitochondrial function nor oxidative stress in the olfactory bulbs (see @fig-results_energy, @fig-results_oxidative, and Table S2).  
-
-```{r, fig-results_energy}
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: fig-results_energy
 #| fig-cap: "Estimates of mitochondrial density (A, C) and metabolic capacity (B, D) in the olfactory bulbs (A, B) and optic tecta (C, D) of L. delicata hatchlings as a function of the different prenatal conditions. Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences."
 #| fig-name: "fig-results_energy"
@@ -339,11 +339,11 @@ final_plot_energy <- ggdraw(fig_results_energy) +
 # Print final plot
 ggsave(here("./output/figures/text/results_energy.png"), plot = final_plot_energy, width = 21, height = 14, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/results_energy.png")
-```
-
-_Optic tecta_: we did not find significant effects of CORT, temperature, or their interaction on mitochondrial density, metabolic capacity, or ROS production in the optic tecta, neither of CORT or incubation temperature on DNA damage or lipid peroxidation (see @fig-results_energy, @fig-results_oxidative, and Table S2). However, the interaction of CORT and temperature have significant effects on DNA damage in the optic tecta (see @fig-results_oxidative). For DNA damage, CORT elevations had no effect on hot-incubated lizards (β~Control-Hot~ - β~CORT-Hot~: mean = `r format_dec(mean(DNA_OT$Control_Hot) - mean(DNA_OT$CORT_Hot),3)`, pMCMC `r format_p(pmcmc(DNA_OT$Control_Hot - DNA_OT$CORT_Hot), 3, equal = TRUE)`), but it decreased total DNA damage in cold-incubated animals (β~Control-Cold~ - β~CORT-Cold~: mean = `r format_dec(mean(DNA_OT$Control_Cold) - mean(DNA_OT$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(DNA_OT$Control_Cold - DNA_OT$CORT_Cold), 3, equal = TRUE)`) (see @fig-results_oxidative C, E). Prenatal CORT had opposite effects on eggs incubated at high temperatures (β~Control-Hot~ - β~CORT-Hot~: mean = `r format_dec(mean(LP_OT$Control_Hot) - mean(LP_OT$CORT_Hot),3)`, pMCMC `r format_p(pmcmc(LP_OT$Control_Hot - LP_OT$CORT_Hot), 3, equal = TRUE)`) than at low temperatures (β~Control-Cold~ - β~CORT-Cold~: mean = `r format_dec(mean(LP_OT$Control_Cold) - mean(LP_OT$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(LP_OT$Control_Cold - LP_OT$CORT_Cold), 3, equal = TRUE)`), but differences between groups were not significant (see @fig-results_oxidative C). In addition, we found that females had higher DNA damage levels, and lipid peroxidation increased with age (see Table S4).  
-  
-```{r, fig-results_oxidative}
+#
+#
+#
+#
+#
 #| label: fig-results_oxidative
 #| fig-cap: "Estimates of ROS (A, D), DNA damage (B, E), and lipid peroxidation (C, F) in the olfactory bulbs (A - C) and optic tecta (D - F) of L. delicata hatchlings as a function of the different prenatal conditions. Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences."
 #| fig-name: "fig-results_oxidative"
@@ -407,14 +407,14 @@ final_plot_oxidative <- ggdraw(fig_results_oxidative) +
 # Print final plot
 ggsave(here("./output/figures/text/results_oxidative.png"), plot = final_plot_oxidative, width = 18, height = 24, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/results_oxidative.png")
-```
-
-#### Does prenatal CORT and temperature affect prey detection?
-Models explained between 26 to 29.3 % of the variation in prey detection (see Table S1).  
-
-_Chemical stimulus_: lizards detected chemical stimulus faster when exposed to prenatal CORT (β~Control~ - β~CORT~: mean = `r format_dec(mean(c(DET_OB$Control_Cold, DET_OB$Control_Hot)) - mean(c(DET_OB$CORT_Cold, DET_OB$CORT_Hot)), 3)`, pMCMC `r format_p(pmcmc(c(DET_OB$Control_Cold, DET_OB$Control_Hot) - c(DET_OB$CORT_Cold, DET_OB$CORT_Hot)), 3, equal = TRUE)`), but there was no effect of temperature, nor the interaction in chemo-detection (@fig-results_behaviour A and Table S2).  
-
-```{r, fig-results_behaviour}
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: fig-results_behaviour
 #| fig-cap: "Estimates of detection latency of chemical (A) and visual (B) stimulus by L. delicata hatchlings as a function of the different prenatal conditions. Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences."
 #| fig-name: "fig-results"
@@ -460,12 +460,12 @@ final_plot_behaviour <- ggdraw(fig_results_behaviour) +
 # Print final plot
 ggsave(here("./output/figures/text/results_behaviour.png"), plot = final_plot_behaviour, width = 21, height = 7, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/results_behaviour.png")
-```
-
-_Visual stimulus_: there were no significant effects of CORT, temperature, or their interaction on the detection latency of visual stimulus (@fig-results_behaviour B and Table S2).  
-
-#### How are mitochondrial physiology and oxidative stress related to prey detection?
-```{r, model_sem_OB}
+#
+#
+#
+#
+#
+#
 #| label: model_sem_OB
 # Making the SEM model by using a multivariate brms. The aim is to test the relationships between mitochondrial physiology and detection latency.
 # To simplify the random factors, and since there is no effect of experience with the prey in prey detection, latency was averaged across the two preys. Every other predictor added to the model was based on previous brms for each variable separated.
@@ -505,9 +505,9 @@ if(refit){
 } else {
   m_OB <- readRDS(here("output/m_SEM/m_OB.rds"))
 }
-```
-
-```{r, sem_tidy_OB}
+#
+#
+#
 #| label: sem_tidy_OB
 source(here("R", "func.R"))
 #
@@ -704,11 +704,11 @@ ros_results_semOB <- data.frame(
 # E) Merge everything into a single df
 #
 sem_results_OB <- bind_rows(det_results_semOB, dna_results_semOB, perox_results_semOB, ros_results_semOB)
-```
-
-_Detection of chemical stimulus and its relation with mitochondrial physiology in Olfactory bulbs_: we found a significant effect of mitochondrial density on ROS production (mean β~Mit density - ROS~ = `r format_dec(mean(OB_coeff_mitodensity_ros), 3)`, pMCMC `r format_p(pmcmc(OB_coeff_mitodensity_ros), 3, equal = TRUE)`). However, there were no significant relationships between mitochondrial function or oxidative stress on prey detection, nor between other any other variables (see @fig-sem_results_OB and Table S5).    
-
-```{r, fig-sem_results_OB}
+#
+#
+#
+#
+#
 #| label: fig-sem_results_OB
 #| fig-cap: "Structural Equation Models for OB/Chemical stimulus"
 #| fig-name: "fig-sem_results_OB"
@@ -757,9 +757,9 @@ fig_SEM_OB <- ggdraw(plot_SEM_OB) +
   annotate("text", x = 0.282, y = 0.82, label = OB_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
 ggsave(here("./output/figures/text/SEM_OB.png"), plot = fig_SEM_OB, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/SEM_OB.png")
-```
-
-```{r, models_sem_OT}
+#
+#
+#
 #| label: models_sem_OT
 # Making the same models above but for OT/Visual stimulus
 #
@@ -791,9 +791,9 @@ if(refit){
 } else {
   m_OT <- readRDS(here("output/m_SEM/m_OT.rds"))
 }
-```
-
-```{r, sem_tidy_OT}
+#
+#
+#
 #| label: sem_tidy_OT
 source(here("R", "func.R"))
 #
@@ -996,11 +996,11 @@ ros_results_semOT <- data.frame(
 # E) Merge everything into a single df
 #
 sem_results_OT <- bind_rows(det_results_semOT, dna_results_semOT, perox_results_semOT, ros_results_semOT)
-```
-
-_Detection of visual stimulus and its relation with mitochondrial physiology in Optic tecta_: we found no significant relationships within mitochondrial variables or between mitochondrial physiology and cognitive performance (see @fig-sem_results_OT and Table S6).   
-
-```{r, fig-sem_results_OT}
+#
+#
+#
+#
+#
 #| label: fig-sem_results_OT
 #| fig-cap: "Structural Equation Models for OT/Visual stimulus"
 #| fig-name: "fig-sem_results_OT"
@@ -1050,89 +1050,87 @@ fig_SEM_OT <- ggdraw(plot_SEM_OT) +
   annotate("text", x = 0.285, y = 0.82, label = OT_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
 ggsave(here("./output/figures/text/SEM_OT.png"), plot = fig_SEM_OT, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/text/SEM_OT.png")
-```
-
-## Discussion
-In this study, we examined the impact of prenatal temperature and CORT elevations on lizards' ability to detect different stimuli from prey together with the impacts of early conditions on mitochondrial metabolic function and oxidative stress in two brain regions associated to perception of visual and chemical stimuli. Our findings suggest that mitochondrial metabolic function remained largely resilient to early environmental conditions, yet oxidative damage and behavioral responses exhibited region-specific and context-dependent variations. Below, we discuss these findings in relation to mitochondrial metabolic function, oxidative stress, and behavioral performance.  
-
-#### Mitochondrial function and ROS production is robust to early life conditions
-We found no significant effects of early environmental conditions on mitochondrial density, membrane potential, or ROS production in either of the brain regions studied. This suggests that, contrary to our predictions, mitochondrial function is robust to prenatal temperature and CORT. Previous studies have shown that high incubation temperatures - but not CORT - decreased mitochondrial efficiency in the liver of _L. delicata_ [@crino2024eggs]. Mitochondrial potential is expected to enhance ATP production per oxygen consumed, thereby increasing metabolic efficiency [@rice2002brain; @martinez2016tca]. Given the brain's high energy demands [@mcnay_decreases_2000; @mann_coupling_2021], it is plausible that mitochondria are particularly well-protected, which may help explain their resilience towards environmental inputs. Future studies should explore how the environment influences mitochondrial function accross tissues, as well as the mechanisms underlying the brain’s resilience to early-life conditions.   
-
-#### The interactive effects of prenatal CORT and temperature on oxidative damage are region-dependent
-We found that DNA damage and lipid peroxidation were affected in region-specific ways. Early conditions did not significantly influence oxidative stress in the olfactory bulbs, but had a pronounced effect on DNA damage and lipid peroxidation in the optic tecta.  
-
-CORT exposure reduced DNA damage in optic tecta from cold-incubated lizards, but had no effect at higher incubation temperatures. This pattern suggests that CORT might play a protective role in specific thermal conditions. Since CORT helps mobilize energy resources to facilitate physiological adjustments to stress [@sapolsky_how_2000], it is possible that under colder incubation conditions — where metabolic rates are expected to be lower — these resources can be directed towards antioxidant activity or DNA repairing mechanisms. In contrast, at higher temperatures, the increased metabolic demands may limit the availability of resources for such protective mechanisms.   
-
-In comparison, prenatal CORT elevations increased lipid peroxidation in cold incubated lizards but reduced it in those incubated at higher temperatures. Although the two hormonal treatments did not significantly differ within each incubation temperature, the direction of the CORT effect was the opposite between temperatures. One possible reason for this pattern could be temperature-dependent changes in membrane lipid composition or fluidity, which may affect how lipids respond to oxidative stress [@zeis2019temperature]. For instance, lipid peroxidation levels increased in cold-acclimated _Daphnia magna_ likely because of higher concentration of polyunsaturated fatty acids [@zeis2019temperature]. Future studies should explore how temperature-dependent effects on membrane composition influence oxidative damage susceptibility.  
-
-#### Detection of chemical, but not visual, stimulus improved with prenatal CORT exposure
-Detection latency decreased with CORT exposure when animals were presented with a chemical stimulus, but not with a visual stimulus. This effect was not related to alterations in mitochondrial physiology in the olfactory bulbs. Instead, we hypothesize that it may be driven by differences in motivation. Although lizards were fasted for two days before testing and we specifically tested for motivation, we may have overlooked factors related to the the ecological relevance of the cues, the animals' internal state, or the interaction between both factors. Prenatal CORT is expected to increase hunger through resource mobilization [@spencer2008post; @cossin-sevrin_effect_2022; but see @crino_corticosterone_2014-learn]. This could have lead to increase motivation in CORT-treated lizards, which could have switched to a more active foraging mode, affecting the way they respond to chemical stimuli. For example, species of European lizards (family Lacertidae) that spend more time actively looking for food tend to rely more on chemoreception [@verwaijen2007relationships]. Further studies need to be conducted to understand how CORT can change foraging strategies in lizards and how this can affect their perception abilities.    
-
-#### Mitochondrial function and oxidative stress do not affect detection abilities
-Despite the relevance of mitochondrial function and oxidative damage on cognitive abilities in other taxa [@zhu_prenatal_2004; @cao2014ampk; @hara_presynaptic_2014] we found no significant relationships between mitochondrial physiology and prey detection in _L. delicata_. This suggest that the brain regions studied are not directly related to the behaviors tested, or that other mechanisms are more relevant for preceiving prey stimuli. Alternatively, mitochondrial physiology may influence detection abilities only beyond a certain threshold, which may not have been reached in our study.
-
-In this regard, mitochondria are predicted to impact cognitive performance by providing energy for neural activity or by regulating oxidative stress [@siegel1994basic; @mcnay_decreases_2000; @du_dynamic_2009; @picard_mitochondria_2014; @picard_energetic_2018; @mann_coupling_2021; @alexandrov_neuronal_2022]. However, the lack of effect of mitochondrial density and metabolic capacity on detection latency abilities in _L. delicata_ suggests that energy production is not a limiting factor for prey perception, or that _L. delicata_ can sustain this cognitive function despite fluctuations in energy availability. Similarly, the levels of damage in the brain regions studied may not have been high enough to impair prey perception in this species or compensatory mechanisms may have counteracted any negative effects of oxidative stress. **FOR INSTANCE, ANIMALS MAY UPREGULATE ANTIOXIDANTS FUNCTION WHEN HIGHER RESPIRATION (ONDI'S COMMENT)** 
-**Talk about mitochondrial density and its effect on ROS**
-Despite not seeing any effect of oxidative damage, since DNA damage or lipid peroxidation can accumulate over time, their effects on cognition can pronounce over time [@terman2006oxidative; @hara_presynaptic_2014]. In fact, we saw a significant effect of age on DNA damage in olfactory bulbs, and on lipid peroxidation in both regions. Future research should investigate the long-term consequences of mitochondrial activity on brain health and the potential mechanisms that sustain cognitive resilience in _L. delicata_.   
-
-#### Conclusions
-Prenatal incubation and CORT exposure had region-specific effects in the brain of _L. delicata_. While mitochondrial function remained resilient to early environmental conditions, oxidative damage and behavioral responses exhibited context-dependent variations. Our findings suggest that the brain regions studied are not directly related to the behaviors tested, or that other factors, like motivation, are more relevant for preceiving prey stimuli. Future studies should explore how the environment influences mitochondrial function accross tissues, as well as the mechanisms underlying the brain’s resilience to early-life conditions.    
-
-
-### Ethics
-Both the breeding animals and the experimental lizards were provided humane laboratory housing, with thermoregulatory opportunities, light (UV and heat) and moderate levels of humidity. Euthanasia was performed by peritoneal injection of a 10 mg/kg of a 10 mg/mL alfaxan solution (a potent anesthetic) followed by decapitation. We monitored the animals to ensure there was no irritation from the agent as indicated by distressed animals. Before disposing of the lizard, we confirmed the absence of righting response and pinching reflex in one of the front limbs. All the protocols complied with Australian law and were approved by the Australian National University Animal Experimentation Ethics Committee (A2022_33).
-
-### Data accessibility  
-All data, data description, and R code are available in public repository [https://github.com/Pablo-Recio/CORT-Temp_PreyD](https://github.com/Pablo-Recio/CORT_Temp_PreyD).  
-
-### Declaration of AI use
-We declare Chat GPT was used mainly for questions related to coding and data analyses. All other parts of the manuscript were written by the authors and those parts where AI was used were checked and modified accordingly by the authors.  
-
-### Authors' contributions
-P.R.: conceptualization, methodology, data collection, data curation, formal analysis, writing—original draft, writing—review and editing; D.C.L.: conceptualization, methodology, data collection, data curation, writing—review and editing; O.C.: conceptualization, methodology, writing—review and editing; C.F.: conceptualization, methodology, funding acquisition, writing—review and editing; D.N.: conceptualization, methodology, funding acquisition, project administration, resources, supervision, writing—review and editing.  
-All authors gave final approval for publication and agreed to be held accountable for the work performed therein.  
-
-### Conflict of interest declaration  
-We declare we have no competing interests.  
-
-### Funding
-This work was supported by a National Australian University fellowship (to P.R. and D.C.L.), and the Australian Research Council (grant no. DP210101152) to D.N. and C.R.F.
-
-### Acknowledgements
-We thank Dr. Mick Devoy and the Cytometry, Histology and Spatial Multiomics team for their advice and help througout the flow cytometry protocols. We thank the help and assistance of our lab technicians Benjamin Durant and Michelle Stephens for taking care of the lizards. We also thank ANU MakerSpace, where we designed and built the prototypes of the 3D printed feeders. Finally, we wish to acknowledge the anonymous reviewers for their valuable feedback on the manuscript. 
-
-
-# References
-<div id="refs"></div>
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-# Supplementary Material
-
-#### Methods: Flow cytometry
-Two months after the completion of the tests, we euthanized lizards using an injectable anaesthetic followed by decapitation. We injected peritoneally 10 mg/kg of a 10 mg/mL alfaxan solution and then, after several minutes, we evaluated the lizard’s righting response and pinching reflex in one of the front limbs. Lizards without responses were decapitated with surgical scissors. This protocol was approved by the Animal Ethics Committee of the Australian National University (Protocol number: A2022_33). After decapitation, the head was opened and the brain was dissected. We extracted manually two main regions of the brain, the olfactory bulbs and the optic tecta, as they are associated with chemical and visual perception in lizards [@wyneken2007reptilian]. Both regions were transferred immediately to 1.5mL centrifuge tubes containing 100µL of 1X phosphate buffered saline (PBS).
-
-Tissue suspended in PBS was then homogenized. For the olfactory bulbs, the tissue was mechanically homogenized by placing the tissue in the well of a 100 µm mesh filter (pluriStrainer) affixed atop a 1.5 mL centrifuge tube, then mashed with the rubber end of an insulin syringe stopper. The resulting olfactory bulb homogenate was then rinsed through the filter with 1 mL of cold 1X PBS to prepare a homogenate suspension. Optic tecta were mechanically homogenized the same way as olfactory bulbs, but were first enzymatically digested by incubating the tissue in 100µL of 125 U/mL collagenase (type II) for 30-min at 32°C. We enzymatically digested optic tecta but not olfactory bulbs because in a pilot study, enzymatic digestion prior to mechanical digestion improved the yield of viable cells in optic tecta homogenate, but did not noticeably affect the yield of viable cells in olfactory bulbs homogenate (unpublished data). Following homogenization, we centrifuged each sample at 1000 RCF for 10 minutes to pellet cells, then removed the supernatant (hereafter, this process referred to as ‘washing’) and resuspended the cells in 500 µL 1x PBS. This step was to performed to remove cellular debris from homogenates. From each 500 µL suspension of homogenate collected on a given trial day, we first added 100 µL of homogenate to a pooled sample of each tissue type to use for single-color controls, and the remaining 40 0µL of homogenate was split among two 200 µL aliquots. One aliquot was used fresh to measure mitochondrial function (mitochondrial density, membrane potential, ROS), one aliquot was cryopreserved for later measurements of oxidative damage (8-OHdG, lipid peroxidation), and the third aliquot was cryopreserved for a different experiment. Aliquots were cryopreserved in 1 mL solution of 1% Neutral-Buffered Formalin (as a fixative agent), 1X Tris-EDTA (chelates metals that can damage DNA during freezing) and 10% DMSO (a cryoprotectant), then stored at -20 °C until oxidative damage assays. 
-
-From fresh homogenate suspensions, we loaded the wells of a 96-well flat-bottom plate (Nunclon) with 50 µL of homogenate in duplicates (2 wells per homogenate). To each replicate well, we added 5 µL of a fluorescent probe mix containing equal parts 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, and 50 µM MitoSOX Red. We used these fluorescent probes as indicators of mitochondrial density, mitochondrial membrane potential, and superoxide (ROS) production, respectively. We then added 5 µL of #µM Hoechst 33342 Nuclear Viability Dye to each sample, which we used to distinguish live, viable, intact cells from cellular debris. We then loaded 6 wells with 50 µL of homogenate taken from each pooled homogenate suspension (12 wells total), which were to be negative and single-color controls. One well was left unstained as a negative control, one was stained with all the probes to be a positive control, and the remaining four wells were treated with 5 µL of one of 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, 50 µM MitoSOX Red, or #µM Hoechst 33342 Nuclear Viability Dye. Any remaining pooled homogenate was fixed and frozen as previously described. We incubated the loaded plate at 32 °C for 30 minutes to stain and then diluted the samples with 50 µL cold 1x PBS to halt the staining process. Upon the completion of staining, samples were immediately transferred to flow cytometry facilities for data collection and were sampled within 2 hours. Samples prepared this way remained viable for flow cytometry for approximately 5 hours post-staining at room temperature (~19°C) before cells began rapidly degrading (unpublished data).
-
-Assays of oxidative damage from cryopreserved samples were performed within 6 months of the initial processing and analysis of fresh samples. On the day of oxidative damage assays, we rapidly thawed frozen samples by briefly (1-2 minutes) submerging them in warm water. We washed each thawed sample twice, the first time resuspending the pelleted cells in 1 mL warm 1X Tris-EDTA, and the second time in 200 µL warm 1X PBS. Pooled homogenate was divided into 100 µL aliquots to serve as single-color controls. Thawed, resuspended samples were first stained with 20 µL (10 µL for controls) of #µM Hoechst 33342 Nuclear Viability Dye and 20 µL of 100 µM BODIPY 665/676 Lipid Peroxidation Sensor and incubated at 32 °C for 20 minutes. Following staining, we washed cells to prevent further binding of unbound fluorescent probes, then resuspended the pellet in 200 µL warm 1X PBS containing 5 mM (6.14 mg/mL) digitonin. We incubated the samples at 32 °C for 20 minutes to permeabilize the cell membrane, after which we washed the homogenate and resuspended the pelleted cells in 200 µL 1X PBS. We added 20 µL of 70 µM 8-OHdG Polyclonal Antibody to each sample, after which we left the homogenate overnight (~12 hours) for the antibody to bind to 8-OHdG, a marker of oxidative damage on DNA. The following day we counterstained the cells with 20 µL of #µM (100 µg/mL) H+G Goat Anti-Rabbit Conjugate Antibody with Alexa-Fluor 488 at 32 °C for 20 minutes. After the cells had been tagged with 8-OHdG antibodies and counterstained, we washed the cells once more and resuspended the pellet in 400 µL of 1X PBS. Unstained and single-color controls were treated identically to samples, but stained with only up to one of BODIPY 665/676, Hoechst 33342, 8-OHdG antibody, or Alexa-Fluor 488 conjugate. Additionally, one control was stained with both 8-OHdG antibody and the Alexa-Fluor 488 conjugated. We then loaded a 96-well plate with 100 µL of each single-color control and 100 µL in duplicate of each sample. We performed all flow cytometry assays on samples within 48-hours of thawing the samples.
-
-All flow cytometry assays were performed using a flow cytometer with 5-lasers (blue, red, yellow-green, violet, and ultraviolet), 20 detectors, and a high-throughput plate reader (Becton Dickson LSRFortessa X-20) using the default wavelength filters on detectors. Immediately prior to all assays, we performed a quality-control check and laser alignment using the CS&T function of BD FACSDiva (v. 8.0.1) and BD CS&T fluorescent beads (Lot No. 30664) diluted at 2 drops to 150 µL 1X PBS. During data collection, data for single-color controls was filtered using a liberal threshold of 200 on the FSC (roughly, cell size) detector, while data from samples was filtered using a threshold of 200 on the BUV-496 (Hoechst 33342) detector. These thresholds were chosen to filter small debris or inviable or non-intact cells from our observations. The detectors and voltage settings used in data acquisition for each assay type (mitochondrial function, oxidative damage) were determined during pilot trials prior to assays and were not changed during assays to allow for comparison among different plates and samples throughout the experiment. Voltages were chosen to center the distribution of observations in each channel at 103 fluorescent intensity and reduce observations of off-scale (<101 or >105) events. For the mitochondrial function assay, we recorded data from the following channels (in brackets: voltage; parameter): FSC (44; forward scatter), SSC (180; side scatter), Alexa-Fluor 488 (544; autofluorescence), BUV-496 (450; Hoechst 33342), APC (647; MitoTracker Deep Red FM), PE (522; MitoTracker Orange CMTMRos), and PerCP-Cy5-5 (592; MitoSOX Red) channels. For the oxidative damage assay, we recorded data from the following channels: FSC (425; forward scatter), SSC (300; side scatter), Alexa-Fluor 488 (275; 8-OHdG Antibody + Alexa-Fluor 488 conjugate), BUV-496 (525; Hoechst 33342), and PE-Cy5 (850; BODIPY 665/676). Fluorescent intensity data was collected via the BD FACSDiva (v. 8.0.1) software, with no compensation applied during data collection, and all on a linear scale (detectable range of 0-252166). We recorded data for both the area and height of the fluorescent signal, but only used the area in downstream analyses, with height being recorded for the sake of quality control. Data was exported from BD FACSDiva as individual *.fcs (“flow cytometry standard”) files for each sample, then imported into FlowJo (v. 10.1) for processing.
-
-In FlowJo v. 10.1 we first applied transformed all fluorescent data to a logarithmic base 10 scale, then applied a basic gating process across all channels by filtering to observations within the detectable range (101-105) to remove any off-scale events. We then used a backgating process wherein we aimed to identify the approximate FSC (cell size) and SSC (cell complexity) range of viable cells that were positive for all stains. We primarily used the BUV-496 channel (Hoechst 33342) in the backgating process to identify intact, nucleated cells (BUV-496 > 103). For the mitochondrial function assay, we aimed to identify populations of viable cells containing mitochondria (APC > 103) and actively respiring (PE and PerCP-Cy5-5 > 103). For the oxidative damage assay, we aimed to identify populations of cells exhibiting both DNA damage (Alexa-Fluor 488 > 103) and lipid peroxidation (PerCP > 103). When backgating was done, we filtered the data to the FSC by SSC range that captured the ideal population. We used the backgated population for compensation of fluorescent spillover between different fluorescent probes. To account for fluorescent spillover, we used a traditional compensation matrix using the compensation function of FlowJo v.10.1. We identified the “positive” population for each channel as the brightest ~2.5% of the distribution of observations in the respective single-color control for that channel and used unstained controls as a universal negative. We visually inspected the compensation matrix and its effects on population distributions for under- and over-compensation, whereupon we changed the compensation matrix manually until data was properly compensated. We applied the compensation matrix to all samples for downstream processing. Following compensation, we again gated the data following the same process as for backgating but using the compensated parameters for each channel. Following gating, we exported the geometric mean (mean fluorescent intensity; MFI) and robust confidence-values for each channel for each sample. For analysis, we exported summary statistics of only the area of the fluorescent signal. Although we exported robust confidence values for checking repeatability between replicate samples, we used the mean and standard deviation of geometric means among replicates for each individual as our main response variables in analyses.  
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-
-#### Results of the final models
-
-Table S1. R^2^ values of the definite models for both regions and stimuli.
-```{r, table_bayesR2}
+#
+#
+#
+#
+#
+#
+#
 #| label: table_bayesR2
 #| tbl-cap: "BayesR2 values of the definite models for both regions and stimuli."
 #
@@ -1226,15 +1224,15 @@ bayes_table <- flextable(bayes_table_df) %>%
   autofit()
 #
 bayes_table
-```
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
 cat("\\newpage")
-```
-
-
-Table S2. Estimate of the contrasts between treatments for all the variables analysed, and pMCMC values testing the hypothesis that contrast is different from 0. In bold, the values that are significant at pMCMC < 0.05.
-```{r tbl-contrasts}
+#
+#
+#
+#
+#
 #| label: tbl-contrasts
 #| tbl-cap: "Contrasts between prenatal conditions for mitochondrial physiology and learning."
 #
@@ -1321,20 +1319,20 @@ contrast_table <- flextable(data_table_final) %>%
   autofit()
 #
 contrast_table
-```
-
-Contrasts were done by:  
-_Temperature_: β~Hot~ - β~Cold~  
-_CORT_: β~CORT~ - β~Control~    
-_Interaction_: (β~Control-Hot~ - β~CORT-Hot~) - (β~Control-Cold~ - β~CORT-Cold~)  
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-
-Table S3. Summary of the final models for Olfactory Bulbs/Chemical stimulus.
-```{r, tbl-results_OB_table}
+#
+#
+#
+#
+#
 #| label: results_OB_table
 #| tbl-cap: "Results of the models testing for Olfactory Bulbs."
 #| tbl-name: "results_OB"
@@ -1361,14 +1359,14 @@ OB_table <- flextable(post_OB_refined) %>%
   autofit()
 #
 OB_table
-```
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S4. Summary of the final models for Optic Tecta/Visual stimulus.
-```{r, tbl-results_OT_table}
+#
+#
+#
+#
 #| label: results_OT_table
 #| tbl-cap: "Results of the models testing for Olfactory Bulbs."
 #| tbl-name: "results_OT"
@@ -1395,16 +1393,16 @@ OT_table <- flextable(post_OT_refined) %>%
   autofit()
 #
 OT_table
-```
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
 cat("\\newpage")
-```
-
-#### Results of the SEM
-
-Table S5. Compiled direct, indirect, and total effects of SEM for OB/Chemical stimulus
-```{r, table_sem_results_OB}
+#
+#
+#
+#
+#
+#
 #| label: table_sem_results_OB
 #| fig-cap: ""
 #
@@ -1457,15 +1455,15 @@ table_semOB <- flextable(table_semOB_df) %>%
   autofit()
 #
 table_semOB
-```
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
 cat("\\newpage")
-```
-
-
-Table S6. Compiled direct, indirect, and total effects  of SEM for OT/Visual stimulus
-```{r, table_sem_results_OT}
+#
+#
+#
+#
+#
 #| label: table_sem_results_OT
 #| fig-cap: ""
 #
@@ -1518,12 +1516,12 @@ table_semOT <- flextable(table_semOT_df) %>%
   autofit()
 #
 table_semOT
-```
-
-
-#### Results of preliminary models 
-
-```{r, models_preliminary}
+#
+#
+#
+#
+#
+#
 #| label: models_preliminary
 # Fitting intial models to see if sex and age are relevant for our models
 source(here("R", "func.R"))
@@ -1574,10 +1572,10 @@ for (k in stimulus){
                             refit = FALSE),
         envir = .GlobalEnv)  # Assign to the global environment
 }
-```
-
-Table S7. Summary of the preliminary model for Mitochondrial Density in Olfactory Bulbs.
-```{r, results_preliminary_mitdensity_OB}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Mitochondrial Density in OB"
 #| label: results_preliminary_mitdensity
 #
@@ -1587,17 +1585,17 @@ sum_m_mitdensity_OB_prel <- m_prel_mean_mitodensity_OB %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_mitdensity_OB_prel)
-```
-
-Model formula: mean_mitodensity ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S8. Summary of the preliminary model for Mitochondrial Density in Optic Tecta.
-```{r, results_preliminary_mitdensity_OT}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Mitochondrial Density in OT"
 #| label: results_preliminary_mitdensity_OT
 #
@@ -1607,17 +1605,17 @@ sum_m_mitdensity_OT_prel <- m_prel_mean_mitodensity_OT %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_mitdensity_OT_prel)
-```
-
-Model formula: mean_mitodensity ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S9. Summary of the preliminary model for Metabolic capacity in Olfactory Bulbs.
-```{r, results_preliminary_potential_OB}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for metabolic capacity in OB"
 #| label: results_preliminary_potential_OB
 #
@@ -1627,17 +1625,17 @@ sum_m_potential_OB_prel <- m_prel_mean_potential_OB %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_potential_OB_prel)
-```
-
-Model formula: mean_potential ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S10. Summary of the preliminary model for Metabolic capacity in Optic Tecta.
-```{r, results_preliminary_potential_OT}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Metabolic capacity in OT"
 #| label: results_preliminary_potential_OT
 #
@@ -1647,17 +1645,17 @@ sum_m_potential_OT_prel <- m_prel_mean_potential_OT %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_potential_OT_prel)
-```
-
-Model formula: mean_potential ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S11. Summary of the preliminary model for ROS Production in Olfactory Bulbs.
-```{r, results_preliminary_ros_OB}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for ROS Production in OB"
 #| label: results_preliminary_ros_OB
 #
@@ -1667,17 +1665,17 @@ sum_m_ros_OB_prel <- m_prel_mean_ros_OB %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_ros_OB_prel)
-```
-
-Model formula: mean_ros ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S12. Summary of the preliminary model for ROS Production in Optic Tecta.
-```{r, results_preliminary_ros_OT}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for ROS Production in OT"
 #| label: results_preliminary_ros_OT
 #
@@ -1687,17 +1685,17 @@ sum_m_ros_OT_prel <- m_prel_mean_ros_OT %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_ros_OT_prel)
-```
-
-Model formula: mean_ros ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S13. Summary of the preliminary model for DNA Damage in Olfactory Bulbs.
-```{r, results_preliminary_dnadamage_OB}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for DNA Damage in OB"
 #| label: results_preliminary_dnadamage_OB
 #
@@ -1707,17 +1705,17 @@ sum_m_dnadamage_OB_prel <- m_prel_mean_dnadamage_OB %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_dnadamage_OB_prel)
-```
-
-Model formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates an effect of sex and age, so they were included in the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S14. Summary of the preliminary model for DNA Damage in Optic Tecta.
-```{r, results_preliminary_dnadamage_OT}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for DNA Damage in OT"
 #| label: results_preliminary_dnadamage_OT
 #
@@ -1727,17 +1725,17 @@ sum_m_dnadamage_OT_prel <- m_prel_mean_dnadamage_OT %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_dnadamage_OT_prel)
-```
-
-Model formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, so it was discarded from the final models. However, we saw an effect of sex and we included it in our final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S15. Summary of the preliminary model for Lipid Peroxidation in Olfactory Bulbs.
-```{r, results_preliminary_peroxidation_OB}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Lipid Peroxidation in OB"
 #| label: results_preliminary_peroxidation_OB
 #
@@ -1747,17 +1745,17 @@ sum_m_peroxidation_OB_prel <- m_prel_mean_peroxidation_OB %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_peroxidation_OB_prel)
-```
-
-Model formula: mean_peroxidation ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex, so it was discarded from the final models. However, we saw an effect of age and we included it in our final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S16. Summary of the preliminary model for Lipid Peroxidation in Optic Tecta.
-```{r, results_preliminary_peroxidation_OT}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Lipid Peroxidation in OT"
 #| label: results_preliminary_peroxidation_OT
 #
@@ -1767,17 +1765,17 @@ sum_m_peroxidation_OT_prel <- m_prel_mean_peroxidation_OT %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_peroxidation_OT_prel)
-```
-
-Model formula: mean_peroxidation ~ cort * temp + age_euthanasia + sex + (1|clutch).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex, so it was discarded from the final models. However, we saw an effect of age and we included it in our final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S17. Summary of the preliminary model for Detection Latency (t_D) of Chemical stimuli. 
-```{r, results_preliminary_t_D_Chemical}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Detection Latency (t_D) of Chemical stimuli"
 #| label: results_preliminary_t_D_Chemical
 # 
@@ -1787,17 +1785,17 @@ sum_m_t_D_prel_Chem <- m_prel_t_D_Chemical %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_t_D_prel_Chem)
-```
-
-Model formula: t_D~ motivation + cort:motivation + cort * temp + age_trial + sex + prey + (1|clutch) + (1|lizard_id).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, sex, familiarity with prey (prey), motivation, or the cort-motivation interaction, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-Table S18. Summary of the preliminary model for Detection Latency (t_D) of Visual stimuli.
-```{r, results_preliminary_t_D_Visual}
+#
+#
+#
+#
 #| tbl-cap: "Preliminary results of the models testing for Detection Latency (t_D) of Visual stimuli"
 #| label: results_preliminary_t_D_Visual
 #
@@ -1807,20 +1805,20 @@ sum_m_t_D_prel_Vis <- m_prel_t_D_Visual %>%
   mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
 #
 flextable(sum_m_t_D_prel_Vis)
-```
-
-Model formula: t_D~ motivation + cort:motivation + cort * temp + age_trial + sex + prey + (1|clutch) + (1|lizard_id).
-Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, sex, familiarity with prey (prey), motivation, or the cort-motivation interaction, so they were discarded from the final models.
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-
-
-#### Final models diagnostics (plots)
-
-```{r , plotmod_mitdensity_OB, out.width="70%", fig.align="center"}
+#
+#
+#
+#
+#
+#
+#
 #| label: plotmod_mitdensity_OB
 #| caption: "Posterior predictive checks for the model of Mitochondrial Density in Olfactory Bulbs."
 #
@@ -1834,16 +1832,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX3.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX3.png")
-```
-
-Fig S1. Posterior predictive checks for the model of Mitochondrial Density in Olfactory Bulbs.
-Formula: mean_mitodensity ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_mitdensity_OT, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_mitdensity_OT
 #| caption: "Posterior predictive checks for the model of Mitochondrial Density in Optic Tecta."
 #
@@ -1857,16 +1855,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX4.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX4.png")
-```
-
-Fig S2. Posterior predictive checks for the model of Mitochondrial Density in Optic Tecta.
-Formula: mean_mitodensity ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_potential_OB, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_potential_OB
 #| caption: "Posterior predictive checks for the model of Metabolic capacity in Olfactory Bulbs."
 #
@@ -1880,16 +1878,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX5.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX5.png")
-```
-
-Fig S3. Posterior predictive checks for the model of Metabolic capacity in Olfactory Bulbs.
-Formula: mean_potential ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_potential_OT, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_potential_OT
 #| caption: "Posterior predictive checks for the model of Metabolic capacity in Optic Tecta."
 #
@@ -1903,16 +1901,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX6.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX6.png")
-```
-
-Fig S4. Posterior predictive checks for the model of Metabolic capacity in Optic Tecta.
-Formula: mean_potential ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_ros_OB, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_ros_OB
 #| caption: "Posterior predictive checks for the model of ROS Production in Olfactory Bulbs."
 #
@@ -1926,16 +1924,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX7.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX7.png")
-```
-
-Fig S5. Posterior predictive checks for the model of ROS Production in Olfactory Bulbs.
-Formula: mean_ros ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_ros_OT, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_ros_OT
 #| caption: "Posterior predictive checks for the model of ROS Production in Optic Tecta."
 #
@@ -1949,16 +1947,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX8.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX8.png")
-```
-
-Fig S6. Posterior predictive checks for the model of ROS Production in Optic Tecta.
-Formula: mean_ros ~ cort * temp + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_dnadamage_OB, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_dnadamage_OB
 #| caption: "Posterior predictive checks for the model of DNA Damage in Olfactory Bulbs."
 #
@@ -1972,16 +1970,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX9.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX9.png")
-```
-
-Fig S7. Posterior predictive checks for the model of DNA Damage in Olfactory Bulbs.
-Formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_dnadamage_OT, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_dnadamage_OT
 #| caption: "Posterior predictive checks for the model of DNA Damage in Optic Tecta."
 #
@@ -1995,16 +1993,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX10.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX10.png")
-```
-
-Fig S8. Posterior predictive checks for the model of DNA Damage in Optic Tecta.
-Formula: mean_dnadamage ~ cort * temp + sex + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_peroxidation_OB, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_peroxidation_OB
 #| caption: "Posterior predictive checks for the model of Lipid Peroxidation in Olfactory Bulbs."
 #
@@ -2018,16 +2016,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX11.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX11.png")
-```
-
-Fig S9. Posterior predictive checks for the model of Lipid Peroxidation in Olfactory Bulbs.
-Formula: mean_peroxidation ~ cort * temp + age_euthanasia + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_peroxidation_OT, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_peroxidation_OT
 #| caption: "Posterior predictive checks for the model of Lipid Peroxidation in Optic Tecta."
 #
@@ -2041,16 +2039,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX12.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX12.png")
-```
-
-Fig S10. Posterior predictive checks for the model of Lipid Peroxidation in Optic Tecta.
-Formula: mean_peroxidation ~ cort * temp + age_euthanasia + (1|clutch)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_tD_Chemical, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_tD_Chemical
 #| caption: "Posterior predictive checks for the model of Detection Latency (t_D) in Chemical trials."
 #
@@ -2064,16 +2062,16 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX1.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX1.png")
-```
-
-Fig S11. Posterior predictive checks for the model of Detection Latency (t_D) in Chemical trials.
-Formula: t_D~ cort * temp + motivation + cort:motivation + (1|clutch) + (1|lizard_id)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-```{r , plotmod_tD_Visual, out.width="70%", fig.align="center"}
+#
+#
+#
 #| label: plotmod_tD_Visual
 #| caption: "Posterior predictive checks for the model of Detection Latency (t_D) in Visual trials."
 #
@@ -2087,24 +2085,15 @@ fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
 ggsave("./output/figures/suppl/Figure_SX2.png", plot = fig_mod,
        width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
 knitr::include_graphics("./output/figures/suppl/Figure_SX2.png")
-```
-
-Fig S12. Posterior predictive checks for the model of Detection Latency (t_D) in Visual trials.
-Formula: t_D~ cort * temp + (1|clutch) + (1|lizard_id)
-
-```{r, results='asis', echo=FALSE}
+#
+#
+#
+#
+#
+#
 cat("\\newpage")
-```
-
-#### Brain validation
-
-To ensure that neurons were not unintentionally lost during homogenization, we performed a small pilot study with four different lizards. We euthanized four random lizards and prpeared the homogenates from the same brain regions as in the experiment. The homogenates were then dyed with a specific neuronal marker as described in **REFERENCE LUCY FARROW and LEAL**. We employed flow cytometry and **fluorescent optical microscopy** to check for the presence of neurons in the homogenates.     
-
-Euthanasia and homogenization for each of brain region followed the procedures outlined above (see Methods: Flow cytometry). Before staining the samples, cells were also fixed and permeabilized as described previously (see Methods: Flow cytometry). Following permeabilization, the samples were centrifuged at 1000 RCF for 10 minutes and the resulting pellet was resuspended in 100 µL of a 1:100 NeuN + Alexa488 fluorescent conjugate solution to dye the neuronal nuclei (**REFERENCE LUCY FARROW and LEAL**). The samples were incubated at +4 ºC overnight. 
-
-The following day we centrifuged the samples at 1000 RCF for 10 minutes and resuspended the pellet in 100 µL of PBS. Samples were split in two: 50 µL from each was reserved for examination under a **MICROSCOPE**, while the remaining 50 µL from each sample was pooled into a single tube for flow cytometry analysis.  
-
-Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment = , 95% CI = [ , ], n = ; size neurons = ).
-
-
-
+#
+#
+#
+#
+#
