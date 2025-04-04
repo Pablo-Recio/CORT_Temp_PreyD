@@ -1104,6 +1104,8 @@ knitr::include_graphics("./output/figures/text/SEM_OT.png")
 #
 #
 #
+#
+#
 cat("\\newpage")
 #
 #
@@ -2092,6 +2094,53 @@ knitr::include_graphics("./output/figures/suppl/Figure_SX2.png")
 #
 #
 cat("\\newpage")
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#| label: fig-S13
+#| fig-cap: "Fluorescence microscopy image of neuron nuclei stained with NeuN-Alexa 488. The image was excited using a 488 nm wavelength, and green fluorescence corresponds to NeuN-positive cells. In panel A, NeuN-positive cells for the homogenate of the Olfactory Bulb (OB). In panel B, NeuN-positive cells for the homogenate of the Optic Tecta (OT)."
+#
+#
+imgOB <- image_read(here("output/figures/microscope/OB_neurons_black.jpg"))  %>%
+  image_resize("600x400!")
+plot_OB <- rasterGrob(imgOB, interpolate = TRUE)
+#
+imgOT <- image_read(here("output/figures/microscope/OT_neurons_black.jpg")) %>%
+  image_resize("600x400!")
+plot_OT <- rasterGrob(imgOT, interpolate = TRUE)
+#
+plot_neun <- plot_grid(plot_OB, plot_OT, nrow = 1)
+#
+fig_neun <- ggdraw(plot_neun) +
+  annotate("text", x = 0.05, y = 0.92, label = "A", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") +
+  annotate("text", x = 0.55, y = 0.92, label = "B", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") 
+ggsave(here("./output/figures/suppl/Figure_SX13.png"), plot = fig_neun, width = 15, height = 5, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_SX13.png")
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+cat("\\newpage")
+#
+#
 #
 #
 #

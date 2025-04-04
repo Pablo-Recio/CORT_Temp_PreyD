@@ -2098,13 +2098,48 @@ cat("\\newpage")
 
 #### Brain validation
 
-To ensure that neurons were not unintentionally lost during homogenization, we performed a small pilot study with four different lizards. We euthanized four random lizards and prpeared the homogenates from the same brain regions as in the experiment. The homogenates were then dyed with a specific neuronal marker as described in **REFERENCE LUCY FARROW and LEAL**. We employed flow cytometry and **fluorescent optical microscopy** to check for the presence of neurons in the homogenates.     
+To ensure that neurons were not unintentionally lost during homogenization, we performed a small pilot study with four different lizards. We euthanized four random lizards and prpeared the homogenates from the same brain regions as in the experiment. The homogenates were then dyed with a specific neuronal marker as described in Farrow et al. (2021) and Storks et al. (2023). We employed flow cytometry and **fluorescent optical microscopy** to check for the presence of neurons in the homogenates.     
 
-Euthanasia and homogenization for each of brain region followed the procedures outlined above (see Methods: Flow cytometry). Before staining the samples, cells were also fixed and permeabilized as described previously (see Methods: Flow cytometry). Following permeabilization, the samples were centrifuged at 1000 RCF for 10 minutes and the resulting pellet was resuspended in 100 µL of a 1:100 NeuN + Alexa488 fluorescent conjugate solution to dye the neuronal nuclei (**REFERENCE LUCY FARROW and LEAL**). The samples were incubated at +4 ºC overnight. 
+Euthanasia and homogenization for each of brain region followed the procedures outlined above (see Methods: Flow cytometry). Before staining the samples, cells were also fixed and permeabilized as described previously (see Methods: Flow cytometry). Following permeabilization, the samples were centrifuged at 1000 RCF for 10 minutes and the resulting pellet was resuspended in 100 µL of a 1:100 NeuN + Alexa488 fluorescent conjugate solution to dye the neuronal nuclei (Farrow et al. 2021; Storks et al. 2023). The samples were incubated at +4 ºC overnight. 
 
 The following day we centrifuged the samples at 1000 RCF for 10 minutes and resuspended the pellet in 100 µL of PBS. Samples were split in two: 50 µL from each was reserved for examination under a **MICROSCOPE**, while the remaining 50 µL from each sample was pooled into a single tube for flow cytometry analysis.  
 
-Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment = , 95% CI = [ , ], n = ; size neurons = ).
+Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment = `r format_dec(mean(mit_df$size), 3)`, 95% CI = [`r format_dec(quantile(mit_df$size, 0.025), 3)`, `r format_dec(quantile(mit_df$size, 0.975), 3)`], n = 80; size neurons = ).
+
+```{r, fig-S13}
+#| label: fig-S13
+#| fig-cap: "Fluorescence microscopy image of neuron nuclei stained with NeuN-Alexa 488. The image was excited using a 488 nm wavelength, and green fluorescence corresponds to NeuN-positive cells. In panel A, NeuN-positive cells for the homogenate of the Olfactory Bulb (OB). In panel B, NeuN-positive cells for the homogenate of the Optic Tecta (OT)."
+#
+#
+imgOB <- image_read(here("output/figures/microscope/OB_neurons_black.jpg"))  %>%
+  image_resize("600x400!")
+plot_OB <- rasterGrob(imgOB, interpolate = TRUE)
+#
+imgOT <- image_read(here("output/figures/microscope/OT_neurons_black.jpg")) %>%
+  image_resize("600x400!")
+plot_OT <- rasterGrob(imgOT, interpolate = TRUE)
+#
+plot_neun <- plot_grid(plot_OB, plot_OT, nrow = 1)
+#
+fig_neun <- ggdraw(plot_neun) +
+  annotate("text", x = 0.05, y = 0.92, label = "A", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") +
+  annotate("text", x = 0.55, y = 0.92, label = "B", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") 
+ggsave(here("./output/figures/suppl/Figure_SX13.png"), plot = fig_neun, width = 15, height = 5, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_SX13.png")
+```
+
+Figure S13. Fluorescence microscopy image of neuron nuclei stained with NeuN-Alexa 488. The image was excited using a 488 nm wavelength, and green fluorescence corresponds to NeuN-positive cells.
+
+
+**REFERENCES**
+
+Farrow LF, Andronicos NM, McDonald PG, Hamlin AS. 2021. Quantitative determination of neuronal size and density using flow cytometry. _Journal of Neuroscience Methods_, **352**, 109081.
+
+Storks L, Powell BJ, Leal M. 2023. Peeking inside the lizard brain: neuron numbers in Anolis and its implications for cognitive performance and vertebrate brain evolution. _Integrative and Comparative Biology_, **63(1)**, 223-237.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
 
 
 
