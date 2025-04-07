@@ -2105,6 +2105,33 @@ cat("\\newpage")
 #
 #
 #
+#| label: neurons_size
+# Getting the size of the neurons from the validated data
+# Olfactory Bulbs
+# A) Experiment cells
+cells_exp_OB <- mit_df %>% filter(region == "OB")
+mean_cells_size_OB <- format_dec(mean(cells_exp_OB$mean_size), 3)
+min_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.025), 3)
+max_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OB <- read.csv(here("./data/size_neurons_OB.csv")) %>%
+  filter(X == "Olfactory Bulb_Tube_001_001.fcs")
+neurons_size_OB <- log(neurons_OB$neurons...Geometric.Mean..FSC.A.)
+##
+##
+# Optic Tecta
+# A) Experiment cells
+cells_exp_OT <- mit_df %>% filter(region == "OT")
+mean_cells_size_OT <- format_dec(mean(cells_exp_OT$mean_size), 3)
+min_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.025), 3)
+max_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OT <- read.csv(here("./data/size_neurons_OT.csv")) %>%
+  filter(X == "Optical Tecta_Tube_002_002.fcs")
+neurons_size_OT <- log(neurons_OT$neurons...Geometric.Mean..FSC.A.)
+#
+#
+#
 #
 #
 #| label: fig-S13

@@ -2104,7 +2104,34 @@ Euthanasia and homogenization for each of brain region followed the procedures o
 
 The following day we centrifuged the samples at 1000 RCF for 10 minutes and resuspended the pellet in 100 µL of PBS. Samples were split in two: 50 µL from each was reserved for examination under a **MICROSCOPE**, while the remaining 50 µL from each sample was pooled into a single tube for flow cytometry analysis.  
 
-Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment = `r format_dec(mean(mit_df$size), 3)`, 95% CI = [`r format_dec(quantile(mit_df$size, 0.025), 3)`, `r format_dec(quantile(mit_df$size, 0.975), 3)`], n = 80; size neurons = ).
+```{r, neurons_size}
+#| label: neurons_size
+# Getting the size of the neurons from the validated data
+# Olfactory Bulbs
+# A) Experiment cells
+cells_exp_OB <- mit_df %>% filter(region == "OB")
+mean_cells_size_OB <- format_dec(mean(cells_exp_OB$mean_size), 3)
+min_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.025), 3)
+max_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OB <- read.csv(here("./data/size_neurons_OB.csv")) %>%
+  filter(X == "Olfactory Bulb_Tube_001_001.fcs")
+neurons_size_OB <- log(neurons_OB$neurons...Geometric.Mean..FSC.A.)
+##
+##
+# Optic Tecta
+# A) Experiment cells
+cells_exp_OT <- mit_df %>% filter(region == "OT")
+mean_cells_size_OT <- format_dec(mean(cells_exp_OT$mean_size), 3)
+min_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.025), 3)
+max_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OT <- read.csv(here("./data/size_neurons_OT.csv")) %>%
+  filter(X == "Optical Tecta_Tube_002_002.fcs")
+neurons_size_OT <- log(neurons_OT$cells.neurons...Geometric.Mean..FSC.A.)
+```
+
+Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment for OB = `r format_dec(mean(mit_df$mean_size), 3)`, 95% CI = [`r format_dec(quantile(mit_df$mean_size, 0.025), 3)`, `r format_dec(quantile(mit_df$mean_size, 0.975), 3)`], n = 80; size neurons = ).
 
 ```{r, fig-S13}
 #| label: fig-S13
