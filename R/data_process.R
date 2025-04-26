@@ -76,7 +76,7 @@ df_merged <- merge(data_discr, mit_df, by = c("stimulus", "Id_flow"))
 #
 log_var <- c("t_D", "mean_mitodensity", "mean_dnadamage", "mean_peroxidation")
 df_merged_log <- df_merged %>%
-  mutate(across(all_of(log_var), ~ log(. + 1)))
+  mutate(across(all_of(log_var), ~ log10(. + 1)))
 #
 # Convert age variables to numeric and standardize all numerical variables
 clean_df <- df_merged_log %>%
