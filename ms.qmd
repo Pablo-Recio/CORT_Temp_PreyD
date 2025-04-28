@@ -2160,8 +2160,8 @@ for (p in var_m_controlled){
 } 
 ```
 
-```{r, organise_posteriors}
-#| label: organise_posteriors
+```{r, organise_posteriors_controlled}
+#| label: organise_posteriors_controlled
 #
 # Organising the posteriors of the previous models to fit the tables below
 #
@@ -2194,8 +2194,8 @@ for (r in region) {
 }
 ```
 
-```{r, values_posteriors}
-#| label: values_posteriors
+```{r, values_posteriors_controlled}
+#| label: values_posteriors_controlled
 #
 # Extracting the posteriors for the models and the values of interest. Here, I am creating dfs for each of the variables with the values for all the prenatal conditions to make contrasts easier to write.
 #
@@ -2217,8 +2217,8 @@ LP_OT_con <- post_values(m_controlled_mean_peroxidation_OT, "none")
 
 
 Table SXX. Estimate of the contrasts between treatments for all the variables analysed, and pMCMC values testing the hypothesis that contrast is different from 0. In bold, the values that are significant at pMCMC < 0.05.
-```{r tbl-contrasts}
-#| label: tbl-contrasts
+```{r tbl-contrasts_controlled}
+#| label: tbl-contrasts_controlled
 #| tbl-cap: "Contrasts between prenatal conditions for mitochondrial physiology and learning."
 #
 source(here("R", "func.R"))
@@ -2413,7 +2413,7 @@ plot_OB_con <- ggdraw(fig_OB_con +
   draw_grob(legend_plot_con, x = 0.45, y = 0.05, width = 0.0001, height = 0.0001))
 # Print final plot
 ggsave(here("./output/figures/suppl/new_models/plot_OB_con.png"), plot = plot_OB_con, width = 21, height = 14, units = "cm", dpi = 600, bg = "white")
-knitr::include_graphics("./output/figures/text/plot_OB_con.png")
+knitr::include_graphics("./output/figures/suppl/new_models/plot_OB_con.png")
 ```
 
 
@@ -2519,7 +2519,7 @@ plot_OT_con <- ggdraw(fig_OT_con +
   draw_grob(legend_plot_con, x = 0.45, y = 0.05, width = 0.0001, height = 0.0001))
 # Print final plot
 ggsave(here("./output/figures/suppl/new_models/plot_OT_con.png"), plot = plot_OT_con, width = 21, height = 14, units = "cm", dpi = 600, bg = "white")
-knitr::include_graphics("./output/figures/text/plot_OT_con.png")
+knitr::include_graphics("./output/figures/suppl/new_models/plot_OT_con.png")
 ```
 
 
