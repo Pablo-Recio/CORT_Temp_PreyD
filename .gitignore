@@ -8,10 +8,9 @@
 
 # User-specific files
 .Ruserdata
-*.r
 
 # VSCode files
-*.vcod
+.vdoc.*.r
 
 # Example code in package build process
 *-Ex.R
