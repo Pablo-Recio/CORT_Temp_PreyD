@@ -8,6 +8,7 @@
 
 # User-specific files
 .Ruserdata
+*.r
 
 # VSCode files
 *.vcod
