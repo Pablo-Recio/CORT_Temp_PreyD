@@ -1,16 +1,17 @@
 ---
 title: "The effect of prenatal environment on brain metabolic function and perception in a lizard"
 docx: 
-reference-doc: "./bib/tmpl.docx"
 csl: "./bib/proceedings-of-the-royal-society-b.csl"
 bibliography: "./bib/refs.bib"
+reference-doc: "./bib/tmpl.docx"
 execute:
   echo: false
   error: false
   cache: false
   warning: false
+link-citations: true
 crossref:  
-  fig-title: Figure    # (default is "Figure")
+  fig-title: Fig    # (default is "Figure")
   title-delim: —     # (default is ":")
   fig-prefix: Fig.   # (default is "Figure")
   tbl-prefix: Tab.   # (default is "Table")
