@@ -59,3 +59,5 @@ checking/
 mit_damage_original/
 mit_data/
 models_controlled/
+output/.DS_Store
+.DS_Store
