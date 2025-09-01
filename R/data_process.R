@@ -78,9 +78,11 @@ log_var <- c("t_D", "mean_mitodensity", "mean_dnadamage", "mean_peroxidation")
 df_merged_log <- df_merged %>%
   mutate(across(all_of(log_var), ~ log10(. + 1)))
 #
-# Convert age variables to numeric and standardize all numerical variables
+# Convert age variables to numeric, control mit potential and ROS by mitocondrial, and standardize all numerical variables
 clean_df <- df_merged_log %>%
   mutate(across(c(age_trial, age_euthanasia), as.numeric)) %>%
+  mutate(mean_conpotential = as.numeric(mean_potential / mean_mitodensity),
+         mean_conros = as.numeric(mean_ros / mean_mitodensity)) %>%
   mutate(across(where(~ is.double(.) & !is.integer(.)),
                 ~ (. - mean(., na.rm = TRUE)) / (2 * sd(., na.rm = TRUE))))
 
