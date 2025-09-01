@@ -156,7 +156,7 @@ Our final sample size for mitochondrial assays was 80 lizards from a total of `r
 #
 # Run models mitochondrial physiology (each region separately)
 #
-var_m <- c("mean_mitodensity", "mean_potential", "mean_ros", "mean_dnadamage", "mean_peroxidation")
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
 regions <- c("OB", "OT")
 for (p in var_m){
   for (h in regions){
@@ -221,6 +221,8 @@ for (s in stimuli){
 }
 ```
 
+
+**____________________FROM HERE____________________**
 ```{r, organise_posteriors}
 #| label: organise_posteriors
 #
@@ -1527,7 +1529,7 @@ source(here("R", "func.R"))
 #
 # Run models mitochondrial physiology (each region separately)
 #
-var_m <- c("mean_mitodensity", "mean_potential", "mean_ros", "mean_dnadamage", "mean_peroxidation")
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
 regions <- c("OB", "OT")
 formula_list_ <- list()
 for (p in var_m){
