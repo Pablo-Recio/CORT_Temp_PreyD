@@ -11,7 +11,7 @@ data_expl <- df_merged %>%
        mutate(treatment = paste(cort, temp, sep = "-"))
 #
 # A) Make histograms for the main variables and figures factorizing main predictors
-var <- c("t_D", "mean_mitodensity", "mean_potential", "mean_ros", "mean_dnadamage", "mean_peroxidation")
+var <- c("t_D", "mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
 
 hist_list <- list()
 for (i in var) {
@@ -29,6 +29,10 @@ for (i in var) {
      lab <- "DNA damage"
   } else if (i == "mean_peroxidation") {
      lab <- "Lipid peroxidation"
+  } else if (i == "mean_conpotential") {
+    lab <- "Mit potential/Mit density"
+  } else if (i == "mean_conros"){
+    lab <- "ROS/Mit density"
   }
   # Histograms
   hist_plot <- ggplot(data_expl, aes(x = .data[[i]])) +
@@ -74,17 +78,23 @@ for (i in var) {
             axis.text = element_text(size = 10, family = "Times"))
     fig_expl_t_D <- plot_grid(plot_age, plot_sex, plot_prey, nrow = 1, rel_widths = c(0.34, 0.33, 0.33))
   } else {
-    if (i == "mean_mitodensity") {
+  if (i == "t_D"){
+     lab <- "Detection latency (s)"
+  } else if (i == "mean_mitodensity") {
      lab <- "Mitochondrial density"
-    } else if (i == "mean_potential") {
+  } else if (i == "mean_potential") {
      lab <- "Mitochondrial potential"
-    } else if (i == "mean_ros") {
+  } else if (i == "mean_ros") {
      lab <- "ROS production"
-    } else if (i == "mean_dnadamage") {
+  } else if (i == "mean_dnadamage") {
      lab <- "DNA damage"
-    } else if (i == "mean_peroxidation") {
+  } else if (i == "mean_peroxidation") {
      lab <- "Lipid peroxidation"
-    }
+  } else if (i == "mean_conpotential") {
+    lab <- "Mit potential/Mit density"
+  } else if (i == "mean_conros"){
+    lab <- "ROS/Mit density"
+  }
     plot_age <- ggplot(data_expl, aes(x = age_trial, y = .data[[i]], color = treatment)) +
       geom_point(alpha = 0.8) +
       scale_color_manual(values = c("CORT-Cold"="#00008B", "Control-Cold"="#68bde1", 
@@ -114,7 +124,9 @@ ggsave(here("./output/figures/exploratory/fig_hist.png"), fig_hist, width = 20, 
 ggsave(here("./output/figures/exploratory/fig_expl_t_D.png"), fig_expl_t_D, width = 20, height = 10, dpi = 300)
 ggsave(here("./output/figures/exploratory/fig_expl_mean_mitodensity.png"), fig_expl_mean_mitodensity, width = 20, height = 10, dpi = 300)
 ggsave(here("./output/figures/exploratory/fig_expl_mean_potential.png"), fig_expl_mean_potential, width = 20, height = 10, dpi = 300)
+ggsave(here("./output/figures/exploratory/fig_expl_mean_conpotential.png"), fig_expl_mean_conpotential, width = 20, height = 10, dpi = 300)
 ggsave(here("./output/figures/exploratory/fig_expl_mean_ros.png"), fig_expl_mean_ros, width = 20, height = 10, dpi = 300)
+ggsave(here("./output/figures/exploratory/fig_expl_mean_conros.png"), fig_expl_mean_conros, width = 20, height = 10, dpi = 300)
 ggsave(here("./output/figures/exploratory/fig_expl_mean_dnadamage.png"), fig_expl_mean_dnadamage, width = 20, height = 10, dpi = 300)
 ggsave(here("./output/figures/exploratory/fig_expl_mean_peroxidation.png"), fig_expl_mean_peroxidation, width = 20, height = 10, dpi = 300)
 #
@@ -136,7 +148,12 @@ qq_plots_list <- lapply(var, function(v) {
     "DNA damage"
   } else if (v == "mean_peroxidation") {
     "Lipid peroxidation"
-  } else {
+  } else if (i == "mean_conpotential") {
+    "Mit potential/Mit density"
+  } else if (i == "mean_conros"){
+    "ROS/Mit density"
+  }
+  else {
     v  # Fallback to variable name if not found
   }
   qq_plots_single(data_expl, v, label)
@@ -146,4 +163,4 @@ final_qq_plot <- plot_grid(plotlist = qq_plots_list, ncol = 1)
 ggsave(here("./output/figures/exploratory/fig_qqplots.png"), final_qq_plot, width = 20, height = 20, dpi = 300)
 #
 # Log-Normal: Latency, Mitochondrial Density, DNA Damage, Lipid Peroxidation
-# Normal: Mitochondrial Potential, ROS Production
+# Normal: Mitochondrial Potential, Mit potential/Mit density, ROS Production, ROS/Mit density
