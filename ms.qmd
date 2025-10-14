@@ -1097,7 +1097,7 @@ Prenatal CORT exposure and incubation temperature produced region-specific effec
 Both the breeding animals and the experimental lizards were provided humane laboratory housing, with thermoregulatory opportunities, light (UV and heat) and moderate levels of humidity. Euthanasia was performed by intraperitoneal injection of a 10 mg/kg of a 10 mg/mL alfaxan solution (a potent anesthetic) followed by decapitation. We monitored the animals to ensure there was no irritation from the agent as indicated by distressed animals. Before disposing of the lizard, we confirmed the absence of righting response and pinching reflex in one of the front limbs. All the protocols complied with Australian law and were approved by the Australian National University Animal Experimentation Ethics Committee (A2022/33).
 
 ### Data accessibility  
-All data, data description, and R code are available in public repository [https://github.com/Pablo-Recio/CORT-Temp_PreyD](https://github.com/Pablo-Recio/CORT_Temp_PreyD).  
+All data, data description, and R code are available in public repository [https://github.com/Pablo-Recio/CORT_Temp_PreyD](https://github.com/Pablo-Recio/CORT_Temp_PreyD).  
 
 ### Declaration of AI use
 We declare Chat GPT was used for inspecting the code for errors when necessary. All other parts of the manuscript were written by the authors.     
