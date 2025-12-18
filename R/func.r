@@ -171,8 +171,8 @@ tidy_post <- function(df) {
 #' @param df to select the databse
 refine_post <- function(df) {
   variable_order <- c("Mit density",
-                     "Mit potential",
-                     "Mit potential/Mit density",
+                     "Metabolic capacity",
+                     "Metabolic capacity/Mit density",
                      "ROS",
                      "ROS/Mit density",
                      "DNA damage",
@@ -190,16 +190,16 @@ refine_post <- function(df) {
     mutate(
       Model = case_when(
         Model == "m_def_mean_mitodensity_OB" ~ "Mit density",
-        Model == "m_def_mean_potential_OB" ~ "Mit potential",
-        Model == "m_def_mean_conpotential_OB" ~ "Mit potential/Mit density",
+        Model == "m_def_mean_potential_OB" ~ "Metabolic capacity",
+        Model == "m_def_mean_conpotential_OB" ~ "Metabolic capacity/Mit density",
         Model == "m_def_mean_ros_OB" ~ "ROS",
         Model == "m_def_mean_conros_OB" ~ "ROS/Mit density",
         Model == "m_def_mean_dnadamage_OB" ~ "DNA damage",
         Model == "m_def_mean_peroxidation_OB" ~ "Peroxidation",
         Model == "m_def_t_D_Chemical" ~ "Detection lat",
         Model == "m_def_mean_mitodensity_OT" ~ "Mit density",
-        Model == "m_def_mean_potential_OT" ~ "Mit potential",
-        Model == "m_def_mean_conpotential_OT" ~ "Mit potential/Mit density",
+        Model == "m_def_mean_potential_OT" ~ "Metabolic capacity",
+        Model == "m_def_mean_conpotential_OT" ~ "Metabolic capacity/Mit density",
         Model == "m_def_mean_ros_OT" ~ "ROS",
         Model == "m_def_mean_conros_OT" ~ "ROS/Mit density",
         Model == "m_def_mean_dnadamage_OT" ~ "DNA damage",
