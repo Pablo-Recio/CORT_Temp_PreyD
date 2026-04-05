@@ -1,5 +1,5 @@
 ---
-title: "The effect of prenatal environment on brain metabolic function and prey detection in a lizard"
+title: "The effect of prenatal environment on brain mitochondrial function and prey detection in a lizard"
 docx: 
 csl: "./bib/functional-ecology.csl"
 bibliography: "./bib/refs.bib"
