@@ -25,7 +25,7 @@ The 📄 ms.qmd file makes use of files within a number of folders that are iden
         📄 refs.bib the references;  
         📄 proceedings-of-the-royal-society-b.csl the journal formatting style file;  
         📄 template.docx a template docx file to format the resulting rendered files.  
-  📂 PROCB This folder contains all the material submitted to the journal, plus all the material from the reviews.  
+  📂 FUNCECOL This folder contains all the material submitted to the journal, plus all the material from the reviews.  
 
 #### Reporting Issues or Asking Questions
 If anything is unclear or you require further detail please do not hesitate to lodge an issue.
