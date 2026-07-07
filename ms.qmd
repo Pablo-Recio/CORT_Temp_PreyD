@@ -103,8 +103,8 @@ Here, we investigated the effects of prenatal temperature and corticosterone (CO
 
 To test the interactive effects of CORT and incubation temperature, we manipulated CORT concentrations in eggs and incubated them under one of two temperature regimes (see @fig-Methods A). We used a partial split clutch design where eggs from a given clutch were distributed equally across the four treatments when clutch sizes were larger than four and randomly across treatments when less than four. Eggs were topically treated with either: a) 5 µL of CORT solution or b) 5 µL  of 100% ethanol (Control treatment). The CORT solution was made by dissolving crystalline corticosterone (Sigma, Cat. No. C2505) in 100% ethanol. The concentration of the CORT treatment (10 pg/mg, CORT relative to average egg mass) was based on a previous study where CORT treatment increased mean yolk CORT levels by approximately 2 standard deviations above the mean natural concentration [@crino2024eggs]. In this study, however, some control eggs had overlapping yolk CORT levels than those of CORT-treated eggs, indicating that the concentrations achieved by our treatment fall within levels that can occur without experimental manipulation. Eggs were then incubated at either cold  (23 ± 3 ºC) or hot (28 ± 3 ºC) (see @fig-Methods). These temperatures are within the natural limits in _L. delicata_ [@cheetham2011embryonic].  
 
-#### Prey discrimination tests
-Two weeks before we started the tests (see below), lizards were moved to the experimental arena (see Fig. 1) for acclimatisation. The arenas were individual plastic containers (41 L x 29.7 W x 22 H cm) with a shelter (9 L x 6 W x 1.5 H cm) on one of the extremes and a water dish in the middle of the arena. Arenas were placed in two rooms on six racks, each with its own CCTV system (device model DVR-HP210475) to record behavioural trials (see details below). The number of lizards per treatment in each rack was counterbalanced to control for any effect of the room or the position of the lizard on the rack. During acclimatisation, lizards were fed with only one cricket per day dusted with calcium and multivitamin, and water was supplied _ad libitum_. We provided a temperature gradient by means of a heat cord and heat lamps in a 12 h light: 12 h dark cycle. The room temperature was set to between 22-24 Celsius. Two months after the tests, animals were euthanised and metabolic function was analysed in various brain regions (see _Brain mitochondrial function_ below).
+#### Prey detection tests
+Approximately 225 days after hatching (age per treatment on Table S2 in _Supplementary Material_) lizards were subjected to the prey detection tests. Two weeks before we started the tests (see below), lizards were moved to the experimental arena (see Fig. 1) for acclimatisation. The arenas were individual plastic containers (41 L x 29.7 W x 22 H cm) with a shelter (9 L x 6 W x 1.5 H cm) on one of the extremes and a water dish in the middle of the arena. Arenas were placed in two rooms on six racks, each with its own CCTV system (device model DVR-HP210475) to record behavioural trials (see details below). The number of lizards per treatment in each rack was counterbalanced to control for any effect of the room or the position of the lizard on the rack. During acclimatisation, lizards were fed with only one cricket per day dusted with calcium and multivitamin, and water was supplied _ad libitum_. We provided a temperature gradient by means of a heat cord and heat lamps in a 12 h light: 12 h dark cycle. The room temperature was set to between 22-24 Celsius. Two months after the tests, animals were euthanised and metabolic function was analysed in various brain regions (see _Brain mitochondrial function_ below).
 
 To measure prey detection, we presented lizards with chemical and visual stimuli from familiar and unfamiliar prey, then recording and analysing their behaviour towards each stimulus (@fig-Methods C). We used living crickets (_A. domestica_) as the familiar prey and living mealworm larvae (_Tenebrio molitor_) as the unfamiliar prey. We tested the effects of familiarity with the prey items because previous experience may influence stimuli perception through habituation or sensitisation [@burger_effects_1990; @burger_effects_1991; @desfilis2003stimulus].  
 
@@ -1142,6 +1142,45 @@ cat("\\newpage")
 cat("\\newpage")
 ```
 
+#### Raw data
+
+Table S1. Raw data of the mitochondrial function and prey discrimination test for each treatment group and brain region. The data includes the mean and 95% confidence intervals (t-distribution).
+
+
+Table S2. Age at testing and age at euthanasia for each treatment group. The data includes the mean and 95% confidence intervals(t-distribution).
+
+```{r, table_age}
+#| label: table_age
+#| tbl-cap: "Age at testing and age at euthanasia for each treatment group."
+#
+age_data <- data_discr %>% 
+  group_by(temp,cort) %>% 
+  summarize(mean_age_test = mean(age_trial, na.rm = TRUE),
+            CI_age_test = paste0("[", format_dec(mean_age_test - 2.093 * sd(age_trial, na.rm = TRUE) / sqrt(sum(!is.na(age_trial))), 2), ", ", format_dec(mean_age_test + 2.093 * sd(age_trial, na.rm = TRUE) / sqrt(sum(!is.na(age_trial))), 2), "]"),
+            mean_age_euth = mean(age_euthanasia, na.rm = TRUE),
+            CI_age_euth = paste0("[", format_dec(mean_age_euth - 2.093 * sd(age_euthanasia, na.rm = TRUE) / sqrt(sum(!is.na(age_euthanasia))), 2), ", ", format_dec(mean_age_euth + 2.093 * sd(age_euthanasia, na.rm = TRUE) / sqrt(sum(!is.na(age_euthanasia))), 2), "]"),
+            .groups = "drop") %>%
+data.frame()
+#
+# Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+age_table <- flextable(age_data) %>%
+  set_header_labels(
+    temp = "Incubation temperature",
+    cort = "Prenatal CORT treatment",
+    mean_age_test = "Mean age at testing (days)",
+    CI_age_test = "95% CI age at testing (days)",
+    mean_age_euth = "Mean age at euthanasia (days)",
+    CI_age_euth = "95% CI age at euthanasia (days)") %>%
+  align(align = "center", j = c(3:6), part = "body") %>%
+  align(align = "center", j = c(1:6), part = "header") %>%
+  autofit()
+#
+age_table
+```
 
 #### Results of the final models
 
