@@ -86,9 +86,9 @@ Cognition encompasses the ways in which animals acquire, process, and store info
 
 Early-life conditions can influence cognitive abilities through various mechanisms including alterations in gene expression [@zhou2020effects], effects on neurotransmitter production and neuroendocrine pathways [@amani2021perinatal], and impacts on brain structure [@amiel_effects_2017]. One of the most fundamental mechanisms through which early-life conditions can influence cognition is by affecting brain mitochondrial function [@siegel1994basic; @du_dynamic_2009; @picard_mitochondria_2014; @picard_energetic_2018]. Cognitive processes are energetically demanding, relying heavily on mitochondrial respiration [@mcnay_decreases_2000; @mann_coupling_2021; @alexandrov_neuronal_2022]. However, mitochondrial respiration inherently generates reactive oxygen species (ROS) as a byproduct, and when ROS production exceeds antioxidant capacity this results in oxidative stress and oxidative damage [@finkel_oxidants_2000; @zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011; @hoffmann_mitochondrion_2018]. Excessive oxidative damage increases cell death and senescence, reducing the number of functional neurons [@zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011] and consequently impairing cognitive abilities [@lefebvre_taxonomic_2011; @amiel_effects_2017]. Impacts on mitochondrial function during early development may therefore have significant consequences for cognitive abilities such as prey detection.    
 
-Mitochondria are highly responsive to the environment, and early-life conditions can have short-term and long-lasting consequences on mitochondrial function [reviewed in @gyllenhammer2020developmental]. Stress-related hormones and temperature are particularly relevant for mitochondrial function due to their strong effects on metabolic processes [@sapolsky_how_2000; @stier2022experimental; @crino2024eggs]. Vertebrates respond to stressful situations through the activation of physiological processes including the production of glucocorticoid (GC) hormones, which are important metabolic regulators [@sapolsky_how_2000] that can be transmitted from females to their offspring [@hayward2004maternal; @almasi2012maternal]. Independent of any stress response, temperature directly regulates metabolic rate and mitochondrial function in ectotherms [@noble_developmental_2018; @stier2022experimental; @crino2024eggs]. For instance, maternal stress and GC manipulation in eggs have been shown to increase oxidative stress and oxidative damage in offspring [@zhu_prenatal_2004; @song2009prenatal; @haussmann_embryonic_2012], while incubation temperature shapes mitochondrial efficiency and oxidative damage in ectotherms [@treidel2016temperature; @stier2022experimental; @crino2024eggs]. Yet, the interactive effects of prenatal GCs and temperature on mitochondrial function remain poorly understood. Evidence in lizards suggests that there are no interactive effects of prenatal GCs and temperature on mitochondrial respiration in the liver [@crino2024eggs], and that mitochondrial physiology in the medial cortex is robust to both factors [@recio2025prenatal]. However, research in other species shows that the effects of prenatal GCs and temperature on brain development are region-dependent, with some brain areas being robust to these factors while others not [@coomber_independent_1997; @sakata_neural_2000; @zhu_prenatal_2004]. Given this region-specificity, it is possible that prenatal GCs and temperature could also combine differently depending on brain region, even when no interaction is evident in other tissues or brain regions. We therefore need further empirical evidence across brain regions and cognitive domains to understand how prenatal GCs and thermal environment shape physiology and cognition.    
+Mitochondria are highly responsive to the environment, and early-life conditions can have short-term and long-lasting consequences on mitochondrial function [reviewed in @gyllenhammer2020developmental]. Stress-related hormones and temperature are particularly relevant for mitochondrial function due to their strong effects on metabolic processes [@sapolsky_how_2000; @stier2022experimental; @crino2024eggs]. Vertebrates respond to stressful or challenging situations through the activation of physiological processes including the production of glucocorticoid (GC) hormones [@sapolsky_how_2000]. Glucocorticoids increase energy availability through multiple pathways, including direct action on mitochondria [@picard_mitochondria_2014]. Glucocorticoids can be transmitted from females to their offspring and exposure to elevated levels of maternal GCs during development can have long term effects on multiple traits [@almasi2012maternal; @hayward2004maternal]. Independent of GC effects, temperature directly regulates metabolic rate and mitochondrial function in ectotherms [@noble_developmental_2018; @stier2022experimental; @crino2024eggs]. For instance, maternal stress and GC manipulation in eggs have been shown to increase oxidative stress and oxidative damage in offspring [@zhu_prenatal_2004; @song2009prenatal; @haussmann_embryonic_2012], while incubation temperature shapes mitochondrial efficiency and oxidative damage in ectotherms [@treidel2016temperature; @stier2022experimental; @crino2024eggs]. Yet, the interactive effects of prenatal GCs and temperature on mitochondrial function remain poorly understood. Evidence in lizards suggests that there are no interactive effects of prenatal GCs and temperature on mitochondrial respiration in the liver [@crino2024eggs], and that mitochondrial physiology in the medial cortex is robust to both factors [@recio2025prenatal]. However, research in other species shows that the effects of prenatal GCs and temperature on brain development are region-dependent, with some brain areas being robust to these factors while others not [@coomber_independent_1997; @sakata_neural_2000; @zhu_prenatal_2004]. Given this region-specificity, it is possible that prenatal GCs and temperature could also combine differently depending on brain region, even when no interaction is evident in other tissues or brain regions. We therefore need further empirical evidence across brain regions and cognitive domains to understand how prenatal GCs and thermal environment shape physiology and cognition.    
      
-Here, we investigated the effects of prenatal temperature and corticosterone (CORT)---the main GC in reptiles---on mitochondrial function and prey detection in an Australian lizard, the delicate skink (_Lampropholis delicata_). We manipulated egg CORT levels and incubation temperature in a fully factorial design, measured prey detection ability and then assessed mitochondrial function in brain regions related to the processing of chemical and visual cues. Specifically, we analysed mitochondrial density and metabolic capacity as a proxy for understanding the energetic efficiency of the cell, and reactive oxygen species (ROS) as a proxy for oxidative stress. In addition, we also analysed DNA damage and lipid peroxidation, which are typical damage caused by oxidative stress (hereafter also oxidative damage). Previous work on _L. delicata_ shows that liver mitochondrial respiration efficiency decreases with high incubation temperatures, but is robust to prenatal CORT exposure or their interaction [@crino2024eggs]. In addition, medial cortex mitochondrial physiology is robust to both prenatal CORT and incubation temperature [@recio2025prenatal]. However, whether these effects are also present in sensory-processing brain regions in this species remains unknown. If effects of prenatal GCs and temperature are present, we predicted that elevated temperatures and high CORT levels would decrease energetic efficiency and increase oxidative stress and damage [@zhu_prenatal_2004; @song2009prenatal; @costantini2011meta; @haussmann_embryonic_2012; @treidel2016temperature; @stier2022experimental; @crino2024eggs]. Ultimately, we predicted that lower energetic efficiency and higher oxidative damage would be negatively associated with lizards' ability to detect prey [@zhu_prenatal_2004; @hara_presynaptic_2014; @picard_energetic_2018; @alexandrov_neuronal_2022].       
+Here, we investigated the effects of prenatal temperature and corticosterone (CORT)---the main GC in reptiles---on mitochondrial function and prey detection in an Australian lizard, the delicate skink (_Lampropholis delicata_). We manipulated egg CORT levels and incubation temperature in a fully factorial design, measured prey detection ability and then assessed mitochondrial function in brain regions related to the processing of chemical and visual cues. Specifically, we analysed mitochondrial density and metabolic capacity as a proxy for understanding the energetic efficiency of the cell, and reactive oxygen species (ROS) as a proxy for oxidative stress. In addition, we also analysed DNA damage and lipid peroxidation, which are typical damage caused by oxidative stress (hereafter also oxidative damage). Previous work on _L. delicata_ shows that liver mitochondrial respiration efficiency decreases with high incubation temperatures but is robust to prenatal CORT exposure and their interaction [@crino2024eggs]. In addition, medial cortex mitochondrial physiology is robust to both prenatal CORT and incubation temperature [@recio2025prenatal]. However, whether these effects are also present in sensory-processing brain regions in this species remains unknown. If effects of prenatal GCs and temperature are present, we predicted that elevated temperatures and high CORT levels would decrease energetic efficiency and increase oxidative stress and damage [@zhu_prenatal_2004; @song2009prenatal; @costantini2011meta; @haussmann_embryonic_2012; @treidel2016temperature; @stier2022experimental; @crino2024eggs]. Ultimately, we predicted that lower energetic efficiency and higher oxidative damage would be negatively associated with lizards' ability to detect prey [@zhu_prenatal_2004; @hara_presynaptic_2014; @picard_energetic_2018; @alexandrov_neuronal_2022].       
        
 ## Methods
 
@@ -141,11 +141,11 @@ _Flow Cytometry_: Flow cytometry assays were performed using a Becton Dickson LS
 We recorded five physiological variables from our flow cytometry assay: mitochondrial density, metabolic capacity, ROS production, DNA damage, and lipid peroxidation. These variables reflect average per-cell values for each sample, as fluorescence intensity was normalized by the number of gated events (cells) recorded. However, to assess how early environmental conditions may influence mitochondrial function at the organelle level, we created two additional response variables by dividing metabolic capacity and ROS production by mitochondrial density. This procedure assumes that mitochondrial density serves as a proxy for the number of mitochondria per cell, and the derived variables provide an estimate of the average activity per mitochondrion, therefore allowing us to assess mitochondrial-specific responses to early-life conditions. However, we report also the results for metabolic capacity and ROS production alone to understand the effects of early-life condition on metabolic function at the cell level.      
 
 #### Statistical analyses
-To investigate the effects of prenatal conditions on mitochondrial function and prey detection, we performed the analyses for each brain region/stimulus and each variable separately, running a total of 16 different models. For every model, we first fit a set of preliminary models where we included the hormone (CORT versus Control), temperature (Cold versus Hot), and their interaction. These models also included the sex and age of the lizards at the time where the trials started (for detection latency) or when the lizards were euthanised (for all mitochondrial-related variables). For detection latency, we also included previous experience with the prey (familiar versus unknown), their performance on the motivation test [if they ate the cricket (1), or not (0)], and the interaction between CORT and motivation as fixed effects. We included the interaction between CORT and motivation because CORT can impact appetite [@conde2018stress]. All models included clutch identity as a random factor to account for clutch effects. Given that _L. delicata_ lays one clutch per year [@chapple_biology_2014], and that most eggs of a clutch are fertilised by a single male [@kar2024heritability], clutch identity likely controls for parental effects. For models of detection latency we also included a random effect of lizard identity because of our repeated measures design. The structure and results of these models are provided on _Tables S1-S22 in Supplementary Material_. After the preliminary models, we simplified models by excluding some of the factors that were not significant. However, we always included the main interest factors: CORT, temperature and their interaction. Random factors remain the same for the final models. All the response variables were mean centered and standardized by dividing by two times the standard deviation [@gelman2008scaling]. Before standardization, mitochondrial density, DNA damage, lipid peroxidation, and detection latency were log-transformed.             
+To investigate the effects of prenatal conditions on mitochondrial function and prey detection, we performed the analyses for each brain region/stimulus and each variable separately, running a total of 16 different models. For every model, we first fit a set of preliminary models where we included the hormone (CORT versus Control), temperature (Cold versus Hot), and their interaction. These models also included the sex and age of the lizards at the time where the trials started (for detection latency) or when the lizards were euthanised (for all mitochondrial-related variables). For detection latency, we also included previous experience with the prey (familiar versus unknown), their performance on the motivation test [if they ate the cricket (1), or not (0)], and the interaction between CORT and motivation as fixed effects. We included the interaction between CORT and motivation because CORT can impact appetite [@conde2018stress]. All models included clutch identity as a random factor to account for clutch effects. Given that _L. delicata_ lays one clutch per year [@chapple_biology_2014], and that most eggs of a clutch are fertilised by a single male [@kar2024heritability], clutch identity likely controls for parental effects. For models of detection latency, we also included a random effect of lizard identity because of our repeated measures design. The structure and results of these models are provided on _Tables S1-S22 in Supplementary Material_. After the preliminary models, we simplified models by excluding some of the factors that were not significant. However, we always included the main interest factors: CORT, temperature and their interaction. Random factors remain the same for the final models. All the response variables were mean centered and standardized by dividing by two times the standard deviation [@gelman2008scaling]. Before standardization, mitochondrial density, DNA damage, lipid peroxidation, and detection latency were log-transformed.             
 
 All models were fit using using the package _brm_ in Stan [@stan] in R (version 4.4. 0) [@R]. We chose a Bayesian framework because it provides more reliable parameter estimates and direct probability statements about effects, and because it allows simultaneous estimation of all Structural Equation Modelling (SEM) paths (see below) with full uncertainty propagation. The error structure was modelled assuming a Gaussian distribution for all variables. We ran four parallel MCMC chains of 8000 iterations for each model, with a warmup period of 2000 iterations. To test for differences between treatments, we made contrasts between treatments using the posterior distribution of relevant parameters. Significance was assessed by using the posterior distributions of parameter estimates and contrasts to test whether were they different from zero [@endo2019introduction]. We considered an effect statistically significant if pMCMC < 0.05.  
 
-To further explore the relationships between mitochondrial physiology and detection latency, we used a SEM approach. We fit a multivariate brm in stan [@stan] in R (version 4.4.0) [@R] for each brain region/stimulus separately. We included in the model all the variables of interest and their interactions structured following a specific set of hypotheses (see @fig-sem_results_OB and @fig-sem_results_OT). Because experience with prey did not affect lizards’ behaviour (see _Tables S21, S22 in Supplementary Material_), and to reduce the complexity of the models, we averaged lizards detection latency across both types of prey and excluded lizard identity from the random factors. Clutch identity was included as a random factor for all variables. For our SEM model, the error structure was modelled assuming a Gaussian distribution and we estimated residual correlations among all variables. 
+To further explore the relationships between mitochondrial physiology and detection latency, we used a SEM approach. We fit a multivariate brm in stan [@stan] in R (version 4.4.0) [@R] for each brain region/stimulus separately. We included in the model all the variables of interest and their interactions structured following a specific set of hypotheses (see @fig-sem_results_OB and @fig-sem_results_OT). Because experience with prey did not affect lizards’ behaviour (see _Tables S21, S22 in Supplementary Material_), and to reduce the complexity of the models, we averaged lizard detection latency across both types of prey and excluded lizard identity from the random factors. Clutch identity was included as a random factor for all variables. For our SEM model, the error structure was modelled assuming a Gaussian distribution and we estimated residual correlations among all variables. 
 
 We obtained direct, indirect, and total effects from posterior distributions of parameters estimated in the multivariate models. Direct effects represent the posterior estimates of a predictor’s effect on the response variable, while indirect effects were computed as the product of the direct effects along the path [@kline2005principles]. Total effects are the sum of direct and indirect effects.    
 
@@ -1013,7 +1013,7 @@ ros_results_semOT <- data.frame(
 sem_results_OT <- bind_rows(det_results_semOT, dna_results_semOT, perox_results_semOT, ros_results_semOT)
 ```
 
-_Visual stimulus (Optic tecta)_: We found no significant relationships within the mitochondrial variables analysed or between mitochondrial function and cognitive performance (see @fig-sem_results_OT and Table S8).   
+_Visual stimulus (Optic tecta)_: We found no significant relationships within the mitochondrial variables analysed or between mitochondrial function and cognitive performance (see @fig-sem_results_OT and Table S8). However, the path mitochondrial dentisy-ROS path coefficient was high (β~Mit density~ ~-~ ~ROS~ = `r format_dec(mean(OT_coeff_mitodensity_ros), 3)`, pMCMC `r format_p(pmcmc(OB_coeff_mitodensity_ros), 3, equal = TRUE)`) despite non-significance.   
 
 ```{r, fig-sem_results_OT}
 #| label: fig-sem_results_OT
@@ -1068,16 +1068,16 @@ knitr::include_graphics("./output/figures/text/SEM_OT.tiff")
 ```
 
 ## Discussion
-The prenatal environment can impact the development of cognitive abilities through effects on mitochondrial function. However, the links between prenatal environment, prey detection, and mitochondrial function remain largely unexplored. Here, we examined the impact of early-life conditions on detection and its underlying physiological mechanisms. In particular, we analysed how prenatal CORT and temperature influenced the ability of lizards to detect visual and chemical stimuli from prey, and how these developmental effects were associated with alterations in metabolic function (mitochondrial density and metabolic capacity), oxidative stress (ROS), and oxidative damage (DNA damage and lipid peroxidation). Overall, metabolic function and oxidative stress appeared largely resilient to prenatal conditions. However, prenatal conditions produced region- and context-dependent effects on oxidative damage and prey detection. We observed interactive effects of prenatal CORT and incubation temperature on lipid peroxidation in the two brain regions examined, while the interaction affected DNA damage only in the optic tecta. Behaviourally, prenatal CORT exposure enhanced detection of chemical but not visual prey stimuli. Yet, we found no evidence that mitochondrial function underpinned prey detection in _L. delicata_, suggesting a surprising decoupling between brain physiology and detection in this species.      
+The prenatal environment can impact the development of cognitive abilities through effects on mitochondrial function. However, the links between prenatal environment, prey detection, and mitochondrial function remain largely unexplored. Here, we examined the impact of early-life conditions on prey detection and its underlying physiological mechanisms. We tested how prenatal CORT and temperature influenced the ability of lizards to detect visual and chemical stimuli from prey, and how these developmental effects were associated with changes in metabolic function (mitochondrial density and metabolic capacity), oxidative stress (ROS), and oxidative damage (DNA damage and lipid peroxidation). Overall, metabolic function and oxidative stress appeared largely resilient to prenatal conditions. However, prenatal conditions produced region- and context-dependent effects on oxidative damage and prey detection. We observed interactive effects of prenatal CORT and incubation temperature on lipid peroxidation in the two brain regions examined, while the interaction affected DNA damage only in the optic tecta. Behaviourally, prenatal CORT exposure enhanced detection of chemical but not visual prey stimuli. Yet, we found no evidence that mitochondrial function underpinned prey detection in _L. delicata_, suggesting a surprising decoupling between brain physiology and detection in this species.      
 
 #### Prenatal conditions shape oxidative damage in a context-dependent manner, with no effect on mitochondrial density, metabolic capacity, or oxidative stress       
 Contrary to our predictions, we found no effects of early environmental conditions on mitochondrial density, metabolic capacity (mitochondrial membrane potential), or ROS production in the optic tecta or the olfactory bulbs. These results were consistent when metabolic capacity and ROS production were standardised by mitochondrial density, showing no effects of prenatal conditions either at the cellular or mitochondrial level. In contrast, we found that DNA damage and lipid peroxidation were affected in region-specific ways. Early conditions did not influence DNA damage in the olfactory bulbs, but they did alter lipid peroxidation in the olfactory bulbs and the optic tecta. In the optic tecta, prenatal CORT reduced DNA damage in cold-incubated lizards but had no effect in hot-incubated lizards. In both regions, CORT also interacted with incubation temperature to influence lipid peroxidation. Lizards treated with prenatal CORT and incubated at cold temperatures had higher levels of lipid peroxidation compared to the lizards from the CORT-Hot group. Altogether, our results show that not all aspects of mitochondrial physiology are equally sensitive to prenatal conditions, and that the effects of prenatal environment on oxidative damage may reflect molecule-specific vulnerability, differential effects on protective pathways, or both.        
 
 Mitochondrial density, metabolic capacity, and ROS production were not affected by our prenatal conditions. Other studies in _L. delicata_ also report no effects of prenatal CORT or incubation temperature in the medial cortex [@recio2025prenatal], but show sustained effects of incubation temperature on mitochondrial respiration efficiency in liver tissue [@crino2024eggs]. These results suggest a tissue-specific response to prenatal conditions, consistent with the idea that organisms may prioritise protecting neural over other tissues [@chaudhari2022early]. Since early environmental effects on the brain can translate to impaired cognitive abilities and survival [@abayarathna_effects_2020], lizards might invest in protective mechanisms to avoid these effects. Alternatively, mitochondrial density, metabolic capacity, and ROS production in _L. delicata_'s brain may be adjusted to the current environment rather than being resilient to prenatal conditions. Mitochondria are highly responsive to energetic demands [@gyllenhammer2020developmental], which were predicted to differ between our incubation conditions [@sapolsky_how_2000; @noble_developmental_2018], but not when lizards were raised under identical post-hatching conditions. Effects of CORT and incubation temperature on mitochondrial density, metabolic capacity, and ROS production may therefore have been present during incubation but dissipated once lizards shared a common environment. Other studies, however, provide strong evidence for sustained programmatic effects of prenatal GCs and temperature on mitochondrial respiration in birds across different post-hatching periods [@cossin-sevrin_effect_2022; @stier2022experimental]. Wether the differences between our and other studies are purely methodological or reflects transient rather than sustained effects needs further investigation. Regardless, if mitochondrial density, metabolic capacity, and ROS production were affected in _L. delicata_ during incubation, we could expect those effects to leave a signature on oxidative damage. Oxidative damage, unlike mitochondrial density, metabolic capacity, and ROS production, accumulates over time [@rice2002brain; @terman2006oxidative], explaining why we could find persistent effects of prenatal conditions on oxidative damage despite the absence of effects on the mitochondrial traits that initially produced it.    
 
-Temperature and CORT elevations during early development interact to affect oxidative damage. However, the direction of the interactive effects differs between DNA damage and lipid peroxidation. These contrasting patterns suggest that prenatal CORT and temperature may shape oxidative damage through molecule-specific protective pathways, potentially by upregulating different antioxidant systems. For example, prenatal stress in rats increases Cu/Zn superoxide dismutase (SOD) and glutathione peroxidase (GPx) activity in the brain while catalase (CAT) was unaffected [@mcintosh1998glucocorticoids]. Similarly, in the soft-shelled turtle (_Pelodiscus sinensis_), CAT expression elevates with increasing temperatures as turtles emerge from hibernation, whereas GPx activity remains stable [@tang2021antioxidant]. These examples show that GCs and thermal environment can upregulate some, but not all, antioxidant pathways, which may explain why the same incubation treatments in our experiment yield distinct effects on different oxidative damage markers.  Additional factors, such as temperature-dependent differences in membrane lipid composition [@zeis2019temperature], may further modulate molecule-specific sensitivity to oxidative stress. For example, lipid peroxidation levels have been shown to increase in cold-acclimated _Daphnia magna_ likely because of higher concentration of polyunsaturated fatty acids, which are more susceptible to oxidative stress [@zeis2019temperature].     
+Temperature and CORT elevations during early development interacted to affect oxidative damage in our study. However, the direction of the interactive effects differs between DNA damage and lipid peroxidation. These contrasting patterns suggest that prenatal CORT and temperature may shape oxidative damage through molecule-specific protective pathways, potentially by upregulating different antioxidant systems. For example, prenatal stress in rats increases Cu/Zn superoxide dismutase (SOD) and glutathione peroxidase (GPx) activity in the brain while catalase (CAT) was unaffected [@mcintosh1998glucocorticoids]. Similarly, in the soft-shelled turtle (_Pelodiscus sinensis_), CAT expression elevates with increasing temperatures as turtles emerge from hibernation, whereas GPx activity remains stable [@tang2021antioxidant]. These examples show that GCs and thermal environment can upregulate some, but not all, antioxidant pathways, which may explain why the same incubation treatments in our experiment yield distinct effects on different oxidative damage markers. Additional factors, such as temperature-dependent differences in membrane lipid composition [@zeis2019temperature], may further modulate molecule-specific sensitivity to oxidative stress. For example, lipid peroxidation levels have been shown to increase in cold-acclimated _Daphnia magna_ likely because of higher concentration of polyunsaturated fatty acids, which are more susceptible to oxidative stress [@zeis2019temperature].     
 
-Altogether, these results suggest that the effects of prenatal conditions on mitochondrial function are more nuanced than we predicted. However, some limitations may be influencing our results. Our sample consisted of lizards that survived incubation from a larger initial pool of eggs, and incubation treatments differed in mortality rates during this period [@leibold2026life]. Although hatching success was high (never less than 81%), differencial mortality could have influenced our results [see @leibold2026life]. Viability selection or selective disappearance may therefore have buffered or reduced the differences we observed in some aspects of mitochondrial function, if less resilient individuals did not survive to be sampled. Similarly, by testing lizards at approximately 225 days old, we may have missed a critical period during which the effects of prenatal conditions were more pronounced. Further studies should measure mitochondrial physiology across multiple time points, including during embryonic development, to test this possibility directly. Oxidative damage in the olfactory bulbs and optic tecta is of particular interest given the direct role these regions play in processing the chemical and visual cues lizards rely on to detect prey.           
+Altogether, these results suggest that the effects of prenatal conditions on mitochondrial function are more nuanced than we predicted. However, some limitations may be influencing our results. Our sample consisted of lizards that survived incubation from a larger initial pool of eggs, and incubation treatments differed in mortality rates during this period [@leibold2026life]. Although hatching success was high (never less than 81%), differencial mortality could have influenced our results [see @leibold2026life]. Viability selection or selective disappearance may therefore have buffered or reduced the differences we observed in some aspects of mitochondrial function, if less resilient individuals did not survive to be sampled. Similarly, by testing lizards at approximately 225 days old, we may have missed a critical period during which the effects of prenatal conditions were more pronounced. Further studies should measure mitochondrial physiology across multiple time points, including during embryonic development, to test this possibility directly. In addition, studying the interaction between age and treatment effects could reveal how the effects may dissipate or accentuate as animals age. Oxidative damage in the olfactory bulbs and optic tecta is of particular interest given the direct role these regions play in processing the chemical and visual cues lizards rely on to detect prey.           
                       
 #### Chemical, but not visual, prey detection is enhanced by prenatal CORT, independently of mitochondrial function.       
 Lizards exposed to prenatal CORT were faster at detecting chemical, but not visual, prey cues compared to control lizards. However, this effect was not related to alterations in mitochondrial function in the olfactory bulbs, and we similarly found no relationship between mitochondrial function in the optic tecta and detection of visual stimuli.   
@@ -1561,7 +1561,7 @@ cat("\\newpage")
 
 #### Results of the SEM
 
-Table S5. Compiled direct, indirect, and total effects of SEM for OB/Chemical stimulus
+Table S7. Compiled direct, indirect, and total effects of SEM for OB/Chemical stimulus
 ```{r, table_sem_results_OB}
 #| label: table_sem_results_OB
 #| fig-cap: ""
@@ -1622,7 +1622,7 @@ cat("\\newpage")
 ```
 
 
-Table S6. Compiled direct, indirect, and total effects  of SEM for OT/Visual stimulus
+Table S8. Compiled direct, indirect, and total effects  of SEM for OT/Visual stimulus
 ```{r, table_sem_results_OT}
 #| label: table_sem_results_OT
 #| fig-cap: ""
@@ -1682,7 +1682,6 @@ table_semOT
 ```{r, results='asis', echo=FALSE}
 cat("\\newpage")
 ```
-
 
 
 #### Results of preliminary models 
@@ -2062,8 +2061,6 @@ Model convergence was checked through rhat and ess_bulk values. Summary indicate
 ```{r, results='asis', echo=FALSE}
 cat("\\newpage")
 ```
-
-
 
 #### Final models diagnostics (plots)
 
@@ -2509,4 +2506,148 @@ cat("\\newpage")
 ```
 
 
+```{r, models_mitochondrial}
+#| label: models_mitochondrial
+#
+# Run models mitochondrial physiology (each region separately)
+#
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
+regions <- c("OB", "OT")
+for (p in var_m){
+  for (h in regions){
+    formula <- paste0(p, "~ cort*temp*age_euthanasia + sex + (1|clutch)")
+    if (h == "OB"){
+      df <- clean_df %>% filter(region == "OB")
+      l <- "OB"
+    } else {
+      df <- clean_df %>% filter(region == "OT")
+      l <- "OT"
+    }
 
+    pmodel_name <- paste0("m_age_", p, "_", h)
+    assign(pmodel_name, fit_m(df = df,
+                              cat = "age",
+                              var = p,
+                              formula = formula,
+                              fam = gaussian(),
+                              label = l,
+                              refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+} 
+```
+
+```{r, models_behaviour}
+#| label: models_behaviour
+# Fitting the model and extraction of posteriors for Detection Latency (log-normal).
+source(here("R", "func.R"))
+#
+#
+## Run model behaviour for both stimuli separately
+#
+beh_df <- clean_df
+stimuli <- c("Chemical", "Visual")
+for (s in stimuli){
+  df_b <- beh_df %>% filter(stimulus == s)
+  formula_t_D <- t_D ~ cort*temp*age_trial + sex + (1|clutch) + (1|lizard_id)
+
+  pmodel_name <- paste0("m_age_t_D_", s)
+  assign(pmodel_name, fit_m(df = df_b,
+                             cat = "age",
+                             var = "t_D",
+                             formula = formula_t_D,
+                             fam = gaussian(),
+                             label = s,
+                             refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+}
+```
+
+```{r, table_age}
+model_name <- list(
+  "Mit density OB" = m_age_mean_mitodensity_OB,
+  "Mit density OT" = m_age_mean_mitodensity_OT,
+  "Mit potential OB" = m_age_mean_potential_OB,
+  "Mit potential OT" = m_age_mean_potential_OT,
+  "Mit potential/density OB" = m_age_mean_conpotential_OB,
+  "Mit potential/density OT" = m_age_mean_conpotential_OT,
+  "ROS OB" = m_age_mean_ros_OB,
+  "ROS OT" = m_age_mean_ros_OT,
+  "ROS/density OB" = m_age_mean_conros_OB,
+  "ROS/density OT" = m_age_mean_conros_OT,
+  "DNA damage OB" = m_age_mean_dnadamage_OB,
+  "DNA damage OT" = m_age_mean_dnadamage_OT,
+  "Lipid peroxidation OB" = m_age_mean_peroxidation_OB,
+  "Lipid peroxidation OT" = m_age_mean_peroxidation_OT,
+  "Detection latency Chemical" = m_age_t_D_Chemical,
+  "Detection latency Visual" = m_age_t_D_Visual
+)
+
+full_table <- map_dfr(names(model_name), function(name) {
+  draws <- model_name[[name]]
+  
+  draws %>%
+    dplyr::select(starts_with("b_")) %>%
+    pivot_longer(everything(), 
+                 names_to = "parameter", 
+                 values_to = "value") %>%
+    filter(str_detect(parameter, "age")) %>%
+    group_by(parameter) %>%
+    summarise(mean = round(mean(value), 3),
+      Q25 = round(quantile(value, 0.025), 3),
+      Q975 = round(quantile(value, 0.975), 3),
+      .groups = "drop") %>%
+    mutate(variable = name,
+          CI = paste0("[", Q25, ", ", Q975, "]")) %>%
+    dplyr::select(variable, parameter, mean, CI)
+})
+#
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+#
+table_age <- flextable(full_table) %>%
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:24,26:28,30:32,34:36,38:40,42:44,46:48,50:52,54:56,58:60,62:64), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(4,8,12,16,20,24,28,32,36,40,44,48,52,56,60), j = c(1:4), part = "body") %>% 
+  autofit()
+# save_as_docx(table_age, path = "table_age.docx")
+```
+
+```{r, age-plots}
+var <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation", "t_D")
+region <- c("OT", "OB")
+
+for(v in var){
+  for(r in region){
+    data <- df_merged_log %>% filter(region == r)
+    
+    age_var <- ifelse(v == "t_D", "age_trial", "age_euthanasia")
+    
+    plot <- ggplot(data, aes(x = .data[[age_var]], y = .data[[v]], colour = interaction(cort, temp), fill = interaction(cort, temp))) +
+      geom_point(alpha = 0.5) +
+      geom_smooth(method = "lm", se = TRUE, alpha = 0.15) +
+      scale_colour_manual(values = c("#68bde1", "#00008B", "#fa927d", "#b50101"),
+                          labels = c("Control-Cold", "CORT-Cold", "Control-Hot", "CORT-Hot")) +
+      scale_fill_manual(values = c("#68bde1", "#00008B", "#fa927d", "#b50101"),
+                          labels = c("Control-Cold", "CORT-Cold", "Control-Hot", "CORT-Hot")) +
+      labs(title = paste(v, r), x = "Age", y = v, colour = "Treatment", fill = "Treatment") +
+      guides(colour = guide_legend("Treatment"), fill = guide_legend("Treatment")) +
+      theme_classic()
+    
+    assign(paste0("plot_", v, "_", r), plot)
+  }
+}
+
+# OB/Chemical plots
+plots_OB <- lapply(var, function(v) get(paste0("plot_", v, "_OB")))
+grid_OB <- plot_grid(plotlist = plots_OB, ncol = 2)
+ggsave("plots_OB_Chemical.pdf", grid_OB, width = 12, height = 24)
+
+# OT/Visual plots
+plots_OT <- lapply(var, function(v) get(paste0("plot_", v, "_OT")))
+grid_OT <- plot_grid(plotlist = plots_OT, ncol = 2)
+ggsave("plots_OT_Visual.pdf", grid_OT, width = 12, height = 24)
+
+```
