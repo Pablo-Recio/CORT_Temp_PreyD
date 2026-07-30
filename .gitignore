@@ -54,8 +54,6 @@ rsconnect/
 ## Ignore the entire output directory
 output/
 
-# Keep specific folder structures alive on GitHub using .gitkeep
-!**/output/
 
 # System and document files
 .DS_Store
