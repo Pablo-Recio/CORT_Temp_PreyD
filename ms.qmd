@@ -2894,7 +2894,9 @@ grid_OT <- plot_grid(plotlist = plots_OT, ncol = 2)
 
 # Fig age
 fig_age <- plot_grid(grid_OB, grid_OT, ncol = 1)
-fig_age
+# Print final plot
+ggsave(here("./output/figures/suppl/age.tiff"), plot = fig_age, width = 21, height = 25, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/age.tiff")
 ```
 
 Figure S18. Relationships between age (days) each variable measured per region (olfactory bulbs: OB, optic tecta: OT) using raw data. Age at euthanasia was used as the age metric for mitochondrial physiology variables, and age at trial for detection latency.     
