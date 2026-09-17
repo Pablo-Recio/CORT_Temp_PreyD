@@ -4,7 +4,7 @@
 
 This repository contains the final code, data, and figures used in the following manuscript:
 
-Recio et al. 2024. The effect of prenatal environment on brain metabolic function and perception in a lizard
+Recio et al. 2026. The effect of prenatal environment on brain metabolic function and prey detection in a lizard
 
 Supplementary Materials: The supplementary materials associated with this paper is integrated within the ms.docx or ms.qmd files. 
 
