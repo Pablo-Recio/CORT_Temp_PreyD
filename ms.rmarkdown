@@ -1,0 +1,2904 @@
+---
+title: "The effect of prenatal environment on brain mitochondrial function and prey detection in a lizard"
+docx: 
+csl: "./bib/functional-ecology.csl"
+bibliography: "./bib/refs.bib"
+reference-doc: "./bib/tmpl.docx"
+execute:
+  echo: false
+  error: false
+  cache: false
+  warning: false
+link-citations: true
+crossref:  
+  fig-title: Fig    # (default is "Figure")
+  title-delim: —     # (default is ":")
+  fig-prefix: Fig.   # (default is "Figure")
+  tbl-prefix: Tab.   # (default is "Table")
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+pacman::p_load(tidyverse, flextable, emmeans, DHARMa, brms, here, ggplot2, lme4, zoo, lmerTest, broom, tidybayes, ggh4x, cowplot, fitdistrplus, MASS, goftest, forcats, nortest, fitdistrplus, ggh4x, PupillometryR, png, grid, remotes, ggthemes, bayestestR, HDInterval, DiagrammeR, magick)
+```
+
+```{r, cleandata}
+#| label: cleandata
+# Obtain the main df using "./R/1_data_process.R"
+source(here("R", "data_process.R"))
+```
+
+```{r, sampleSize}
+#| label: sampleSize
+# List with the sample sizes from the main database.
+source(here("R", "func.R"))
+#
+hormone <- c("CORT", "Control")
+temperature <- c("Cold", "Hot")
+#
+n_list <- list()
+#
+for(k in 1:length(hormone)){
+  for(l in 1:length(temperature)){
+    list_name <- paste0(hormone[k], "_", temperature[l])
+    n_list[[list_name]] <- sample(df = clean_df, corti = hormone[k], therm = temperature[l])
+  }
+}
+#
+```
+
+```{r, countclutches}
+#| label: countclutches
+# Count the number of clutches per species
+#
+clutches <- clean_df %>% 
+  distinct(clutch) %>% 
+  nrow()
+```
+
+Pablo Recio^1,2^,$\ddagger$ , Dalton C. Leibold^1^, Ondi L. Crino^1,2^, Christopher R. Friesen^3,4^, Daniel W.A. Noble^1^
+
+^1^ Division of Ecology and Evolution, Research School of Biology, The Australian National University, Canberra, ACT 2601, Australia  
+^2^ Flinders University, College of Science and Engineering, Bedford Park, SA 5042, Australia  
+^3^ University of Wollongong, Wollongong, NSW 2500, Australia   
+^4^ Environmental Futures University of Wollongong, Wollongong, NSW 2500, Australia
+$\ddagger$ Corresponding author: pablo.reciosantiago@anu.edu.au  
+
+ORCID: 
+
+Pablo Recio ORCID: 0000-0002-5890-0218  
+Dalton C. Leibold ORCID: 0000-0001-9645-2033  
+Ondi L. Crino ORCID: 0000-0001-5700-1387  
+Christopher R. Friesen ORCID: 0000-0001-5338-7454  
+Daniel W.A. Noble ORCID: 0000-0001-9460-8743  
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+## Abstract        
+The ability to detect prey is crucial for survival in many animals. However, prey detection is a cognitive process that can be influenced by early life conditions such as prenatal stress or temperature. Mitochondrial function is likely to underly these effects because cognitive abilities are energetically demanding (i.e., dependent on efficient metabolic function) and because metabolic-derived oxidative stress and oxidative damage can impair cognitive function. Yet, whether prenatal stress and thermal environments affect prey detection, and whether mitochondrial function mediates such effects, remains poorly understood. Here, we investigated the links between prenatal environments, mitochondrial function, and prey detection in the delicate skink (_Lampropholis delicata_). We manipulated egg corticosterone (CORT) levels---a key stress hormone in reptiles---and incubation temperature and assessed the ability of lizards to detect chemical and visual prey stimuli. Then, using flow cytometry, we measured metabolic function, oxidative stress, and oxidative damage in the olfactory bulbs and optic tecta, two brain regions involved in sensory processing. While metabolic function and oxidative stress remained robust to early life conditions, CORT and temperature interacted to influence oxidative damage. Particularly, CORT decreased DNA damage in the olfactory bulbs of cold-incubated lizards but had no effect on hot-incubated lizards. In both brain regions, lipid peroxidation was lower in CORT-treated lizards incubated at high temperatures compared to CORT-treated cold-incubated lizards, but no other between-treatment differences were detected. Additionally, CORT-treated lizards responded faster when presented with chemical cues but not visual stimuli. We did not find any relationship between mitochondrial function and prey detection. Our findings suggest that prenatal conditions  have lasting effects on DNA damage and prey detection, but prey detection appears decoupled from mitochondrial function in _L. delicata_.     
+
+## Introduction       
+Cognition encompasses the ways in which animals acquire, process, and store information, enabling stimuli detection, recognition, learning, memory, and decision-making [@shettleworth]. Individual variation in cognitive abilities can translate directly into differences in survival and reproductive success, making cognition a key trait for fitness [@dukas_evolutionary_2004]. However, between-individual variation is common in wild populations due to a combination of genetic and environmental factors [@sakata_neural_2000; @dukas_evolutionary_2004]. Early-life conditions, in particular, play a critical role in shaping brain development and cognitive abilities [@sakata_neural_2000; @zhu_prenatal_2004; @crino_corticosterone_2014-learn; @amiel_effects_2017]. Yet, the impact of early-life environments has primarily been studied in the context of learning and memory [@zhu_prenatal_2004; @crino_corticosterone_2014-learn; @bebus_associative_2016; @abayarathna_effects_2020], neglecting how other important cognitive domains such as stimuli detection and recognition might be affected [but see @burger_antipredator_1998]. Stimuli detection is an often overlooked, but fundamental cognitive process, critical for locating prey, avoiding predators, and interacting with conspecifics [@shettleworth; @hairston1982fish; @pyke1984optimal; @burger_antipredator_1998; @desfilis2003stimulus; @recio2023conspecific]. Yet, whether early-life conditions shape detection abilities remains largely unknown.     
+
+Early-life conditions can influence cognitive abilities through various mechanisms including alterations in gene expression [@zhou2020effects], effects on neurotransmitter production and neuroendocrine pathways [@amani2021perinatal], and impacts on brain structure [@amiel_effects_2017]. One of the most fundamental mechanisms through which early-life conditions can influence cognition is by affecting brain mitochondrial function [@siegel1994basic; @du_dynamic_2009; @picard_mitochondria_2014; @picard_energetic_2018]. Cognitive processes are energetically demanding, relying heavily on mitochondrial respiration [@mcnay_decreases_2000; @mann_coupling_2021; @alexandrov_neuronal_2022]. However, mitochondrial respiration inherently generates reactive oxygen species (ROS) as a byproduct, and when ROS production exceeds antioxidant capacity this results in oxidative stress and oxidative damage [@finkel_oxidants_2000; @zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011; @hoffmann_mitochondrion_2018]. Excessive oxidative damage increases cell death and senescence, reducing the number of functional neurons [@zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011] and consequently impairing cognitive abilities [@lefebvre_taxonomic_2011; @amiel_effects_2017]. Impacts on mitochondrial function during early development may therefore have significant consequences for cognitive abilities such as prey detection.    
+
+Mitochondria are highly responsive to the environment, and early-life conditions can have short-term and long-lasting consequences on mitochondrial function [reviewed in @gyllenhammer2020developmental]. Stress-related hormones and temperature are particularly relevant for mitochondrial function due to their strong effects on metabolic processes [@sapolsky_how_2000; @stier2022experimental; @crino2024eggs]. Vertebrates respond to stressful or challenging situations through the activation of physiological processes including the production of glucocorticoid (GC) hormones [@sapolsky_how_2000]. Glucocorticoids increase energy availability through multiple pathways, including direct action on mitochondria [@picard_mitochondria_2014]. Glucocorticoids can be transmitted from females to their offspring and exposure to elevated levels of maternal GCs during development can have long term effects on multiple traits [@almasi2012maternal; @hayward2004maternal]. Independent of GC effects, temperature directly regulates metabolic rate and mitochondrial function in ectotherms [@noble_developmental_2018; @stier2022experimental; @crino2024eggs]. For instance, maternal stress and GC manipulation in eggs have been shown to increase oxidative stress and oxidative damage in offspring [@zhu_prenatal_2004; @song2009prenatal; @haussmann_embryonic_2012], while incubation temperature shapes mitochondrial efficiency and oxidative damage in ectotherms [@treidel2016temperature; @stier2022experimental; @crino2024eggs]. For example, if incubation temperature alters mitochondrial efficiency, then the effects of prenatal GC exposure on oxidative damage may vary across thermal conditions. Yet, the combined effects of prenatal GCs and temperature on mitochondrial function remain poorly understood. Evidence in lizards suggests that there are no interactive effects of prenatal GCs and temperature on mitochondrial respiration in the liver [@crino2024eggs], and that mitochondrial physiology in the medial cortex is robust to both factors [@recio2025prenatal]. However, research in other species shows that the effects of prenatal GCs and temperature on brain development are region-dependent, with some brain areas being robust to these factors while others not [@coomber_independent_1997; @sakata_neural_2000; @zhu_prenatal_2004]. Given this region-specificity, it is possible that prenatal GCs and temperature could differently impact different brain regions even when no interaction was evident. While logistically challenging, work measuring traits across different brain regions and cognitive domains will be needed to fully understand whether prenatal GCs and thermal environment jointly shape physiology and cognition.     
+     
+Here, we investigated the effects of prenatal temperature and corticosterone (CORT)---the main GC in reptiles---on mitochondrial function and prey detection in an Australian lizard, the delicate skink (_Lampropholis delicata_). We manipulated egg CORT levels and incubation temperature in a fully factorial design, measured prey detection ability and then assessed mitochondrial function in brain regions related to the processing of chemical and visual cues. Specifically, we analysed mitochondrial density and metabolic capacity as a proxy for understanding the energetic efficiency of the cell, and reactive oxygen species (ROS) as a proxy for oxidative stress. In addition, we also analysed DNA damage and lipid peroxidation, which are typical damage caused by oxidative stress (hereafter also oxidative damage). Previous work on _L. delicata_ shows that liver mitochondrial respiration efficiency decreases with high incubation temperatures but is robust to prenatal CORT exposure and their interaction [@crino2024eggs]. In addition, medial cortex mitochondrial physiology is robust to both prenatal CORT and incubation temperature [@recio2025prenatal]. However, whether these effects are also present in sensory-processing brain regions in this species remains unknown. If effects of prenatal GCs and temperature are present, we predicted that elevated temperatures and high CORT levels would decrease energetic efficiency and increase oxidative stress and damage [@zhu_prenatal_2004; @song2009prenatal; @costantini2011meta; @haussmann_embryonic_2012; @treidel2016temperature; @stier2022experimental; @crino2024eggs]. Ultimately, we predicted that lower energetic efficiency and higher oxidative damage would be negatively associated with lizards' ability to detect prey [@zhu_prenatal_2004; @hara_presynaptic_2014; @picard_energetic_2018; @alexandrov_neuronal_2022].       
+       
+## Methods
+
+#### Animal husbandry  
+*Breeding colony* -- The lizards included in this study came from a breeding colony established in 2019. The colony consisted of 270 adults of *L. delicata* housed in plastic containers (41.5 L x 30.5 W x 21 H cm) with six lizards (two males and four females) per enclosure. Enclosures were provided with non-stick matting, shelter, and several small water dishes. Water was given daily, and lizards were fed ~40 mid-size living crickets (_Acheta domestica_) per enclosure three days a week. Crickets were dusted with calcium weekly and multivitamin and calcium biweekly. Room temperatures were set to 22-24 ºC, but enclosures were also provided with a heat chord and a heat lamp following a 12 h light:12 h dark cycle that maintained on side of the enclosures at ~34 ºC. We also provided lizards with UV light for 12 h a day.       
+
+*Egg collection and incubation* -- Between mid-October 2022 and the end of February 2023, we provide females with a place to lay the eggs by placing a small box (12.5 L x 8.3 W x 5 H cm) with moist vermiculite in the communal enclosures. We checked the boxes three days a week for eggs. After collection, eggs were treated with either a CORT or a control solution (see CORT and temperature manipulation below) and placed in individual cups (80 mL) with moist vermiculite (12 parts water to 4 parts vermiculite). Cups were covered with cling wrap to retain moisture and left at one of two different incubation temperatures (see CORT and temperature manipulation below) until hatching.
+
+*Hatchlings* -- Incubators were checked three times a week for hatchlings. After hatching, lizards were placed in individual enclosures (18.7 L x 13.2 W x 6.3 H cm) provided with nonstick matting and a small water dish until the beginning of the experiment. During this period, lizards were given water daily and received 3-6 small living crickets three times a week. Remaining care followed similar protocols for adults (see above).
+ 
+#### CORT and Temperature manipulation
+
+To test the interactive effects of CORT and incubation temperature, we manipulated CORT concentrations in eggs and incubated them under one of two temperature regimes (see @fig-Methods A). We used a partial split clutch design where eggs from a given clutch were distributed equally across the four treatments when clutch sizes were larger than four and randomly across treatments when less than four. However, the lizards used in the present study were a subsample of the original experimental cohort (see _Results_ for final sample sizes and clutch representation). Eggs were topically treated with either: a) 5 µL of CORT solution or b) 5 µL  of 100% ethanol (Control treatment). The CORT solution was made by dissolving crystalline corticosterone (Sigma, Cat. No. C2505) in 100% ethanol. The concentration of the CORT treatment (10 pg/mg, CORT relative to average egg mass) was based on a previous study where CORT treatment increased mean yolk CORT levels by approximately 2 standard deviations above the mean natural concentration [@crino2024eggs]. In @crino2024eggs, however, some control eggs had overlapping yolk CORT levels with those of CORT-treated eggs, indicating that the concentrations achieved by our treatment fall within levels that can occur without experimental manipulation. Eggs were then incubated at either cold  (23 ± 3 ºC) or hot (28 ± 3 ºC) (see @fig-Methods). These temperatures are within the natural limits of _L. delicata_ and reflect the average temperatures in either shaded or heat-exposed nests [@cheetham2011embryonic].  
+
+#### Prey detection tests
+Approximately 225 days after hatching (age per treatment on _Table S2_ in _Supplementary Material_) lizards were subjected to the prey detection tests. Two weeks before we started the tests (see below), lizards were moved to the experimental arena (see Fig. 1) for acclimatisation. The arenas were individual plastic containers (41 L x 29.7 W x 22 H cm) with a shelter (9 L x 6 W x 1.5 H cm) on one of the extremes and a water dish in the middle of the arena. Arenas were placed in two rooms on six racks, each with its own CCTV system (device model DVR-HP210475) to record behavioural trials (see details below). The number of lizards per treatment in each rack was counterbalanced to control for any effect of the room or the position of the lizard on the rack. During acclimatisation, lizards were fed with only one cricket per day dusted with calcium and multivitamin, and water was supplied _ad libitum_. We provided a temperature gradient by means of a heat cord and heat lamps in a 12 h light: 12 h dark cycle. The room temperature was set to between 22-24 ºC. Two months after the tests, animals were euthanised and metabolic function was analysed in various brain regions (see _Brain mitochondrial function_ below).
+
+To measure prey detection, we presented lizards with chemical and visual stimuli from familiar and unfamiliar prey, then recorded and analysed their behaviour towards each stimulus (@fig-Methods C), building on similar methods used in other lizards [@desfilis2003stimulus; @recio_prey_2021]. We used living crickets (_A. domestica_) as the familiar prey and living mealworm larvae (_Tenebrio molitor_) as the unfamiliar prey. We tested the effects of familiarity with the prey items because previous experience may influence stimuli detection through habituation or sensitisation [@burger_effects_1990; @burger_effects_1991; @desfilis2003stimulus].  
+
+Each prey item was presented inside a transparent plastic vessel containing a white, two-chambered device (see @fig-Methods B) made of polylactic acid (PLA). In chemical trials, the prey item was placed in the closed chamber at the back of the device, making it invisible to the lizard, while in visual trials, the prey item was placed in the front chamber. Holes in both the device and the front sides of the transparent vessel (see @fig-Methods B, C) allowed chemical cues to be released; however, these holes were sealed with silicone in the visual trials. To increase the availability of chemical cues, we glued a piece of filter paper (left for at least 8 hours in one of the prey's enclosures: _A. domestica_ or _T. molitor_) to the device during chemical trials. In visual trials, the filter paper was placed in an empty box for the same duration under identical conditions. In both chemical and visual trials, the prey remained inside the vessel to control for potential acoustic cues. We conducted one test per stimuli and prey familiarity per lizard (i.e. a total of four tests per lizard, see @fig-Methods C), leaving 48 hours between the beginning of each test. The order of stimulus and familiarity presentation was counterbalanced across treatments.  
+
+Each trial began by placing the experimental device at the side of the arena opposite to the shelter (see arena in @fig-Methods A) and removing the water cup and the shelter. We recorded the lizard's behaviour for approximately one hour. We assessed lizards' ability to detect each stimulus ('Detection latency') by recording the time from when the lizard resumed normal activity (i.e., walking for at least 5 consecutive seconds; T~0~ in @fig-Methods D) until the first interaction with the stimulus (T~D~ in @fig-Methods D). Lizards were considered to have interacted with the object when the lizard touched the front of the vessel or the filter paper with its snout for more than five consecutive seconds. Physical contact with a stimulus has been previously employed as a behavioural indicator of interest [@desfilis2003stimulus]. We interpreted latency to interact as active investigation, reflecting the moment at which the stimulus was detected.
+
+To control for potential differences in hunger levels, all lizards were fasted for two days before the experiment, a period considered harmless for this species [@young2022physiological]. After each trial, the lizards were also given a cricket to assess their motivation to forage. The cricket was left in the enclosure for one hour, and we recorded whether the lizard ate it (recorded as 1) or not (recorded as 0). In `r sum(is.na(clean_df$motivation))` videos, the camera stopped recording before the end of the motivation test (T~f~ in @fig-Methods D), so motivation was recorded as NA. We used their performance in the motivation test as a covariate in the analyses (see below).   
+
+All trials were conducted between 1100 and 1300 h, when the lizards were most active. To control for potential effects of neophobia, we simulated test conditions for two days prior to the experiment by removing the shelter and water cup and exposing the lizards to the vessel without a stimulus. This simulation lasted for 1 hour at the same time of day as the tests, but no behavior was recorded.  
+
+```{r, fig-Methods}
+#| label: fig-Methods
+#| fig-cap: "Scheme of our experimental design. In panel A, we show the different stages of our experiment and the main manipulations. In panel B, we show the experimental device used to present the stimuli in the behavioural tests. Here, F indicates the front of the device, and Bk the back. In panel C, we show the experimental setup for the prey discrimination tests. Arrows here indicate the presence of chemical cues. In panel D, we show the relevant times from our behavioural tests."
+#
+knitr::include_graphics("./Others/Methods.png")
+```
+
+
+#### Brain mitochondrial function
+
+_Brain dissection and homogenisation_: Two months after the completion of the tests, we euthanised lizards using an injectable anaesthetic followed by decapitation. We injected intraperitoneally 10 mg/kg of a 10 mg/mL alfaxan solution and then, after several minutes, we evaluated the lizard’s righting response and pinching reflex in one of the front limbs. Lizards without responses were decapitated with surgical scissors. The procedure lasted between two to five minutes for each lizard. This protocol was approved by the Animal Ethics Committee of the Australian National University (Protocol number: A2022/33). 
+
+After decapitation, the head was opened and the brain was dissected. We extracted two main regions of the brain, the olfactory bulbs and the optic tecta, as they are associated with chemical and visual detection in lizards [@wyneken2007reptilian]. Both regions were transferred immediately to 1.5mL centrifuge tubes containing 100µL of 1X phosphate buffered saline (PBS) and homogenised.
+
+For the olfactory bulbs, the tissue was mechanically homogenised by placing the tissue in the well of a 100 µm mesh filter (pluriStrainer) affixed atop a 1.5 mL centrifuge tube, then mashed with the rubber end of an insulin syringe stopper. The resulting olfactory bulb homogenate was then rinsed through a filter with 1 mL of cold 1X PBS. Optic tecta were mechanically homogenised the same way, but were first enzymatically digested by incubating the tissue in 100µL of 125 U/mL collagenase (type II) for 30 min at 32°C. Homogenates were split among two aliquots: one was used within two hours of collection to measure mitochondrial density, mitochondrial membrane potential---a metric of metabolic capacity [@martinez2016tca]---and ROS, while the other one was cryopreserved for later measurements of DNA damage and lipid peroxidation. Cryopreservation was made by suspending the homogenates in 1 mL solution of 1% Neutral-Buffered Formalin, 1X Tris-EDTA, and 10% DMSO, then stored at -20 °C until DNA damage and lipid peroxidation assays.
+
+_Mitochondrial density, metabolic capacity, and ROS dyes_: Fresh homogenates were stained with 5 µL of a fluorescent probe mix containing equal parts 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, and 50 µM MitoSOX Red to measure mitochondrial density, metabolic capacity, and superoxide (ROS) production, respectively. We also added 10 µg/mL Hoechst 33342 Nuclear Viability Dye to each sample, which we used to distinguish viable cells from debris. Within two hours after dissection, these samples were analysed by flow cytometry (see below).
+
+_DNA damage and lipid peroxidation dyes_: Assays of DNA damage and lipid peroxidation from cryopreserved samples were performed 61 weeks after sample collection. On the day of the assays, we rapidly thawed frozen samples, centrifuged each sample at 1000 RCF for 10 minutes to pellet cells, then removed the supernatant, and resuspended samples in 1 mL 1X Tris-EDTA. We then centrifuged the samples again and removed the Tris-EDTA, resuspending the samples in 200 µL of 1X PBS containing 10 µg/mL Hoechst 33342 Nuclear Viability Dye (for cell viability) and 100 µM BODIPY 665/676 Lipid Peroxidation Sensor (to measure lipid peroxidation). Following staining, we permeabilised the cell membranes by incubating the samples in 200 µL 1X PBS containing 20 µM digitonin, then stained the samples with 20 µL of 70 µM 8-OHdG Polyclonal Antibody to measure DNA damage. We left the homogenate overnight (~12 hours) at 4 ºC. The following day we counterstained the cells with 20 µL of 100 µg/mL H+G Goat Anti-Rabbit Conjugate Antibody with Alexa-Fluor 488 and analysed the samples in the flow cytometer.      
+
+_Flow Cytometry_: Flow cytometry assays were performed using a Becton Dickson LSRFortessa X-20 flow cytometer with 5 lasers, 20 detectors, and using the default bandpass filters. The detectors and voltage settings used in data acquisition for each were determined during pilot trials and kept consistent throughout the experiment. collected in BD FACSDiva (v.8.1) and was imported into FlowJo (v. 10.1) for processing. For further details on the homogenisation, staining, or flow cytometry assays, see _Methods: flow cytometry_ in _Supplementary Material_. We validated that our homogenates contained neurons in a pilot study using dyes specifically targeting neuronal nuclei (see _Brain validation_ in _Supplementary Material_). This pilot study also ensured that our gating strategy identified these neurons using flow cytometry.      
+
+```{r, repeatability}
+#
+source(here("R", "func.R"))
+# Obtaining how repeatable are the mitochondrial variables
+var <- c("mean_mitodensity", "mean_potential", "mean_ros", "mean_dnadamage", "mean_peroxidation")
+region <- c("OB", "OT")
+
+for(i in var){
+  for(j in region){
+    if(i %in% c("mean_dnadamage", "mean_peroxidation")){
+      df <- read.csv(here("data", "mit_damage.csv")) %>% 
+              filter(region == j) %>%
+              mutate(mean_dnadamage = log(mean_dnadamage), mean_peroxidation = log(mean_peroxidation))
+    } else {
+      df <- read.csv(here("data", "mit_act.csv")) %>% 
+              filter(region == j) %>%
+              mutate(mean_mitodensity = log(mean_mitodensity))
+    }
+    formula <- as.formula(paste0(i, "~ 1 + (1 | Id_flow)"))
+    pmodel_name <- paste0("m_repeatability_", i, "_", j)
+    assign(pmodel_name, fit_m(df = df,
+                              cat = "repeatability",
+                              var = i,
+                              formula = formula,
+                              fam = gaussian(),
+                              label = j,
+                              refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+}
+#
+# Getting repeatability for each variable and region
+results_R <- tibble()
+for(i in var){
+  for(j in region){
+    model_name <- paste0("m_repeatability_", i, "_", j)
+    post <- get(model_name)
+    
+    R <- post$sd_Id_flow__Intercept^2 /
+      (post$sd_Id_flow__Intercept^2 + post$sigma^2)
+    
+    temp <- tibble(
+      variable = i,
+      region = j,
+      mean_R = round(mean(R), 3),
+      lower_CI = round(quantile(R, 0.025), 3),
+      upper_CI = round(quantile(R, 0.975), 3)
+    )
+    results_R <- bind_rows(results_R, temp)
+  }
+}
+# Modifying database for the repeatability table
+results_R_table <- results_R %>%
+  mutate(variable = case_when(
+    variable == "mean_mitodensity" ~ "Mitochondrial density",
+    variable == "mean_potential" ~ "Metabolic capacity",
+    variable == "mean_ros" ~ "ROS production",
+    variable == "mean_dnadamage" ~ "DNA damage",
+    variable == "mean_peroxidation" ~ "Lipid peroxidation"
+  )) %>%
+  mutate(CI = paste0("[", lower_CI, ", ", upper_CI, "]")) %>%
+  dplyr::select(variable, region, mean_R, CI) %>%  # drop lower_CI and upper_CI BEFORE pivoting
+  pivot_wider(names_from = region, values_from = c(mean_R, CI)) %>%
+  dplyr::select(variable, mean_R_OB, CI_OB, mean_R_OT, CI_OT) %>%
+  mutate(variable = factor(variable, levels = c("Mitochondrial density", "Metabolic capacity", "ROS production", "DNA damage", "Lipid peroxidation"))) %>%
+  arrange(variable) %>%
+data.frame()
+```
+
+We recorded five physiological variables from our flow cytometry assay: mitochondrial density, metabolic capacity, ROS production, DNA damage, and lipid peroxidation. These variables reflect average per-cell values for each sample, as we calculated the mean fluorescence intensity (MFI) of each cell population as the geometric mean of fluorescence values among all individual cells in the population. Mitochondrial measurements were highly repeatable across duplicates for all variables and brain regions (R = 
+`r round(min(results_R$mean_R), 3)`–`r round(max(results_R$mean_R), 3)`; _Table **S1**_ in _Supplementary Material_), indicating that the flow cytometry measurements were consistent and reliable. In addition, to assess how early environmental conditions may influence mitochondrial function at the organelle level, we created two additional response variables by dividing metabolic capacity and ROS production by mitochondrial density. This procedure assumes that mitochondrial density serves as a proxy for the number of mitochondria per cell, and the derived variables provide an estimate of the average activity per mitochondrion, therefore allowing us to assess mitochondrial-specific responses to early-life conditions. However, we report also the results for metabolic capacity and ROS production alone to understand the effects of early-life condition on metabolic function at the cell level.       
+
+#### Statistical analyses
+To investigate the effects of prenatal conditions on mitochondrial function and prey detection, we performed the analyses for each brain region/stimulus and each variable separately, running a total of 16 different models. For every model, we first fit a set of preliminary models where we included the hormone (CORT versus Control), temperature (Cold versus Hot), and their interaction. These models also included the sex and age of the lizards at the time where the trials started (for detection latency) or when the lizards were euthanised (for all mitochondrial-related variables). For detection latency, we also included previous experience with the prey (familiar versus unknown), their performance on the motivation test [if they ate the cricket (1), or not (0)], and the interaction between CORT and motivation as fixed effects. We included the interaction between CORT and motivation because CORT can impact appetite [@conde2018stress]. All models included clutch identity as a random factor to account for clutch effects. Given that _L. delicata_ lays one clutch per year [@chapple_biology_2014], and that most eggs of a clutch are fertilised by a single male [@kar2024heritability], clutch identity likely controls for parental effects. For models of detection latency, we also included a random effect of lizard identity because of our repeated measures design. The structure and results of these models are provided on _Tables **S1-S22**_ in _Supplementary Material_. After the preliminary models, we simplified models by excluding some of the factors that were not significant. However, we always included the main interest factors: CORT, temperature and their interaction. Random factors remain the same for the final models. All the response variables were mean centered and standardized by dividing by two times the standard deviation [@gelman2008scaling]. Before standardization, mitochondrial density, DNA damage, lipid peroxidation, and detection latency were log-transformed.             
+
+All models were fit using using the package _brms_ in Stan [@stan] in R (version 4.4. 0) [@R]. We chose a Bayesian framework because it provides more reliable parameter estimates and direct probability estimates about effects, and because it allows simultaneous estimation of all Structural Equation Modelling (SEM) paths (see below) with full uncertainty propagation. The error structure was modelled assuming a Gaussian distribution for all variables. We ran four parallel MCMC chains of 8000 iterations for each model, with a warmup period of 2000 iterations. To test for differences between treatments, we made contrasts between treatments using the posterior distribution of relevant parameters. Significance was assessed by using the posterior distributions of parameter estimates and contrasts to test whether were they different from zero [@endo2019introduction]. We considered an effect statistically significant if pMCMC < 0.05.  
+
+To further explore the relationships between mitochondrial physiology and detection latency, we used a SEM approach. We fit a multivariate _brms_ in stan [@stan] in R (version 4.4.0) [@R] for each brain region/stimulus separately. We included in the model all the variables of interest and their interactions structured following a specific set of hypotheses (see @fig-sem_results_OB and @fig-sem_results_OT). Because experience with prey did not affect lizards’ behaviour (see _Tables S21, S22_ in _Supplementary Material_), and to reduce the complexity of the models, we averaged lizard detection latency across both types of prey and excluded lizard identity from the random factors. Clutch identity was included as a random factor for all variables. For our SEM model, the error structure was modelled assuming a Gaussian distribution and we estimated residual correlations among all variables. 
+
+We obtained direct, indirect, and total effects from posterior distributions of parameters estimated in the multivariate models. Direct effects represent the posterior estimates of a predictor’s effect on the response variable, while indirect effects were computed as the product of the direct effects along the path [@kline2005principles]. Total effects are the sum of direct and indirect effects.    
+
+## Results
+Our final sample size for mitochondrial assays was 80 lizards from a total of `r clutches` clutches (n = 20 lizards per treatment). Each lizard was subjected to 4 tests for a total of n = 320 behavioural observations (n = `r sum(is.na(clean_df$t_D))` with missing data). 
+
+```{r, models_mitochondrial}
+#| label: models_mitochondrial
+#
+# Run models mitochondrial physiology (each region separately)
+#
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
+regions <- c("OB", "OT")
+for (p in var_m){
+  for (h in regions){
+    if (h == "OB"){
+      df <- clean_df %>% filter(region == "OB")
+      l <- "OB"
+      if (p %in% c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros")){
+        formula <- paste0(p, "~ cort*temp + (1|clutch)")
+      } else if (p == "mean_dnadamage"){
+        formula <- paste0(p, "~ cort*temp + age_euthanasia + sex + (1|clutch)")
+      } else {
+        formula <- paste0(p, "~ cort*temp + age_euthanasia + (1|clutch)")
+      }
+    } else {
+      df <- clean_df %>% filter(region == "OT")
+      l <- "OT"
+      if (p %in% c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros")){
+        formula <- paste0(p, "~ cort*temp + (1|clutch)")
+      } else if (p == "mean_dnadamage"){
+        formula <- paste0(p, "~ cort*temp + sex + (1|clutch)")
+      } else {
+        formula <- paste0(p, "~ cort*temp + age_euthanasia + (1|clutch)")
+      }
+    }
+
+    pmodel_name <- paste0("m_def_", p, "_", h)
+    assign(pmodel_name, fit_m(df = df,
+                              cat = "def",
+                              var = p,
+                              formula = formula,
+                              fam = gaussian(),
+                              label = l,
+                              refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+} 
+```
+
+```{r, models_behaviour}
+#| label: models_behaviour
+# Fitting the model and extraction of posteriors for Detection Latency (log-normal).
+source(here("R", "func.R"))
+#
+#
+## Run model behaviour for both stimuli separately
+#
+beh_df <- clean_df
+stimuli <- c("Chemical", "Visual")
+for (s in stimuli){
+  df_b <- beh_df %>% filter(stimulus == s)
+  formula_t_D <- t_D ~ cort*temp + (1|clutch) + (1|lizard_id)
+
+  pmodel_name <- paste0("m_def_t_D_", s)
+  assign(pmodel_name, fit_m(df = df_b,
+                             cat = "def",
+                             var = "t_D",
+                             formula = formula_t_D,
+                             fam = gaussian(),
+                             label = s,
+                             refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+}
+```
+
+```{r, organise_posteriors}
+#| label: organise_posteriors
+#
+# Organising the posteriors of the previous models to fit the tables below
+#
+source(here("R", "func.R"))
+#
+# Databases for each region/stimulus
+post_OB <- data.frame()
+post_OT <- data.frame()
+# Names posteriors:
+region <- c("OB", "OT")
+names_OB <- c("m_def_mean_mitodensity_OB", "m_def_mean_potential_OB", "m_def_mean_conpotential_OB", "m_def_mean_ros_OB", "m_def_mean_conros_OB", "m_def_mean_dnadamage_OB", "m_def_mean_peroxidation_OB", "m_def_t_D_Chemical")
+names_OT <- c("m_def_mean_mitodensity_OT", "m_def_mean_potential_OT", "m_def_mean_conpotential_OT", "m_def_mean_ros_OT", "m_def_mean_conros_OT", "m_def_mean_dnadamage_OT", "m_def_mean_peroxidation_OT", "m_def_t_D_Visual")
+#
+# Organising the results
+for (r in region) {
+  model_select <- get(paste0("names_", r))   
+  for (pos in model_select) {
+    model <- get(pos)      # Get the model from the global environment
+    post_result <- tidy_post(model)        # Apply tidy_post to each model
+    # Add a new column to identify the region and model
+    post_result$Region <- r
+    post_result$Model <- pos
+    # Append to the appropriate data frame
+    if (r == "OB") {
+      post_OB <- bind_rows(post_OB, post_result)
+    } else {
+      post_OT <- bind_rows(post_OT, post_result)
+    }
+  }
+}
+```
+
+```{r, values_posteriors}
+#| label: values_posteriors
+#
+# Extracting the posteriors for the models and the values of interest. Here, I am creating dfs for each of the variables with the values for all the prenatal conditions to make contrasts easier to write.
+#
+source(here("R", "func.R"))
+#
+# A) Olfactory bulbs/Chemical stimulus
+#
+MD_OB <- post_values(m_def_mean_mitodensity_OB, "none")
+MP_OB <- post_values(m_def_mean_potential_OB, "none")
+MPcon_OB <- post_values(m_def_mean_conpotential_OB, "none")
+ROS_OB <- post_values(m_def_mean_ros_OB, "none")
+ROScon_OB <- post_values(m_def_mean_conros_OB, "none")
+DNA_OB <- post_values(m_def_mean_dnadamage_OB, "none")
+LP_OB <- post_values(m_def_mean_peroxidation_OB, "none")
+DET_OB <- post_values(m_def_t_D_Chemical, "none")
+#
+# B) Optic tecta/Visual stimulus
+MD_OT <- post_values(m_def_mean_mitodensity_OT, "none")
+MP_OT <- post_values(m_def_mean_potential_OT, "none")
+MPcon_OT <- post_values(m_def_mean_conpotential_OT, "none")
+ROS_OT <- post_values(m_def_mean_ros_OT, "none")
+ROScon_OT <- post_values(m_def_mean_conros_OT, "none")
+DNA_OT <- post_values(m_def_mean_dnadamage_OT, "sex")
+LP_OT <- post_values(m_def_mean_peroxidation_OT, "none")
+DET_OT <- post_values(m_def_t_D_Visual, "none")
+```
+
+#### Do prenatal CORT and temperature affect mitochondrial function in the brain?
+Models explained between 37.8 to 50.4 % of the variation in mitochondrial density and metabolic capacity and 39.9 to 59 % for ROS production and oxidative stress (see Table S3).
+
+_Olfactory bulbs_: DNA damage and lipid peroxidation increased with age (Table S3), but neither prenatal CORT or temperature independently affected any mitochondrial variable analysed (see @fig-results_energy, @fig-results_oxidative, and Table S4). Lipid peroxidation, however, varied depending on the prenatal CORT treatment and incubation temperature: although the interaction was weak ([(β~Control-Hot~ - β~CORT-Hot~) - (β~Control-Cold~ - β~CORT-Cold~)]: mean = `r format_dec((mean(LP_OB$Control_Hot) - mean(LP_OB$CORT_Hot)) - (mean(LP_OB$Control_Cold) - mean(LP_OB$CORT_Cold)), 3)`, pMCMC `r format_p(pmcmc((LP_OB$Control_Hot - LP_OB$CORT_Hot) - (LP_OB$Control_Cold - LP_OB$CORT_Cold)), 3, equal = TRUE)`), targeted contrasts showed CORT-treated lizards incubated at high temperatures had lower peroxidation than CORT-Cold lizards (β~CORT-Hot~ - β~CORT-Cold~: mean = `r format_dec(mean(LP_OB$CORT_Hot) - mean(LP_OB$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(LP_OB$CORT_Hot - LP_OB$CORT_Cold), 3, equal = TRUE)`; see @fig-results_oxidative D).      
+
+```{r, fig-results_energy}
+#| label: fig-results_energy
+#| fig-cap: "Estimates of mitochondrial density (A, D) and metabolic capacity (B, E), and metabolic capacity per mitochondrion (C, F) in the olfactory bulbs (A-C) and optic tecta (D-F) of L. delicata as a function of the different prenatal conditions. Coloured areas represent the full posterior distribution (density) for each treatment. Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences. No significant differences were detected in this figure."
+#| fig-name: "fig-results_energy"
+#
+source(here("R", "func.R"))
+#
+# A) Plotting the results for OB/Chemical stimulus using the df from before
+plot_density_OB <- plotting(MD_OB, "Mit density")
+plot_potential_OB <- plotting(MP_OB, "Mit potential")
+plot_conpotential_OB <- plotting(MPcon_OB, "Mit potential/Mit density")
+#
+fig_OB_energy <- plot_grid(plot_density_OB, NULL, 
+                          plot_potential_OB, plot_conpotential_OB,
+                          nrow = 2, ncol = 2, rel_widths = c(1))
+#
+# B) Plotting the results for OT/Visual stimulus
+plot_density_OT <- plotting(MD_OT, "Mit density")
+plot_potential_OT <- plotting(MP_OT, "Mit potential")
+plot_conpotential_OT <- plotting(MPcon_OT, "Mit potential/Mit density")
+#
+fig_OT_energy <- plot_grid(plot_density_OB, NULL, 
+                          plot_potential_OB, plot_conpotential_OB,
+                          nrow = 2, ncol = 2, rel_widths = c(1))
+#
+# Getting the legend (get_legend() does not work if the legend is on the top or bottom)
+plot_legend_bottom <- plotting(MP_OB, "Mit potential") + theme(legend.position = "bottom", legend.title = element_blank())
+gtable <- ggplot_gtable(ggplot_build(plot_legend_bottom))
+legend_plot <- gtable$grobs[[which(sapply(gtable$grobs, function(x) x$name) == "guide-box")]]
+# C) Merging plots
+#
+# Create the figure grid with extra space for images
+fig_results_energy <- plot_grid(
+  fig_OB_energy, fig_OT_energy, legend_plot,
+  nrow = 3, rel_heights = c(1, 1, 0.1))
+# Final composition: Merge everything, adding images and legend
+final_plot_energy <- ggdraw(fig_results_energy) +
+  # Insert OB image in the top right
+  draw_image("./Others/OB.png", x = 0.75, y = 0.75, width = 0.21, height = 0.3) +
+  # Insert OT image in the middle right
+  draw_image("./Others/OT.png", x = 0.75, y = 0.28, width = 0.19, height = 0.3) +
+  # Insert title for each plot
+  annotate("text", x = 0.035, y = 0.985, label = "A", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.035, y = 0.755, label = "B", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.535, y = 0.755, label = "C", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.035, y = 0.52, label = "D", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.035, y = 0.29, label = "E", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.535, y = 0.29, label = "F", hjust = 1, vjust = 1, size = 7, fontface = "bold")
+
+#
+# Print final plot
+ggsave(here("./output/figures/text/results_energy.tiff"), plot = final_plot_energy, width = 18, height = 24, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/text/results_energy.tiff")
+```
+
+_Optic tecta_: Neither prenatal CORT, temperature, or their interaction influenced mitochondrial density, metabolic capacity, or ROS production, and prenatal CORT and temperature did not have independent effects on oxidative damage (see @fig-results_energy, @fig-results_oxidative, and Table S4). However, the interaction of CORT and temperature affected DNA damage ([(β~Control-Hot~ - β~CORT-Hot~) - (β~Control-Cold~ - β~CORT-Cold~)]: mean = `r format_dec((mean(DNA_OT$Control_Hot) - mean(DNA_OT$CORT_Hot)) - (mean(DNA_OT$Control_Cold) - mean(DNA_OT$CORT_Cold)), 3)`, pMCMC `r format_p(pmcmc((DNA_OT$Control_Hot - DNA_OT$CORT_Hot) - (DNA_OT$Control_Cold - DNA_OT$CORT_Cold)), 3, equal = TRUE)`), and lipid peroxidation ([(β~Control-Hot~ - β~CORT-Hot~) - (β~Control-Cold~ - β~CORT-Cold~)]: mean = `r format_dec((mean(LP_OT$Control_Hot) - mean(LP_OT$CORT_Hot)) - (mean(LP_OT$Control_Cold) - mean(LP_OT$CORT_Cold)), 3)`, pMCMC `r format_p(pmcmc((LP_OT$Control_Hot - LP_OT$CORT_Hot) - (LP_OT$Control_Cold - LP_OT$CORT_Cold)), 3, equal = TRUE)`). While CORT elevations had no effect on hot-incubated lizards (β~Control-Hot~ - β~CORT-Hot~: mean = `r format_dec(mean(DNA_OT$Control_Hot) - mean(DNA_OT$CORT_Hot),3)`, pMCMC `r format_p(pmcmc(DNA_OT$Control_Hot - DNA_OT$CORT_Hot), 3, equal = TRUE)`), it decreased DNA damage in cold-incubated animals (β~Control-Cold~ - β~CORT-Cold~: mean = `r format_dec(mean(DNA_OT$Control_Cold) - mean(DNA_OT$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(DNA_OT$Control_Cold - DNA_OT$CORT_Cold), 3, equal = TRUE)`) (see @fig-results_oxidative C, E). The effects of CORT on lipid proxidation depended on incubation temperature: CORT tended to reduce lipid peroxidation in hot-incubated lizards (β~Control-Hot~ - β~CORT-Hot~: mean = `r format_dec(mean(LP_OT$Control_Hot) - mean(LP_OT$CORT_Hot),3)`, pMCMC `r format_p(pmcmc(LP_OT$Control_Hot - LP_OT$CORT_Hot), 3, equal = TRUE)`) but increase in it at low incubation temperatures (β~Control-Cold~ - β~CORT-Cold~: mean = `r format_dec(mean(LP_OT$Control_Cold) - mean(LP_OT$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(LP_OT$Control_Cold - LP_OT$CORT_Cold), 3, equal = TRUE)`), although these patterns were not statistically supported. However, CORT-Hot lizards had lower lipid peroxidation values than CORT-Cold lizards (β~CORT-Hot~ - β~CORT-Cold~: mean = `r format_dec(mean(LP_OT$CORT_Hot) - mean(LP_OT$CORT_Cold),3)`, pMCMC `r format_p(pmcmc(LP_OT$CORT_Hot - LP_OT$CORT_Cold), 3, equal = TRUE)`; see @fig-results_oxidative C). In addition, we found that females had higher DNA damage levels than males, and lipid peroxidation increased with age (see Table S6).          
+  
+```{r, fig-results_oxidative}
+#| label: fig-results_oxidative
+#| fig-cap: "Estimates of ROS (A, E), ROS per mitochondrion (B, F), DNA damage (C, G), and lipid peroxidation (D, H) in the olfactory bulbs (A-D) and optic tecta (E-H) of L. delicata hatchlings as a function of the different prenatal conditions. Coloured areas represent the full posterior distribution (density) for each treatment. Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences."
+#| fig-name: "fig-results_oxidative"
+#
+source(here("R", "func.R"))
+#
+# A) Plotting the results for OB/Chemical stimulus
+plot_ros_OB <- plotting(ROS_OB, "ROS")
+plot_conros_OB <- plotting(ROScon_OB, "ROS/Mit density")
+plot_dnadamage_OB <- plotting(DNA_OB, "DNA damage")
+plot_peroxidation_OB <- plotting(LP_OB, "Lipid peroxidation")
+#
+fig_OB_oxidative_top <- plot_grid(plot_ros_OB, plot_conros_OB, NULL,
+                    nrow = 1, rel_widths = c(1, 1, 0.35))
+fig_OB_oxidative_bottom <- plot_grid(plot_dnadamage_OB, plot_peroxidation_OB, NULL,
+                    nrow = 1, rel_widths = c(1, 1, 0.35))
+fig_OB_oxidative <- plot_grid(fig_OB_oxidative_top, fig_OB_oxidative_bottom,
+                    nrow = 2)
+#
+# B) Plotting the results for OT/Visual stimulus
+plot_ros_OT <- plotting(ROS_OT, "ROS")
+plot_conros_OT <- plotting(ROScon_OT, "ROS/Mit density")
+plot_dnadamage_OT <- plotting(DNA_OT, "DNA damage")
+plot_peroxidation_OT <- plotting(LP_OT, "Lipid peroxidation")
+#
+fig_OT_oxidative_top <- plot_grid(plot_ros_OT, plot_conros_OT, NULL,
+                    nrow = 1, rel_widths = c(1, 1, 0.35))
+fig_OT_oxidative_bottom <- plot_grid(plot_dnadamage_OT, plot_peroxidation_OT, NULL,
+                    nrow = 1, rel_widths = c(1, 1, 0.35))
+fig_OT_oxidative <- plot_grid(fig_OT_oxidative_top, fig_OT_oxidative_bottom,
+                    nrow = 2)
+#
+# Getting the legend (get_legend() does not work if the legend is on the top or bottom)
+plot_legend_bottom <- plotting(ROS_OB, "ROS") + theme(legend.position = "bottom", legend.title = element_blank())
+gtable <- ggplot_gtable(ggplot_build(plot_legend_bottom))
+legend_plot <- gtable$grobs[[which(sapply(gtable$grobs, function(x) x$name) == "guide-box")]]
+# C) Merging plots
+#
+# Create the figure grid with extra space for images
+fig_results_oxidative <- plot_grid(
+  fig_OB_oxidative, fig_OT_oxidative, legend_plot,
+  nrow = 3, rel_heights = c(1, 1, 0.1))
+# Final composition: Merge everything, adding images and legend
+final_plot_oxidative <- ggdraw(fig_results_oxidative) +
+  # Insert OB image in the top right
+  draw_image("./Others/OB.png", x = 0.85, y = 0.77, width = 0.17, height = 0.24) +
+  # Insert OT image in the middle right
+  draw_image("./Others/OT.png", x = 0.85, y = 0.295, width = 0.15, height = 0.245) +
+  # Insert title for each plot
+  annotate("text", x = 0.028, y = 0.986, label = "A", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.455, y = 0.986, label = "B", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.028, y = 0.745, label = "C", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.455, y = 0.745, label = "D", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.028, y = 0.51, label = "E", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.455, y = 0.51, label = "F", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.028, y = 0.27, label = "G", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.455, y = 0.27, label = "H", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("segment", x = 0.39, xend= 0.39, y = 0.217, yend = 0.262, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.38, xend= 0.39, y = 0.217, yend = 0.217, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.38, xend= 0.39, y = 0.262, yend = 0.262, size = 0.5, colour = "black") +
+  annotate("text", x = 0.4, y = 0.24, label = "*", hjust = 0.5, vjust = 0.5, size = 7) +
+  annotate("segment", x = 0.83, xend= 0.83, y = 0.173, yend = 0.262, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.82, xend= 0.83, y = 0.173, yend = 0.173, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.82, xend= 0.83, y = 0.262, yend = 0.262, size = 0.5, colour = "black") +
+  annotate("text", x = 0.84, y = 0.21, label = "*", hjust = 0.5, vjust = 0.5, size = 7) +
+  annotate("segment", x = 0.83, xend= 0.83, y = 0.648, yend = 0.737, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.82, xend= 0.83, y = 0.648, yend = 0.648, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.82, xend= 0.83, y = 0.737, yend = 0.737, size = 0.5, colour = "black") +
+  annotate("text", x = 0.84, y = 0.685, label = "*", hjust = 0.5, vjust = 0.5, size = 7)
+#
+# Print final plot
+ggsave(here("./output/figures/text/results_oxidative.tiff"), plot = final_plot_oxidative, width = 24, height = 24, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/text/results_oxidative.tiff")
+```
+
+#### Do prenatal CORT and incubation temperature affect prey detection?
+Models explained between 26 to 29.3 % of the variation in prey detection (see Table S3).  
+
+_Chemical stimulus_: Lizards detected chemical stimulus faster when exposed to prenatal CORT (β~Control~ - β~CORT~: mean = `r format_dec(mean(c(DET_OB$Control_Cold, DET_OB$Control_Hot)) - mean(c(DET_OB$CORT_Cold, DET_OB$CORT_Hot)), 3)`, pMCMC `r format_p(pmcmc(c(DET_OB$Control_Cold, DET_OB$Control_Hot) - c(DET_OB$CORT_Cold, DET_OB$CORT_Hot)), 3, equal = TRUE)`), but there was no effect of temperature or the interaction between CORT and temperature (@fig-results_behaviour A and Table S5).  
+
+```{r, fig-results_behaviour}
+#| label: fig-results_behaviour
+#| fig-cap: "Estimates of detection latency of chemical (A) and visual (B) stimulus by L. delicata hatchlings as a function of the different prenatal conditions. Coloured areas represent the full posterior distribution (density) for each treatment.Black dots indicate the posterior mean, and the bars represent the SD of the estimates. The y-axis represents the posterior estimates of the variable of interest, and the x-axis represents the different prenatal conditions. Lines with asterisks represent significant differences between groups based on pMCMC values (pMCMC < 0.05), no lines indicate no significant differences."
+#| fig-name: "fig-results"
+#
+source(here("R", "func.R"))
+# A) Plotting the results for OB/Chemical stimulus
+plot_t_D_Chemical <- plotting(DET_OB, "Detection latency")
+#
+# B) Plotting the results for OT/Visual stimulus
+plot_t_D_Visual <- plotting(DET_OT, "Detection latency")
+#
+# Getting the legend (get_legend() does not work if the legend is on the top or bottom)
+plot_legend_bottom <- plotting(DET_OB, "Detection latency") + theme(legend.position = "bottom", legend.title = element_blank())
+gtable <- ggplot_gtable(ggplot_build(plot_legend_bottom))
+legend_plot <- gtable$grobs[[which(sapply(gtable$grobs, function(x) x$name) == "guide-box")]]
+# C) Merging plots
+#
+# Create the figure grid with extra space for images
+fig_results_det <- plot_grid(plot_t_D_Chemical, NULL, plot_t_D_Visual, NULL,
+                    nrow = 1, rel_widths = c(1, 0.4, 1, 0.35))
+fig_results_behaviour <- plot_grid(fig_results_det, NULL,
+  nrow = 2, rel_heights = c(1, 0.15))
+# Final composition: Merge everything, adding images and legend
+final_plot_behaviour <- ggdraw(fig_results_behaviour) +
+  # Insert CS image in the top middle
+  draw_image("./Others/CS.png", x = 0.19, y = 0.36, width = 0.48, height = 0.6) +
+  # Insert VS image in the top right
+  draw_image("./Others/VS.png", x = 0.6, y = 0.35, width = 0.65, height = 0.6) +
+  # Insert legend at the bottom-right
+  draw_grob(legend_plot, x = 0.45, y = 0.07, width = 0.0001, height = 0.0001) +
+  # Insert title for each plot
+  annotate("text", x = 0.035, y = 0.96, label = "A", hjust = 1, vjust = 1, size = 7, fontface = "bold") +
+  annotate("text", x = 0.542, y = 0.96, label = "B", hjust = 1, vjust = 1, size = 7, fontface = "bold") +  
+  annotate("segment", x = 0.34, xend= 0.34, y = 0.73, yend = 0.91, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.335, xend= 0.34, y = 0.73, yend = 0.73, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.335, xend= 0.34, y = 0.91, yend = 0.91, size = 0.5, colour = "black") +
+  annotate("text", x = 0.35, y = 0.795, label = "*", hjust = 0.5, vjust = 0.5, size = 7) +
+  annotate("segment", x = 0.292, xend= 0.292, y = 0.418, yend = 0.598, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.287, xend= 0.292, y = 0.418, yend = 0.418, size = 0.5, colour = "black") +
+  annotate("segment", x = 0.287, xend= 0.292, y = 0.598, yend = 0.598, size = 0.5, colour = "black") +
+  annotate("text", x = 0.302, y = 0.471, label = "*", hjust = 0.5, vjust = 0.5, size = 7)
+#
+# Print final plot
+ggsave(here("./output/figures/text/results_behaviour.tiff"), plot = final_plot_behaviour, width = 21, height = 7, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/text/results_behaviour.tiff")
+```
+
+_Visual stimulus_: There were no significant effects of CORT, temperature, or their interaction on the detection latency of visual stimuli (@fig-results_behaviour B and Table S4).  
+
+#### Does mitochondrial function compromise prey detection?
+```{r, model_sem_OB}
+#| label: model_sem_OB
+# Making the SEM model by using a multivariate brms. The aim is to test the relationships between mitochondrial physiology and detection latency.
+# To simplify the random factors, and since there is no effect of experience with the prey in prey detection, latency was averaged across the two preys. Every other predictor added to the model was based on previous brms for each variable separated.
+# All continue variables were standardized (var/2SD) before running the models (see data_process.R). 
+#
+source(here("R", "func.R"))
+#
+SEM_df <- clean_df %>%
+  group_by(lizard_id, prey) %>%
+  mutate(t_D = mean(t_D, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(prey == "Unknown")
+#
+#
+data_sem_OB <- SEM_df %>%
+  filter(region == "OB") %>%
+  mutate(obs = as.integer(c(1:80))) %>%
+  mutate(vec = rep(1, length(obs)))
+# Create the models
+#
+refit <- FALSE
+#
+#
+if(refit){
+  m_OB <- brm(
+    bf(t_D | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|q|obs)) +
+    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|p|obs)) +
+    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch)+ (1|p|obs)) +
+    bf(mean_ros | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
+  set_rescor(FALSE),
+  family = gaussian(),
+  data = data_sem_OB,
+  chains = 4, cores = 4, iter = 8000, warmup = 2000,
+  control = list(adapt_delta = 0.99, max_treedepth = 11))
+  # Save the model
+  saveRDS(m_OB, file = here("output/m_SEM/m_OB.rds"))
+} else {
+  m_OB <- readRDS(here("output/m_SEM/m_OB.rds"))
+}
+```
+
+```{r, sem_tidy_OB}
+#| label: sem_tidy_OB
+source(here("R", "func.R"))
+#
+# I am extracting here all the values for getting the total effects of each of the variables in the model. I am using the posterior values for each of the variables to get the total effects assuming that:
+## total effect = direct effect + indirect effect + residual correlation
+# In other words:
+## total effect = 
+# Extract the posteriors for the SEM model
+post_sem_OB <- as_draws_df(m_OB) 
+#
+#### A) Get the direct paths per each variable
+# 
+# A.1) Detection
+OB_coeff_mitodensity_det <- post_sem_OB$b_tD_mean_mitodensity
+OB_coeff_potential_det <- post_sem_OB$b_tD_mean_potential
+OB_coeff_dna_det <- post_sem_OB$b_tD_mean_dnadamage
+OB_coeff_perox_det <- post_sem_OB$b_tD_mean_peroxidation
+# 
+# A.2) DNA damage
+OB_coeff_ros_dna <- post_sem_OB$b_meandnadamage_mean_ros
+#
+# A.3) Lipid peroxidation
+OB_coeff_ros_perox <- post_sem_OB$b_meanperoxidation_mean_ros
+#
+# A.4) ROS
+OB_coeff_mitodensity_ros <- post_sem_OB$b_meanros_mean_mitodensity
+OB_coeff_potential_ros <- post_sem_OB$b_meanros_mean_potential
+#
+#
+#### B) Get the indirect paths for each variable
+#
+# B.1) Detection
+OB_undir_ros_det <- OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_ros_perox * OB_coeff_perox_det
+OB_undir_mitodensity_det <- OB_coeff_mitodensity_ros * OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_mitodensity_ros * OB_coeff_ros_perox * OB_coeff_perox_det
+OB_undir_potential_det <- OB_coeff_potential_ros * OB_coeff_ros_dna * OB_coeff_dna_det + OB_coeff_potential_ros * OB_coeff_ros_perox * OB_coeff_perox_det
+#
+# B.2) DNA damage
+OB_undir_mitodensity_dna <- OB_coeff_mitodensity_ros * OB_coeff_ros_dna
+OB_undir_potential_dna <- OB_coeff_potential_ros * OB_coeff_ros_dna
+#
+# B.3) Lipid peroxidation
+OB_undir_mitodensity_perox <- OB_coeff_mitodensity_ros * OB_coeff_ros_perox
+OB_undir_potential_perox <- OB_coeff_potential_ros * OB_coeff_ros_perox
+#
+#
+#### C) Get the total effects for each variable
+#
+# C.1) Detection
+OB_total_mitodensity_det <- OB_undir_mitodensity_det
+OB_total_potential_det <- OB_undir_potential_det
+OB_total_ros_det <- OB_undir_ros_det
+OB_total_dna_det <- OB_coeff_dna_det
+OB_total_perox_det <- OB_coeff_perox_det
+#
+# C.2) DNA damage
+OB_total_ros_dna <- OB_coeff_ros_dna
+OB_total_mitodensity_dna <- OB_undir_mitodensity_dna
+OB_total_potential_dna <- OB_undir_potential_dna
+#
+# C.3) Lipid peroxidation
+OB_total_ros_perox <- OB_coeff_ros_perox
+OB_total_mitodensity_perox <- OB_undir_mitodensity_perox
+OB_total_potential_perox <- OB_undir_potential_perox
+#
+# C.4) ROS
+OB_total_mitodensity_ros <- OB_coeff_mitodensity_ros
+OB_total_potential_ros <- OB_coeff_potential_ros
+#
+#
+# D) Create a df with the values for each variable
+#
+# D.1) Detection (for example)
+det_results_semOB <- data.frame(
+  reference_variable = rep("t_D", 5),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS",
+                          "mean_dnadamage",
+                          "mean_peroxidation"),
+  direct_effects = I(list(OB_coeff_mitodensity_det,
+                          OB_coeff_potential_det,
+                          NA,
+                          OB_coeff_dna_det,
+                          OB_coeff_perox_det)),
+  indirect_effects = I(list(OB_undir_mitodensity_det,
+                          OB_undir_potential_det,
+                          OB_undir_ros_det,
+                          NA,
+                          NA)),
+  total_effects = I(list(OB_total_mitodensity_det,
+                        OB_total_potential_det,
+                        OB_total_ros_det,
+                        OB_total_dna_det,
+                        OB_total_perox_det))
+  ) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)) %>%
+  mutate(source = "det_results_semOB")
+#
+# D.2) DNA damage
+dna_results_semOB <- data.frame(
+  reference_variable = rep("DNA damage", 3),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS"),
+  direct_effects = I(list(NA,
+                          NA,
+                          OB_coeff_ros_dna)),
+  indirect_effects = I(list(OB_undir_mitodensity_dna,
+                          OB_undir_potential_dna,
+                          NA)),
+  total_effects = I(list(OB_total_mitodensity_dna,
+                        OB_total_potential_dna,
+                        OB_total_ros_dna))) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)) %>%
+  mutate(source = "dna_results_semOB")
+#
+# D.3) Lipid peroxidation
+perox_results_semOB <- data.frame(
+  reference_variable = rep("lipid peroxidation", 3),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS"),
+  direct_effects = I(list(NA,
+                          NA,
+                          OB_coeff_ros_perox)),
+  indirect_effects = I(list(OB_undir_mitodensity_perox,
+                          OB_undir_potential_perox,
+                          NA)),
+  total_effects = I(list(OB_total_mitodensity_perox,
+                        OB_total_potential_perox,
+                        OB_total_ros_perox))) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)) %>%
+  mutate(source = "perox_results_semOB")
+#
+# D.4) ROS
+ros_results_semOB <- data.frame(
+  reference_variable = rep("ROS", 2),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential"),
+  direct_effects = I(list(OB_coeff_mitodensity_ros,
+                          OB_coeff_potential_ros)),
+  indirect_effects = I(list(NA,
+                          NA)),
+  total_effects = I(list(OB_total_mitodensity_ros,
+                        OB_total_potential_ros))) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)) %>%
+  mutate(source = "ros_results_semOB")
+#
+#
+# E) Merge everything into a single df
+#
+sem_results_OB <- bind_rows(det_results_semOB, dna_results_semOB, perox_results_semOB, ros_results_semOB)
+```
+
+_Chemical stimulus (Olfactory bulbs)_: We found a positive effect of mitochondrial density on ROS production (mean β~Mit density~ ~-~ ~ROS~ = `r format_dec(mean(OB_coeff_mitodensity_ros), 3)`, pMCMC `r format_p(pmcmc(OB_coeff_mitodensity_ros), 3, equal = TRUE)`). However, there were no significant relationships between other mitochondrial variables or between mitochondrial function and prey detection (see @fig-sem_results_OB and Table S7).    
+
+```{r, fig-sem_results_OB}
+#| label: fig-sem_results_OB
+#| fig-cap: "Structural equation model for the olfactory bulbs (OB) and chemical prey detection. Numbers on arrows represent estimated direct effects (mean and 95% credible interval). Asterisks indicate effects whose 95% credible interval does not overlap zero."
+#| fig-name: "fig-sem_results_OB"
+#
+# A) Getting all the direct coefficients
+OB_density_det <- paste0(format_dec(mean(OB_coeff_mitodensity_det), 3),
+                  " [", format_dec(quantile(OB_coeff_mitodensity_det, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_mitodensity_det, 0.95), 3), "]")
+OB_potential_det <- paste0(format_dec(mean(OB_coeff_potential_det), 3),
+                  " [", format_dec(quantile(OB_coeff_potential_det, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_potential_det, 0.95), 3), "]")
+OB_dna_det <- paste0(format_dec(mean(OB_coeff_dna_det), 3),
+                  " [", format_dec(quantile(OB_coeff_dna_det, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_dna_det, 0.95), 3), "]")
+OB_perox_det <- paste0(format_dec(mean(OB_coeff_perox_det), 3),
+                  " [", format_dec(quantile(OB_coeff_perox_det, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_perox_det, 0.95), 3), "]")
+#
+OB_ros_dna <- paste0(format_dec(mean(OB_coeff_ros_dna), 3),
+                  " [", format_dec(quantile(OB_coeff_ros_dna, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_ros_dna, 0.95), 3), "]")
+#
+OB_ros_perox <- paste0(format_dec(mean(OB_coeff_ros_perox), 3),
+                  " [", format_dec(quantile(OB_coeff_ros_perox, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_ros_perox, 0.95), 3), "]")
+#
+OB_density_ros <- paste0(format_dec(mean(OB_coeff_mitodensity_ros), 3),
+                  " [", format_dec(quantile(OB_coeff_mitodensity_ros, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_mitodensity_ros, 0.95), 3), "]")
+OB_potential_ros <- paste0(format_dec(mean(OB_coeff_potential_ros), 3),
+                  " [", format_dec(quantile(OB_coeff_potential_ros, 0.05), 3),
+                  ", ", format_dec(quantile(OB_coeff_potential_ros, 0.95), 3), "]")
+#
+imgOB <- readPNG(here("Others", "SEM.png"))
+plot_SEM_OB <- rasterGrob(imgOB, interpolate = TRUE)
+#
+fig_SEM_OB <- ggdraw(plot_SEM_OB) +
+  draw_image("./Others/OB.png", x = 0.855, y = 0.67, width = 0.18, height = 0.3) +
+  annotate("text", x = 0.52, y = 0.075, label = OB_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.52, y = 0.94, label = OB_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.715, label = OB_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.335, label = OB_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.525, y = 0.805, label = OB_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.515, y = 0.215, label = OB_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.282, y = 0.2, label = OB_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.282, y = 0.82, label = OB_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.291, y = 0.21, label = "*", hjust = 1, vjust = 1, size = 4, family = "Times")
+ggsave(here("./output/figures/text/SEM_OB.tiff"), plot = fig_SEM_OB, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/text/SEM_OB.tiff")
+```
+
+```{r, models_sem_OT}
+#| label: models_sem_OT
+# Making the same models above but for OT/Visual stimulus
+#
+source(here("R", "func.R"))
+#
+#
+data_sem_OT <- SEM_df %>%
+  filter(region == "OT") %>%
+  mutate(obs = as.integer(c(1:80))) %>%
+  mutate(vec = rep(1, length(obs)))
+#
+# Create the models
+#
+refit <- FALSE
+#
+if(refit){
+  m_OT <- brm(
+    bf(t_D | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + mean_dnadamage + mean_peroxidation + (1|clutch) + (1|p|obs)) +
+    bf(mean_dnadamage | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|q|obs)) +
+    bf(mean_peroxidation | se(vec, sigma = FALSE) ~ mean_ros + (1|clutch) + (1|q|obs)) +
+    bf(mean_ros | se(vec, sigma = FALSE) ~ mean_mitodensity + mean_potential + (1|clutch) + (1|t|obs)) +
+  set_rescor(FALSE),
+  family = gaussian(),
+  data = data_sem_OT, 
+  chains = 4, cores = 4, iter = 8000, warmup = 2000,
+  control = list(adapt_delta = 0.99, max_treedepth = 11))
+  # Save the model
+  saveRDS(m_OT, file = here("output/m_SEM/m_OT.rds"))
+} else {
+  m_OT <- readRDS(here("output/m_SEM/m_OT.rds"))
+}
+```
+
+```{r, sem_tidy_OT}
+#| label: sem_tidy_OT
+source(here("R", "func.R"))
+#
+# I am extracting here all the values for getting the total effects of each of the variables in the model. I am using the posterior values for each of the variables to get the total effects assuming that:
+## total effect = direct effect + indirect effect + residual correlation
+# In other words:
+## total effect = 
+# Extract the posteriors for the SEM model
+post_sem_OT <- as_draws_df(m_OT) 
+#
+#### A) Get the direct paths per each variable
+# 
+# A.1) Detection
+OT_coeff_mitodensity_det <- post_sem_OT$b_tD_mean_mitodensity
+OT_coeff_potential_det <- post_sem_OT$b_tD_mean_potential
+OT_coeff_dna_det <- post_sem_OT$b_tD_mean_dnadamage
+OT_coeff_perox_det <- post_sem_OT$b_tD_mean_peroxidation
+#
+# A.2) DNA damage
+OT_coeff_ros_dna <- post_sem_OT$b_meandnadamage_mean_ros
+#
+# A.3) Lipid peroxidation
+OT_coeff_ros_perox <- post_sem_OT$b_meanperoxidation_mean_ros
+#
+# A.4) ROS
+OT_coeff_mitodensity_ros <- post_sem_OT$b_meanros_mean_mitodensity
+OT_coeff_potential_ros <- post_sem_OT$b_meanros_mean_potential
+#
+#
+#### B) Get the indirect paths for each variable
+#
+# B.1) Detection
+OT_undir_ros_det <- OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_ros_perox * OT_coeff_perox_det
+OT_undir_mitodensity_det <- OT_coeff_mitodensity_ros * OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_mitodensity_ros * OT_coeff_ros_perox * OT_coeff_perox_det
+OT_undir_potential_det <- OT_coeff_potential_ros * OT_coeff_ros_dna * OT_coeff_dna_det + OT_coeff_potential_ros * OT_coeff_ros_perox * OT_coeff_perox_det
+#
+# B.2) DNA damage
+OT_undir_mitodensity_dna <- OT_coeff_mitodensity_ros * OT_coeff_ros_dna
+OT_undir_potential_dna <- OT_coeff_potential_ros * OT_coeff_ros_dna
+#
+# B.3) Lipid peroxidation
+OT_undir_mitodensity_perox <- OT_coeff_mitodensity_ros * OT_coeff_ros_perox
+OT_undir_potential_perox <- OT_coeff_potential_ros * OT_coeff_ros_perox
+#
+#
+#### C) Get the total effects for each variable
+#
+# C.1) Detection
+OT_total_mitodensity_det <- OT_undir_mitodensity_det
+OT_total_potential_det <- OT_undir_potential_det
+OT_total_ros_det <- OT_undir_ros_det 
+OT_total_dna_det <- OT_coeff_dna_det 
+OT_total_perox_det <- OT_coeff_perox_det 
+#
+# C.2) DNA damage
+OT_total_ros_dna <- OT_coeff_ros_dna 
+OT_total_mitodensity_dna <- OT_undir_mitodensity_dna
+OT_total_potential_dna <- OT_undir_potential_dna
+#
+# C.3) Lipid peroxidation
+OT_total_ros_perox <- OT_coeff_ros_perox 
+OT_total_mitodensity_perox <- OT_undir_mitodensity_perox
+OT_total_potential_perox <- OT_undir_potential_perox
+#
+# C.4) ROS
+OT_total_mitodensity_ros <- OT_coeff_mitodensity_ros
+OT_total_potential_ros <- OT_coeff_potential_ros
+#
+#
+# D) Create a df with the values for each variable
+#
+# D.1) Detection
+det_results_semOT <- data.frame(
+  reference_variable = rep("t_D", 5),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS",
+                          "mean_dnadamage",
+                          "mean_peroxidation"),
+  direct_effects = I(list(OT_coeff_mitodensity_det,
+                          OT_coeff_potential_det,
+                          NA,
+                          OT_coeff_dna_det,
+                          OT_coeff_perox_det)),
+  indirect_effects = I(list(OT_undir_mitodensity_det,
+                          OT_undir_potential_det,
+                          OT_undir_ros_det,
+                          NA,
+                          NA)),
+  total_effects = I(list(OT_total_mitodensity_det,
+                        OT_total_potential_det,
+                        OT_total_ros_det,
+                        OT_total_dna_det,
+                        OT_total_perox_det))
+  ) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)
+  )  %>%
+  mutate(source = "det_results_semOT")
+#
+# D.2) DNA damage
+dna_results_semOT <- data.frame(
+  reference_variable = rep("DNA damage", 3),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS"),
+  direct_effects = I(list(NA,
+                          NA,
+                          OT_coeff_ros_dna)),
+  indirect_effects = I(list(OT_undir_mitodensity_dna,
+                          OT_undir_potential_dna,
+                          NA)),
+  total_effects = I(list(OT_total_mitodensity_dna,
+                        OT_total_potential_dna,
+                        OT_total_ros_dna))
+  ) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)
+  )  %>%
+  mutate(source = "dna_results_semOT")
+#
+# D.3) Lipid peroxidation
+perox_results_semOT <- data.frame(
+  reference_variable = rep("Lipid peroxidation", 3),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential",
+                          "ROS"),
+  direct_effects = I(list(NA,
+                          NA,
+                          OT_coeff_ros_perox)),
+  indirect_effects = I(list(OT_undir_mitodensity_perox,
+                          OT_undir_potential_perox,
+                          NA)),
+  total_effects = I(list(OT_total_mitodensity_perox,
+                        OT_total_potential_perox,
+                        OT_total_ros_perox))
+  ) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)
+  ) %>%
+  mutate(source = "perox_results_semOT")
+#
+# D.4) ROS
+ros_results_semOT <- data.frame(
+  reference_variable = rep("ROS", 2),
+  predictor_modulator = c("mean_mitodensity",
+                          "mean_potential"),
+  direct_effects = I(list(OT_coeff_mitodensity_ros,
+                          OT_coeff_potential_ros)),
+  indirect_effects = I(list(NA,
+                          NA)),
+  total_effects = I(list(OT_total_mitodensity_ros,
+                        OT_total_potential_ros))
+  ) %>% 
+  group_by(predictor_modulator) %>%
+  summarize(
+    # Summarizing each list column (direct_effects, indirect_effects, etc.)
+    mean_direct_effects = format_dec(mean(unlist(direct_effects), na.rm = TRUE), 3),
+    mean_indirect_effects = format_dec(mean(unlist(indirect_effects), na.rm = TRUE), 3),
+    mean_total_effects = format_dec(mean(unlist(total_effects), na.rm = TRUE), 3),
+    q5_direct = format_dec(quantile(unlist(direct_effects), 0.05, na.rm = TRUE), 3),
+    q95_direct = format_dec(quantile(unlist(direct_effects), 0.95, na.rm = TRUE), 3),
+    q5_indirect = format_dec(quantile(unlist(indirect_effects), 0.05, na.rm = TRUE), 3),
+    q95_indirect = format_dec(quantile(unlist(indirect_effects), 0.95, na.rm = TRUE), 3),
+    q5_total = format_dec(quantile(unlist(total_effects), 0.05, na.rm = TRUE), 3),
+    q95_total = format_dec(quantile(unlist(total_effects), 0.95, na.rm = TRUE), 3)
+  )  %>%
+  mutate(source = "ros_results_semOT")
+#
+# E) Merge everything into a single df
+#
+sem_results_OT <- bind_rows(det_results_semOT, dna_results_semOT, perox_results_semOT, ros_results_semOT)
+```
+
+_Visual stimulus (Optic tecta)_: We found no significant relationships within the mitochondrial variables analysed or between mitochondrial function and cognitive performance (see @fig-sem_results_OT and Table S8). However, the path mitochondrial dentisy-ROS path coefficient was high (β~Mit density~ ~-~ ~ROS~ = `r format_dec(mean(OT_coeff_mitodensity_ros), 3)`, pMCMC `r format_p(pmcmc(OB_coeff_mitodensity_ros), 3, equal = TRUE)`) despite non-significance.   
+
+```{r, fig-sem_results_OT}
+#| label: fig-sem_results_OT
+#| fig-cap: "Structural equation model for the optic tecta (OT) and visual prey detection. Numbers on arrows represent estimated direct effects (mean and 95% credible interval). Asterisks indicate effects whose 95% credible interval does not overlap zero."
+#| fig-name: "fig-sem_results_OT"
+#
+# A) Getting all the direct coefficients
+OT_density_det <- paste0(format_dec(mean(OT_coeff_mitodensity_det), 3),
+                  " [", format_dec(quantile(OT_coeff_mitodensity_det, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_mitodensity_det, 0.95), 3), "]")
+OT_potential_det <- paste0(format_dec(mean(OT_coeff_potential_det), 3),
+                  " [", format_dec(quantile(OT_coeff_potential_det, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_potential_det, 0.95), 3), "]")
+OT_dna_det <- paste0(format_dec(mean(OT_coeff_dna_det), 3),
+                  " [", format_dec(quantile(OT_coeff_dna_det, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_dna_det, 0.95), 3), "]")
+OT_perox_det <- paste0(format_dec(mean(OT_coeff_perox_det), 3),
+                  " [", format_dec(quantile(OT_coeff_perox_det, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_perox_det, 0.95), 3), "]")
+#
+OT_ros_dna <- paste0(format_dec(mean(OT_coeff_ros_dna), 3),
+                  " [", format_dec(quantile(OT_coeff_ros_dna, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_ros_dna, 0.95), 3), "]")
+#
+OT_ros_perox <- paste0(format_dec(mean(OT_coeff_ros_perox), 3),
+                  " [", format_dec(quantile(OT_coeff_ros_perox, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_ros_perox, 0.95), 3), "]")
+#
+OT_density_ros <- paste0(format_dec(mean(OT_coeff_mitodensity_ros), 3),
+                  " [", format_dec(quantile(OT_coeff_mitodensity_ros, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_mitodensity_ros, 0.95), 3), "]")
+OT_potential_ros <- paste0(format_dec(mean(OT_coeff_potential_ros), 3),
+                  " [", format_dec(quantile(OT_coeff_potential_ros, 0.05), 3),
+                  ", ", format_dec(quantile(OT_coeff_potential_ros, 0.95), 3), "]")
+#
+#
+imgOT <- readPNG(here("Others", "SEM.png"))
+plot_SEM_OT <- rasterGrob(imgOT, interpolate = TRUE)
+#
+fig_SEM_OT <- ggdraw(plot_SEM_OT) +
+  draw_image("./Others/OT.png", x = 0.86, y = 0.67, width = 0.16, height = 0.3) +
+  annotate("text", x = 0.52, y = 0.075, label = OT_density_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.52, y = 0.94, label = OT_potential_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.715, label = OT_dna_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.83, y = 0.335, label = OT_perox_det, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.525, y = 0.805, label = OT_ros_dna, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.515, y = 0.215, label = OT_ros_perox, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.285, y = 0.2, label = OT_density_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times") +
+  annotate("text", x = 0.285, y = 0.82, label = OT_potential_ros, hjust = 1, vjust = 1, size = 2.8, family = "Times")
+ggsave(here("./output/figures/text/SEM_OT.tiff"), plot = fig_SEM_OT, width = 21, height = 7.5, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/text/SEM_OT.tiff")
+```
+
+## Discussion
+The prenatal environment can impact the development of cognitive abilities through effects on mitochondrial function. However, the links between prenatal environment, prey detection, and mitochondrial function remain largely unexplored. Here, we examined the impact of early-life conditions on prey detection and its underlying physiological mechanisms. We tested how prenatal CORT and temperature influenced the ability of lizards to detect visual and chemical stimuli from prey, and how these developmental effects were associated with changes in metabolic function (mitochondrial density and metabolic capacity), oxidative stress (ROS), and oxidative damage (DNA damage and lipid peroxidation). Overall, metabolic function and oxidative stress appeared largely resilient to prenatal conditions. However, prenatal conditions produced region- and context-dependent effects on oxidative damage and prey detection. We observed interactive effects of prenatal CORT and incubation temperature on lipid peroxidation in the two brain regions examined, while the interaction affected DNA damage only in the optic tecta. Behaviourally, prenatal CORT exposure enhanced detection of chemical but not visual prey stimuli. Yet, we found no evidence that mitochondrial function underpinned prey detection in _L. delicata_, suggesting a surprising decoupling between brain physiology and detection in this species.      
+
+#### Prenatal conditions shape oxidative damage in a context-dependent manner, with no effect on mitochondrial density, metabolic capacity, or oxidative stress       
+Contrary to our predictions, we found no effects of early environmental conditions on mitochondrial density, metabolic capacity (mitochondrial membrane potential), or ROS production in the optic tecta or the olfactory bulbs. These results were consistent when metabolic capacity and ROS production were standardised by mitochondrial density, showing no effects of prenatal conditions either at the cellular or mitochondrial level. In contrast, we found that DNA damage and lipid peroxidation were affected in region-specific ways. Early conditions did not influence DNA damage in the olfactory bulbs, but they did alter lipid peroxidation in the olfactory bulbs and the optic tecta. In the optic tecta, prenatal CORT reduced DNA damage in cold-incubated lizards but had no effect in hot-incubated lizards. In both regions, CORT also interacted with incubation temperature to influence lipid peroxidation. Lizards treated with prenatal CORT and incubated at cold temperatures had higher levels of lipid peroxidation compared to the lizards from the CORT-Hot group. Altogether, our results show that not all aspects of mitochondrial physiology are equally sensitive to prenatal conditions, and that the effects of prenatal environment on oxidative damage may reflect molecule-specific vulnerability, differential effects on protective pathways, or both.        
+
+Mitochondrial density, metabolic capacity, and ROS production were not affected by our prenatal conditions. Other studies in _L. delicata_ also report no effects of prenatal CORT or incubation temperature in the medial cortex [@recio2025prenatal], but show sustained effects of incubation temperature on mitochondrial respiration efficiency in liver tissue [@crino2024eggs]. These results suggest a tissue-specific response to prenatal conditions, consistent with the idea that organisms may prioritise protecting neural cells over other tissues [@chaudhari2022early]. Since early environmental effects on the brain can translate to impaired cognitive abilities and survival [@abayarathna_effects_2020], lizards might invest in protective mechanisms to avoid these effects. Alternatively, mitochondrial density, metabolic capacity, and ROS production in _L. delicata_'s brain may be adjusted to the current environment rather than being resilient to prenatal conditions. Mitochondria are highly responsive to energetic demands [@gyllenhammer2020developmental], which were predicted to differ between our incubation conditions [@sapolsky_how_2000; @noble_developmental_2018], but not when lizards were raised under identical post-hatching conditions. Effects of CORT and incubation temperature on mitochondrial density, metabolic capacity, and ROS production may therefore have been present during incubation or immediately after hatching, but dissipated once lizards shared a common environment. Other studies, however, provide strong evidence for sustained effects of prenatal GCs and temperature on mitochondrial respiration in birds across different post-hatching periods [@cossin-sevrin_effect_2022; @stier2022experimental]. Whether the differences between our and other studies are purely methodological or reflect transient rather than sustained effects needs further investigation. Regardless, if mitochondrial density, metabolic capacity, and ROS production were affected in _L. delicata_ during incubation, we could expect those effects to leave a signature on oxidative damage. Oxidative damage, unlike mitochondrial density, metabolic capacity, and ROS production, can accumulate over time [@rice2002brain; @terman2006oxidative], explaining why we could find persistent effects of prenatal conditions on oxidative damage despite the absence of effects on the mitochondrial traits that initially produced it.    
+
+Temperature and CORT elevations during early development interacted to affect oxidative damage in our study. However, the direction of the interactive effects differs between DNA damage and lipid peroxidation. These contrasting patterns suggest that prenatal CORT and temperature may shape oxidative damage through molecule-specific protective pathways, potentially by upregulating different antioxidant systems. For example, prenatal stress in rats increases Cu/Zn superoxide dismutase (SOD) and glutathione peroxidase (GPx) activity in the brain while catalase (CAT) was unaffected [@mcintosh1998glucocorticoids]. Similarly, in the soft-shelled turtle (_Pelodiscus sinensis_), CAT expression elevates with increasing temperatures as turtles emerge from hibernation, whereas GPx activity remains stable [@tang2021antioxidant]. These examples show that GCs and thermal environment can upregulate some, but not all, antioxidant pathways, which may explain why the same incubation treatments in our experiment yield distinct effects on different oxidative damage markers. Additional factors, such as temperature-dependent differences in membrane lipid composition [@zeis2019temperature], may further modulate molecule-specific sensitivity to oxidative stress. For example, lipid peroxidation levels have been shown to increase in cold-acclimated _Daphnia magna_ likely because of higher concentration of polyunsaturated fatty acids, which are more susceptible to oxidative stress [@zeis2019temperature].     
+
+Altogether, these results suggest that the effects of prenatal conditions on mitochondrial function are more nuanced than we predicted. However, some limitations may be influencing our results. Our sample consisted of lizards that survived incubation from a larger initial pool of eggs, and incubation treatments differed in mortality rates during this period [@leibold2026life]. Although hatching success was high (>80%), differential mortality could have influenced our results [see @leibold2026life]. Viability selection or selective disappearance may have buffered or reduced the differences we observed in some aspects of mitochondrial function if less resilient individuals did not survive to be sampled. Similarly, by testing lizards at approximately 225 days old, we may have missed a critical period during which the effects of prenatal conditions were more pronounced. Analyses exploring treatment and age interactions suggested that some treatment effects may change with age (_Tables S26, S27_ in _Supplementary Material_). However, most interaction effects were not robust to sensitivity analyses excluding potential outliers at the upper tail of the age distribution (_Fig. S18_; _Tables S26, S27_ in _Supplementary Material_), suggesting that they may be driven by a limited number of older individuals. Future studies sampling across a broader age range would help clarify whether prenatal effects on oxidative damage and mitochondrial physiology emerge or intensify as animals age. Oxidative damage in the olfactory bulbs and optic tecta is of particular interest given the direct role these regions play in processing the chemical and visual cues lizards rely on to detect prey.           
+                      
+#### Chemical, but not visual, prey detection is enhanced by prenatal CORT, independently of mitochondrial function.       
+Lizards exposed to prenatal CORT were faster at detecting chemical, but not visual, prey cues compared to control lizards. However, this effect was not related to alterations in mitochondrial function in the olfactory bulbs, and we similarly found no relationship between mitochondrial function in the optic tecta and detection of visual stimuli.   
+
+Mitochondria provide the energy necessary for cognitive processes through respiration [@siegel1994basic; @mcnay_decreases_2000; @du_dynamic_2009; @picard_mitochondria_2014; @picard_energetic_2018; @mann_coupling_2021; @alexandrov_neuronal_2022]. Therefore, we expected that inefficient respiration, i.e. lower mitochondrial density and metabolic capacity (membrane potential) would result in less energy for the neurons, which would impair detection abilities [reviewed in @wong2010energy]. For example, neural energetic deficiency reflected by reduced cytochrome c oxidase (COX) activity in dopaminergic neurons of the olfactory bulb of mice (_Mus musculus_) is associated with impaired olfactory capacity [@pass2020impact]. However, neither mitochondrial density nor metabolic capacity influenced prey detection in _L. delicata_. Our results suggest that metabolic function in the brain is not a limiting factor for prey detection in this species, or that _L. delicata_ can sustain this cognitive function despite fluctuations in energy availability. Similarly, oxidative stress and its associated damage were expected to decrease prey detection through neuron death or senescence [@finkel_oxidants_2000; @zhu_prenatal_2004; @du_dynamic_2009; @gong_chronic_2011; @hoffmann_mitochondrion_2018]. However, we found no relationship between ROS, lipid peroxidation, or DNA damage and prey detection abilities. Possibly, the levels of oxidative damage observed in our study were not sufficient to impair prey detection either because of compensatory mechanisms---such as antioxidant activity---that counteracted the negative effects of oxidative stress, or because the brain regions we studied had a high neural density that provided functional resilience [@rice2002brain; @amiel_smart_2011]. Alternatively, the cognitive effects of oxidative stress may not be detectable at the age when we tested lizards. Oxidative damage accumulates over time, and its effects on cognition become more pronounced with age [@terman2006oxidative; @hara_presynaptic_2014]. As such, we could find strong relationships between oxidative damage and detection if older individuals were tested. In fact, we found a positive relationship between age and DNA damage in olfactory bulbs, and between age and lipid peroxidation in both brain regions. 
+
+Altogether, our study suggests that prey detection abilities in _L. delicata_ are more decoupled from mitochondrial function than expected. However, some aspects of our experimental design could be limiting our conclusions. The behaviour measured here, for instance, may be more cognitively complex than detection alone implies. Other processes such as decision-making and further information processing could still contribute to individual differences in performance. These processes may be governed by brain regions distinct from the olfactory bulbs and optic tecta examined here, which could explain why mitochondrial function in these regions was not related to our behavioural metrics. Given that brain effects of prenatal GCs and temperature can be region-dependent [@coomber_independent_1997; @sakata_neural_2000], CORT may  have affected regions beyond those examined here, involved in cognitive processes related to foraging beyond detection itself; this could also explain why CORT affected chemical but not visual detection, if the regions supporting each sensory modality differ in their sensitivity to CORT. Alternatively, prenatal CORT could alter chemosensory sensitivity through pathways independent of mitochondrial function altogether. In rats (_R. norvegicus_), the synthetic glucocorticoid dexamethasone enhances detection of chemical stimuli by upregulating gene expression in the olfactory mucosa [@meunier2020olfactory]; if a comparable transcriptional mechanism operates in lizards, this could account for the treatment effect on chemical detection without involving the mitochondrial measures assessed here.  
+
+A further possibility is that the observed difference in chemical detection reflects treatment effects on motivation rather than sensory processing. Prenatal CORT can increase hunger through elevated metabolic rate and resource mobilisation [@spencer2008post; @cossin-sevrin_effect_2022; but see @crino_corticosterone_2014-learn], potentially elevating motivation in CORT-treated lizards. We find this possibility less likely, since we fasted lizards for two days to standardise hunger levels, the interaction between CORT and motivation was not significant in our models (Table S23), and motivational changes alone do not explain why CORT affected chemical but not visual detection specifically. Nonetheless, higher motivation could still have shaped behaviour beyond what we were able to control for. Similarly, the use of acoustic cues could contribute to our results, although we find this possibility unlikely since the behaviour in chemical tests was directed towards the filter paper instead of the area where the prey was hidden (see @fig-Methods B). Finally, the SEM linking mitochondrial physiology to prey detection relied on a sample size of 80 lizards, which may have been underpowered to detect true relationships between these traits. However, path coefficients were consistently small despite considerable uncertainty around these estimates, a pattern more consistent with a genuine absence of strong relationships than with a failure to detect a large true effect. We cannot rule out, nonetheless, that our sample size limited detection of more moderate effects. Future studies examining mitochondrial physiology in additional, integrative brain regions—alongside direct measures of chemosensory gene expression and foraging motivation—would help disentangle these possibilities and clarify the mechanisms linking prenatal environment to prey detection in this species.       
+
+#### Conclusions
+Prenatal CORT and incubation temperature shaped oxidative damage in _L. delicata_ in a molecule- and context-dependent manner, while leaving mitochondrial density, metabolic capacity, and oxidative stress unaffected. This pattern may reflect true resilience of these latter traits, transient effects that resolved once environmental conditions converged post-hatching, or a combination of both—a distinction that future studies assessing multiple life stages would help resolve. Prenatal CORT also enhanced chemical, but not visual, prey detection; notably, however, none of the physiological traits measured—--on mitochondrial density, metabolic capacity, oxidative stress, or oxidative damage—--were related to these effects or prey detection more broadly. This decoupling between prenatal effects on brain physiology and prenatal effects on behaviour contrasts with the mitochondria-cognition relationship reported in other vertebrate systems [@pass2020impact; @wong2010energy], and suggests that this relationship may be more species-, tissue-, and context-dependent than currently assumed. Rather than reflecting mitochondrial dysfunction in the sensory-processing regions examined here, the effect of prenatal CORT on chemical detection could arise through alternative physiological pathways,  alterations in other brain regions related to foraging behaviour, or motivational shifts beyond what our design controlled for. Disentangling these possibilities, alongside clarifying the tissue-, age-, and region-specific patterns of oxidative damage reported here, represents an important next step for understanding how early-life environments shape cognition through mitochondrial and non-mitochondrial pathways.    
+
+### Ethics
+Both the breeding animals and the experimental lizards were provided humane laboratory housing, with thermoregulatory opportunities, light (UV and heat) and moderate levels of humidity. Euthanasia was performed by intraperitoneal injection of a 10 mg/kg of a 10 mg/mL alfaxan solution (a potent anesthetic) followed by decapitation. We monitored the animals to ensure there was no irritation from the agent as indicated by distressed animals. Before disposing of the lizard, we confirmed the absence of righting response and pinching reflex in one of the front limbs. All the protocols complied with Australian law and were approved by the Australian National University Animal Experimentation Ethics Committee (A2022/33).
+
+### Data accessibility  
+All data, data description, and R code are available in public repository [https://github.com/Pablo-Recio/CORT_Temp_PreyD](https://github.com/Pablo-Recio/CORT_Temp_PreyD).  
+
+### Declaration of AI use
+We declare Chat GPT was used for inspecting the code for errors when necessary. All other parts of the manuscript were written by the authors.     
+
+### Authors' contributions
+Conceptualization: P.R., D.C.L., O.L.C., C.R.F., D.W.A.N.; Data curation: P.R., D.C.L.; Formal analysis: P.R.; Funding acquisition: C.R.F., D.W.A.N.; Investigation: P.R., D.C.L..; Methodology: P.R., D.C.L., O.L.C., C.R.F., D.W.A.N.; Project administration: P.R., D.C.L.; Resources: D.W.A.N.; Supervision: D.W.A.N., C.R.F.; Validation: P.R., D.C.L., D.W.A.N.; Visualization: P.R.; Writing – original draft: P.R.; Writing – review & editing: All authors. 
+All authors gave final approval for publication and agreed to be held accountable for the work performed therein.  
+
+### Conflict of interest declaration  
+We declare we have no competing interests.  
+
+### Funding
+This work was supported by a National Australian University fellowship (to P.R. and D.C.L.), and the Australian Research Council (grant no. DP210101152) to D.N. and C.R.F.
+
+### Acknowledgements
+We thank Mick Devoy and the Cytometry, Histology and Spatial Multiomics team for their advice and help througout the flow cytometry protocols. We thank the help and assistance of our lab technicians Benjamin Durant and Michelle Stephens for taking care of the lizards. We also thank ANU MakerSpace, where we designed and built the prototypes of the 3D printed feeders. The authors acknowledge Microscopy Australia (ROR: 042mm0k03) at the Centre for Advanced Microscopy, The Australian National University, a facility enabled by NCRIS and university support. We specifically thank Dr Angus Rae and Dr Daryl Webb for their help with microscopy protocols. Finally, we wish to acknowledge the anonymous reviewers for their valuable feedback on the manuscript. 
+
+
+# References
+<div id="refs"></div>
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+# Supplementary Material
+
+#### Methods: Flow cytometry
+**Brain extraction**: Two months after the completion of the behavioural tests, we euthanised lizards using an injectable anaesthetic followed by decapitation. We injected intraperitoneally 10 mg/kg of a 10 mg/mL alfaxan solution and then, after several minutes, we evaluated the lizard’s righting response and pinching reflex in one of the front limbs. Lizards without responses were decapitated with surgical scissors. This protocol was approved by the Animal Ethics Committee of the Australian National University (Protocol number: A2022/33). After decapitation, the head was opened and the brain was dissected. We extracted manually two main regions of the brain, the olfactory bulbs and the optic tecta, as they are associated with chemical and visual detection in lizards [@wyneken2007reptilian]. Both regions were transferred immediately to 1.5mL centrifuge tubes containing 100µL of 1X phosphate buffered saline (PBS).
+
+**Homogenates**: Tissue suspended in PBS was then homogenised. For the olfactory bulbs, the tissue was mechanically homogenised by placing the tissue in the well of a 100 µm mesh filter (pluriStrainer) affixed atop a 1.5 mL centrifuge tube, then mashed with the rubber end of an insulin syringe stopper. The resulting olfactory bulb homogenate was then rinsed through a filter with 1 mL of cold 1X PBS to prepare a homogenate suspension. Optic tecta were mechanically homogenised the same way as olfactory bulbs, but were first enzymatically digested by incubating the tissue in 100µL of 125 U/mL collagenase (type II) for 30 min at 32°C. We enzymatically digested optic tecta but not olfactory bulbs because in a pilot study, enzymatic digestion prior to mechanical digestion improved the yield of viable cells in optic tecta homogenate, but did not noticeably affect the yield of viable cells in olfactory bulbs homogenate (unpublished data). Following homogenisation, we centrifuged each sample at 1000 RCF for 10 minutes to pellet cells, then removed the supernatant (hereafter, this process referred to as ‘washing’) and resuspended the cells in 500 µL 1x PBS. This step was performed to remove cellular debris from homogenates. From each 500 µL suspension of homogenate collected on a given trial day, we first added 100 µL of homogenate to a pooled sample of each tissue type to use for single-color controls, and the remaining 40 0µL of homogenate was split among two 200 µL aliquots. One aliquot was used fresh to measure mitochondrial activity (mitochondrial density, mitochondrial membrane potential, ROS), one aliquot was cryopreserved for later measurements of oxidative damage (8-OHdG, lipid peroxidation), and the third aliquot was cryopreserved for a different experiment. Aliquots were cryopreserved in 1 mL solution of 1% Neutral-Buffered Formalin (as a fixative agent), 1X Tris-EDTA (chelates metals that can damage DNA during freezing) and 10% DMSO (a cryoprotectant), then stored at -20 °C until oxidative damage assays. 
+
+**Staining fresh samples**: From fresh homogenate suspensions, we loaded the wells of a 96-well flat-bottom plate (Nunclon) with 50 µL of homogenate in duplicates (2 wells per homogenate). To each replicate well, we added 5 µL of a fluorescent probe mix containing equal parts 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, and 50 µM MitoSOX Red. We used these fluorescent probes as indicators of mitochondrial density, mitochondrial membrane potential, and superoxide (ROS) production, respectively. We then added 5 µL of #µM Hoechst 33342 Nuclear Viability Dye to each sample, which we used to distinguish live, viable, intact cells from cellular debris. We then loaded 6 wells with 50 µL of homogenate taken from each pooled homogenate suspension (12 wells total), which were to be negative and single-color controls. One well was left unstained as a negative control, one was stained with all the probes to be a positive control, and the remaining four wells were treated with 5 µL of one of 5 µM MitoTracker Deep Red FM, 2.5 µM MitoTracker Orange CMTMRos, 50 µM MitoSOX Red, or #µM Hoechst 33342 Nuclear Viability Dye. Any remaining pooled homogenate was fixed and frozen as previously described. We incubated the loaded plate at 32 °C for 30 minutes to stain and then diluted the samples with 50 µL cold 1x PBS to halt the staining process. Upon the completion of staining, samples were immediately transferred to flow cytometry facilities for data collection and were sampled within 2 hours. Samples prepared this way remained viable for flow cytometry for approximately 5 hours post-staining at room temperature (~19°C) before cells began rapidly degrading (DCL personal observation).
+
+**Staining cryopreserved samples**: Assays of oxidative damage from cryopreserved samples were performed 61 weeks after the initial processing and analysis of fresh samples. On the day of oxidative damage assays, we rapidly thawed frozen samples by briefly (1-2 minutes) submerging them in warm water. We washed each thawed sample twice, the first time resuspending the pelleted cells in 1 mL warm 1X Tris-EDTA, and the second time in 200 µL warm 1X PBS. Pooled homogenate was divided into 100 µL aliquots to serve as single-color controls. Thawed, resuspended samples were first stained with 20 µL (10 µL for controls) of #µM Hoechst 33342 Nuclear Viability Dye and 20 µL of 100 µM BODIPY 665/676 Lipid Peroxidation Sensor and incubated at 32 °C for 20 minutes. Following staining, we washed cells to prevent further binding of unbound fluorescent probes, then resuspended the pellet in 200 µL warm 1X PBS containing 20 µM digitonin. We incubated the samples at 32 °C for 20 minutes to permeabilise the cell membrane, after which we washed the homogenate and resuspended the pelleted cells in 200 µL 1X PBS. We added 20 µL of 70 µM 8-OHdG Polyclonal Antibody to each sample, after which we left the homogenate overnight (~12 hours) for the antibody to bind to 8-OHdG, a marker of oxidative damage on DNA. The following day we counterstained the cells with 20 µL of #µM (100 µg/mL) H+G Goat Anti-Rabbit Conjugate Antibody with Alexa-Fluor 488 at 32 °C for 20 minutes. After the cells had been tagged with 8-OHdG antibodies and counterstained, we washed the cells once more and resuspended the pellet in 400 µL of 1X PBS. Unstained and single-color controls were treated identically to samples, but stained with only up to one of BODIPY 665/676, Hoechst 33342, 8-OHdG antibody, or Alexa-Fluor 488 conjugate. Additionally, one control was stained with both 8-OHdG antibody and the Alexa-Fluor 488 conjugate. We then loaded a 96-well plate with 100 µL of each single-color control and 100 µL in duplicate of each sample. We performed all flow cytometry assays on samples within 48-hours of thawing the samples.
+
+**Flow cytometry**: All flow cytometry assays were performed using a flow cytometer with 5-lasers (blue, red, yellow-green, violet, and ultraviolet), 20 detectors, and a high-throughput plate reader (Becton Dickson LSRFortessa X-20) using the default wavelength filters on detectors. Immediately prior to all assays, we performed a quality-control check and laser alignment using the CS&T function of BD FACSDiva (v. 8.0.1) and BD CS&T fluorescent beads (Lot No. 30664) diluted at 1 drop of 150 µL 1X PBS. During data collection, data for single-color controls was filtered using a liberal threshold of 200 on the FSC (roughly, cell size) detector, while data from samples was filtered using a threshold of 200 on the BUV-496 (Hoechst 33342) detector. These thresholds were chosen to filter small debris or inviable or non-intact cells from our observations. The detectors and voltage settings used in data acquisition for each assay type (mitochondrial function, oxidative damage) were determined during pilot trials prior to assays and were not changed during assays to allow for comparison among different plates and samples throughout the experiment. Voltages were chosen to center the distribution of observations in each channel at 10^3^ fluorescent intensity and reduce observations of off-scale (<10^1^ or >10^5^) events. For the mitochondrial function assay, we recorded data from the following channels (in brackets: voltage; parameter): FSC (44; forward scatter), SSC (180; side scatter), Alexa-Fluor 488 (544; autofluorescence), BUV-496 (450; Hoechst 33342), APC (647; MitoTracker Deep Red FM), PE (522; MitoTracker Orange CMTMRos), and PerCP-Cy5-5 (592; MitoSOX Red) channels. For the oxidative damage assay, we recorded data from the following channels: FSC (425; forward scatter), SSC (300; side scatter), Alexa-Fluor 488 (275; 8-OHdG Antibody + Alexa-Fluor 488 conjugate), BUV-496 (525; Hoechst 33342), and PE-Cy5 (850; BODIPY 665/676). Fluorescent intensity data was collected via the BD FACSDiva (v. 8.0.1) software, with no compensation applied during data collection, and all on a linear scale (detectable range of 0-252166). We recorded data for both the area and height of the fluorescent signal, but only used the area in downstream analyses, with height being recorded for the sake of quality control. Data was exported from BD FACSDiva as individual *.fcs (“flow cytometry standard”) files for each sample, then imported into FlowJo (v. 10.1) for processing.
+
+**Data processing**: In FlowJo v. 10.1 we first transformed all fluorescent data to a logarithmic base 10 scale, then applied a basic gating process across all channels by filtering to observations within the detectable range (10^1^-10^5^) to remove any off-scale events. We then used a backgating process wherein we aimed to identify the approximate FSC (cell size) and SSC (cell complexity) range of viable cells that were positive for all stains. We primarily used the BUV-496 channel (Hoechst 33342) in the backgating process to identify intact, nucleated cells (BUV-496 > 10^3^). For the mitochondrial function assay, we aimed to identify populations of viable cells containing mitochondria (APC > 10^3^) and actively respiring (PE and PerCP-Cy5-5 > 10^3^). For the oxidative damage assay, we aimed to identify populations of cells exhibiting both DNA damage (Alexa-Fluor 488 > 10^3^) and lipid peroxidation (PerCP > 10^3^). When backgating was done, we filtered the data to the FSC by SSC range that captured the ideal population. We used the backgated population for compensation of fluorescent spillover between different fluorescent probes. To account for fluorescent spillover, we used a traditional compensation matrix using the compensation function of FlowJo v.10.1. We identified the “positive” population for each channel as the brightest ~2.5% of the distribution of observations in the respective single-color control for that channel and used unstained controls as a universal negative. We visually inspected the compensation matrix and its effects on population distributions for under- and over-compensation, whereupon we changed the compensation matrix manually until data was properly compensated. We applied the compensation matrix to all samples for downstream processing. Following compensation, we again gated the data following the same process as for backgating but using the compensated parameters for each channel. Following gating, we exported the geometric mean (mean fluorescent intensity; MFI) and robust confidence-values for each channel for each sample. For analysis, we exported summary statistics of only the area of the fluorescent signal. Although we exported robust confidence values for checking repeatability between replicate samples, we used the mean and standard deviation of geometric means among replicates for each individual as our main response variables in analyses.  
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+#### Data Repeatability
+
+_Table S1. Repeatability of mitochondrial function and oxidative damage measures across replicate samples. Repeatability was calculated as the intraclass correlation coefficient (ICC) using a linear mixed model with individual ID as a random effect. The table includes the ICC estimate, 95% confidence intervals, and p-values for each measure._      
+
+```{r, table_repeatability}
+#
+# Creating the table from the repeatability results
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+# Creating the repeatability table
+R_table <- flextable(results_R_table) %>%
+  add_header_row(values = c("", "Olfactory bulbs", "Optic tecta"), 
+                 colwidths = c(1, 2, 2)) %>%
+  set_header_labels(
+    variable = "Variable",
+    mean_R_OB = "Mean R",
+    CI_OB = "95% CI",
+    mean_R_OT = "Mean R",
+    CI_OT = "95% CI") %>%
+  align(align = "center", part = "header") %>%
+  autofit()
+#
+R_table
+```
+
+#### Raw data
+
+_Table S2. Raw data of the mitochondrial function and prey discrimination test for each treatment group and brain region. The data includes the mean and 95% confidence intervals (t-distribution)._     
+```{r, tbl-raw_data}
+#| label: tbl-raw_data
+#| tbl-cap: "Raw data of the mitochondrial function and prey discrimination test for each treatment group and brain region. The data includes the mean and 95% confidence intervals (t-distribution)."
+df_region <- c("OB", "OT")
+df_variables <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation", "t_D")
+raw_main_data <- data.frame()
+region_tables <- list()
+for(a in df_region){
+  region_data <- data.frame()
+  for(b in df_variables){
+    small_df <- df_merged %>%
+      filter(region == a) %>%
+      group_by(temp, cort) %>%
+      summarize(
+        !!paste0("mean_", b) := format_dec(mean(.data[[b]], na.rm = TRUE), 2),
+        !!paste0("CI_", b) := paste0(
+          "[", format_dec(mean(.data[[b]], na.rm = TRUE) - 2.093 * sd(.data[[b]], na.rm = TRUE) / sqrt(sum(!is.na(.data[[b]]))), 2), ", ",
+          format_dec(mean(.data[[b]], na.rm = TRUE) + 2.093 * sd(.data[[b]], na.rm = TRUE) / sqrt(sum(!is.na(.data[[b]]))), 2), "]"
+        ),
+        .groups = "drop"
+      )
+
+    if(nrow(region_data) == 0){
+      region_data <- small_df
+    } else {
+      region_data <- merge(region_data, small_df, by = c("temp", "cort"))
+    }
+  }
+  region_tables[[a]] <- region_data %>% mutate(region = a)
+}
+raw_main_data <- bind_rows(region_tables)
+#
+table_raw_data <- raw_main_data %>%
+  pivot_longer(
+    cols = starts_with("mean_") | starts_with("CI_"),
+    names_to = c(".value", "variable"),
+    names_pattern = "(mean|CI)_(.*)"
+  ) %>%
+  pivot_wider(
+    names_from = region,
+    values_from = c(mean, CI),
+    names_glue = "{region}_{.value}"
+  ) %>%
+  mutate(treatment = paste0(cort, "-", temp),
+        variable = case_when(variable == "mean_mitodensity" ~ "Mitochondrial density",
+                            variable == "mean_potential" ~ "Metabolic capacity",
+                            variable == "mean_conpotential" ~ "Membrane potential/Mitochondrial density",
+                            variable == "mean_ros" ~ "ROS",
+                            variable == "mean_conros" ~ "ROS/Mitochondrial density",
+                            variable == "mean_dnadamage" ~ "DNA damage",
+                            variable == "mean_peroxidation" ~ "Lipid peroxidation",
+                            variable == "t_D" ~ "Detection latency",
+                            TRUE ~ variable),
+        variable = factor(variable, levels = c("Mitochondrial density",
+                                              "Metabolic capacity",
+                                              "Membrane potential/Mitochondrial density",
+                                              "ROS",
+                                              "ROS/Mitochondrial density",
+                                              "DNA damage",
+                                              "Lipid peroxidation",
+                                              "Detection latency"))) %>%
+  dplyr::select(variable, treatment, OB_mean, OB_CI, OT_mean, OT_CI) %>%
+  arrange(variable, treatment)
+#
+# Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+# Build the flextable with grouped headers
+raw_table <- flextable(table_raw_data) %>%
+  set_header_labels(
+    variable = "Variable",
+    treatment = "Treatment",
+    OB_mean = "Mean",
+    OB_CI = "95% CI",
+    OT_mean = "Mean",
+    OT_CI = "95% CI"
+  ) %>%
+  add_header_row(
+    values = c("", "", "Olfactory bulbs / Chemical stimulus", "Olfactory bulbs / Chemical stimulus",
+               "Optic tecta / Visual stimulus", "Optic tecta / Visual stimulus"),
+    top = TRUE
+  ) %>%
+  merge_at(i = 1, j = 3:4, part = "header") %>%
+  merge_at(i = 1, j = 5:6, part = "header") %>%
+  align(align = "center", j = 3:6, part = "all") %>%
+  align(align = "center", part = "header") %>%
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:24,26:28,30:32), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(4,8,12,16,20,24,28), j = c(1:6), part = "body") %>% 
+  flextable::vline(i = 1, j = c(3,5), part = "header") %>%
+  autofit()
+
+raw_table
+```
+
+_Table S3. Age at testing and age at euthanasia for each treatment group. The data includes the mean and 95% confidence intervals(t-distribution)._    
+
+```{r, tbl-age}
+#| label: tbl-age
+#| tbl-cap: "Age at testing and age at euthanasia for each treatment group."
+#
+age_data <- data_discr %>% 
+  group_by(temp, cort) %>% 
+  summarize(mean_age_test = mean(age_trial, na.rm = TRUE),
+            CI_age_test = paste0("[", format_dec(mean_age_test - 2.093 * sd(age_trial, na.rm = TRUE) / sqrt(sum(!is.na(age_trial))), 2), ", ", format_dec(mean_age_test + 2.093 * sd(age_trial, na.rm = TRUE) / sqrt(sum(!is.na(age_trial))), 2), "]"),
+            mean_age_euth = mean(age_euthanasia, na.rm = TRUE),
+            CI_age_euth = paste0("[", format_dec(mean_age_euth - 2.093 * sd(age_euthanasia, na.rm = TRUE) / sqrt(sum(!is.na(age_euthanasia))), 2), ", ", format_dec(mean_age_euth + 2.093 * sd(age_euthanasia, na.rm = TRUE) / sqrt(sum(!is.na(age_euthanasia))), 2), "]"),
+            .groups = "drop") %>%
+data.frame()
+#
+# Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+age_table <- flextable(age_data) %>%
+  set_header_labels(
+    temp = "Incubation temperature",
+    cort = "Prenatal CORT treatment",
+    mean_age_test = "Mean age at testing (days)",
+    CI_age_test = "95% CI age at testing (days)",
+    mean_age_euth = "Mean age at euthanasia (days)",
+    CI_age_euth = "95% CI age at euthanasia (days)") %>%
+  align(align = "center", j = c(3:6), part = "body") %>%
+  align(align = "center", j = c(1:6), part = "header") %>%
+  autofit()
+#
+age_table
+```
+
+#### Results of the final models
+
+_Table S4. R^2^ values of the definite models for both regions and stimuli._     
+```{r, table_bayesR2}
+#| label: table_bayesR2
+#| tbl-cap: "BayesR2 values of the definite models for both regions and stimuli."
+#
+data_bayes <- data.frame(
+  Model = character(0),
+  Mean = numeric(0),
+  Error = numeric(0),
+  Q2_5 = numeric(0),
+  Q97_5 = numeric(0)
+)
+models <- c("mean_mitodensity_def_OB",
+            "mean_potential_def_OB",
+            "mean_conpotential_def_OB",
+            "mean_ros_def_OB",
+            "mean_conros_def_OB",
+            "mean_dnadamage_def_OB",
+            "mean_peroxidation_def_OB",
+            "t_D_def_Chemical",
+            "mean_mitodensity_def_OT",
+            "mean_potential_def_OT",
+            "mean_conpotential_def_OT",
+            "mean_ros_def_OT",
+            "mean_conros_def_OT",
+            "mean_dnadamage_def_OT",
+            "mean_peroxidation_def_OT",
+            "t_D_def_Visual")
+#
+for (m in models){
+  mod <- readRDS(here("output/models/", paste0(m, ".rds")))
+  bayes <- bayes_R2(mod)
+  data_bayes <- rbind(data_bayes, data.frame(
+    Model = m,
+    Mean = format_dec(bayes[1], 3),
+    Error = format_dec(bayes[2], 3),
+    Q2_5 = format_dec(bayes[3], 3),
+    Q97_5 = format_dec(bayes[4], 3)
+  ))
+}
+#
+bayes_table_df <- data_bayes %>%
+  mutate(Region = gsub(".*_", "", Model)    # Extract everything after the last "_"
+  ) %>%
+  mutate(Model = factor(Model,
+                        levels = c("mean_mitodensity_def_OB",
+                                  "mean_potential_def_OB",
+                                  "mean_conpotential_def_OB",
+                                  "mean_ros_def_OB",
+                                  "mean_conros_def_OB",
+                                  "mean_dnadamage_def_OB",
+                                  "mean_peroxidation_def_OB",
+                                  "t_D_def_Chemical",
+                                  "mean_mitodensity_def_OT",
+                                  "mean_potential_def_OT",
+                                  "mean_conpotential_def_OT",
+                                  "mean_ros_def_OT",
+                                  "mean_conros_def_OT",
+                                  "mean_dnadamage_def_OT",
+                                  "mean_peroxidation_def_OT",
+                                  "t_D_def_Visual"),
+                        labels = c("m_def_mean_mitodensity_OB" = "Mit density",
+                                  "m_def_mean_potential_OB" = "Mit potential",
+                                  "m_def_mean_conpotential_OB" = "Mit potential/Mit density",
+                                  "m_def_mean_ros_OB" = "ROS",
+                                  "m_def_mean_conros_OB" = "ROS/Mit density",
+                                  "m_def_mean_dnadamage_OB" = "DNA damage",
+                                  "m_def_mean_peroxidation_OB" = "Peroxidation",
+                                  "m_def_t_D_Chemical" = "Detection lat",
+                                  "m_def_mean_mitodensity_OT" = "Mit density",
+                                  "m_def_mean_potential_OT" = "Mit potential",
+                                  "m_def_mean_conpotential_OT" = "Mit potential/Mit density",
+                                  "m_def_mean_ros_OT" = "ROS",
+                                  "m_def_mean_conros_OT" = "ROS/Mit density",
+                                  "m_def_mean_dnadamage_OT" = "DNA damage",
+                                  "m_def_mean_peroxidation_OT" = "Peroxidation",
+                                  "m_def_t_D_Visual" = "Detection lat")),
+      Region = factor(Region, levels = c("OB", "Chemical", "OT", "Visual"),
+                      labels = c("OB" = "Olfactory bulbs",
+                                "Chemical" = "Chemical",
+                                "OT" = "Optic tecta",
+                                "Visual" = "Visual"))) %>%
+  dplyr::select(Region, Model, Mean, Error, Q2_5, Q97_5) %>%
+  arrange(Region, Model)
+#
+#
+# Create the table
+#
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+bayes_table <- flextable(bayes_table_df) %>%
+  set_header_labels(
+    Region = "Region/Stimulus",
+    Mean = "Mean",
+    Error = "Error",
+    Q2_5 = "2.5%",
+    Q97_5 = "97.5%") %>%
+  align(align = "center", j = c(3:5), part = "body") %>%
+  align(align = "center", j = c(1:5), part = "header") %>%
+  flextable::compose(i = c(2:7,10:15), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = 8, part = "body") %>% 
+  autofit()
+#
+bayes_table
+```
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+_Table S5. Estimate of the contrasts between treatments for all the variables analysed, and pMCMC values testing the hypothesis that contrast is different from 0. In bold, the values that are significant at pMCMC < 0.05._    
+```{r tbl-contrasts}
+#| label: tbl-contrasts
+#| tbl-cap: "Contrasts between prenatal conditions for mitochondrial physiology and learning."
+#
+source(here("R", "func.R"))
+#
+# A) Organise df 
+var <- c("MD", "MP", "MPcon", "ROS", "ROScon", "DNA", "LP", "DET")
+region <- c("OB", "OT")
+#
+data_table <- data.frame()
+for(v in var){
+  for(r in region){
+    x <- paste0(v, "_", r)
+    df <- get(x)
+    Temperature <- format_dec(mean(c(df$CORT_Hot, df$Control_Hot)) - mean(c(df$CORT_Cold, df$Control_Cold)), 3)
+    pMCMC_temp <- format_p(pmcmc(c(df$CORT_Hot, df$Control_Hot) - c(df$CORT_Cold, df$Control_Cold)), 3, equal = FALSE)
+    CORT <- format_dec(mean(c(df$Control_Hot, df$Control_Cold)) - mean(c(df$CORT_Hot, df$CORT_Cold)), 3)
+    pMCMC_cort <- format_p(pmcmc(c(df$Control_Hot, df$Control_Cold) - c(df$CORT_Hot, df$CORT_Cold)), 3, equal = FALSE)
+    Interaction <- format_dec((mean(df$Control_Hot) - mean(df$CORT_Hot)) - (mean(df$Control_Cold) - mean(df$CORT_Cold)), 3)
+    pMCMC_int <- format_p(pmcmc((df$Control_Hot - df$CORT_Hot) - (df$Control_Cold - df$CORT_Cold)), 3, equal = FALSE)
+    data_temp <- data.frame(Variable = x,
+                          Temperature = as.numeric(Temperature),
+                          pMCMC_temp = pMCMC_temp,
+                          CORT = as.numeric(CORT),
+                          pMCMC_cort = pMCMC_cort,
+                          Interaction = as.numeric(Interaction),
+                          pMCMC_int = pMCMC_int)
+    data_table <- dplyr::bind_rows(data_table, data_temp)
+  }
+}
+# Modify the df
+data_table_final <- data_table %>%
+  pivot_longer(cols = c(Temperature, CORT, Interaction), 
+               names_to = "Predictor", 
+               values_to = "Contrast") %>%
+  mutate(
+    # Extract the pMCMC values from the corresponding columns
+    `pMCMC contrast` = case_when(
+      Predictor == "Temperature" ~ pMCMC_temp,
+      Predictor == "CORT" ~ pMCMC_cort,
+      Predictor == "Interaction" ~ pMCMC_int
+    )
+  ) %>%
+  separate(col = Variable, into = c("Variable", "Region"), sep = "_") %>%
+  mutate(
+    Variable = case_when(
+      Variable == "MD" ~ "Mit density",
+      Variable == "MP" ~ "Mit potential",
+      Variable == "MPcon" ~ "Mit potential/Mit density",
+      Variable == "ROS" ~ "ROS",
+      Variable == "ROScon" ~ "ROS/Mit density",
+      Variable == "DNA" ~ "DNA damage",
+      Variable == "LP" ~ "Lipid peroxidation",
+      Variable == "DET" ~ "Detection latency",
+      TRUE ~ Variable
+      )
+    ) %>%
+  mutate(Variable = factor(Variable, levels = c("Mit density", "Mit potential", "Mit potential/Mit density", "ROS", "ROS/Mit density","DNA damage", "Lipid peroxidation", "Detection latency"))) %>%
+  mutate(
+    Region = case_when(
+      Region == "OB" ~ "Olfactory bulbs / Chemical",
+      Region == "OT" ~ "Optic tecta / Visual",
+      TRUE ~ Region
+    )
+  ) %>%
+  dplyr::select(Region, Variable, Predictor, Contrast, `pMCMC contrast`) %>%
+  arrange(Region, Variable)
+#
+# C) Make the contrasts table:
+#
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+contrast_table <- flextable(data_table_final) %>%
+  align(align = "center", j = c(4,5), part = "body") %>%
+  align(align = "center", j = c(1:4), part = "header") %>%
+  bold(~`pMCMC contrast` < 0.05, j = c("pMCMC contrast", "Contrast", "Predictor"),
+       bold = TRUE) %>%  # Bold when PMCMC is "<0.05"
+  bold(~`pMCMC contrast` <0.001, j = c("pMCMC contrast", "Contrast", "Predictor")) %>%  # Bold when PMCMC is "<0.001"
+  flextable::compose(i = c(2:24,26:48), j = 1, value = as_paragraph(""), part = "body") %>%
+  flextable::compose(i = c(2,3,5,6,8,9,11,12,14,15,17,18,20,21,23,24,26,27,29,30,32,33,35,36,38,39,41,42,44,45,47,48),
+                    j = 2, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the second column
+  flextable::hline(i = c(3,6,9,12,15,18,21,24,27,30,33,36,39,42,45), j = c(2:5), part = "body") %>% 
+  flextable::hline(i = 24, part = "body") %>%
+  autofit()
+#
+contrast_table
+```
+
+Contrasts were done by:  
+_Temperature_: β~Hot~ - β~Cold~  
+_CORT_: β~CORT~ - β~Control~    
+_Interaction_: (β~Control-Hot~ - β~CORT-Hot~) - (β~Control-Cold~ - β~CORT-Cold~)  
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S6. Summary of the final models for Olfactory Bulbs/Chemical stimulus._    
+```{r, tbl-results_OB_table}
+#| label: results_OB_table
+#| tbl-cap: "Results of the models testing for Olfactory Bulbs."
+#| tbl-name: "results_OB"
+#| tbl-label: "results_OB"
+source(here("R", "func.R"))
+# 
+# A) Refining the df summarizing the posteriors for OB/Chemical stimulus (post_OB)
+post_OB_refined <- refine_post(post_OB) %>%
+  arrange(Variable, Predictors)
+#
+# B) Create table
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+OB_table <- flextable(post_OB_refined) %>%
+  align(align = "center", j = c(3:5), part = "body") %>%
+  align(align = "center", j = c(1:5), part = "header") %>%
+  bold(~`PMCMC` < 0.05, j = c("PMCMC", "Estimate Mean", "95% CI", "Predictors"),
+       bold = TRUE) %>%  # Bold when PMCMC is "<0.05"
+  bold(~`PMCMC` <0.001, j = c("PMCMC", "Estimate Mean", "95% CI", "Predictors")) %>%  # Bold when PMCMC is "<0.001"
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:26,28:31,33:35), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  autofit()
+#
+OB_table
+```
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S7. Summary of the final models for Optic Tecta/Visual stimulus._    
+```{r, tbl-results_OT_table}
+#| label: results_OT_table
+#| tbl-cap: "Results of the models testing for Olfactory Bulbs."
+#| tbl-name: "results_OT"
+#| tbl-label: "results_OT"
+source(here("R", "func.R"))
+# 
+# A) Refining the df summarizing the posteriors for OT/Visual stimulus (post_OT)
+post_OT_refined <- refine_post(post_OT) %>%
+  arrange(Variable, Predictors)
+#
+# B) Create table
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+OT_table <- flextable(post_OT_refined) %>%
+  align(align = "center", j = c(3:5), part = "body") %>%
+  align(align = "center", j = c(1:5), part = "header") %>%
+  bold(~`PMCMC` < 0.05, j = c("PMCMC", "Estimate Mean", "95% CI", "Predictors"),
+       bold = TRUE) %>%  # Bold when PMCMC is "<0.05"
+  bold(~`PMCMC` <0.001, j = c("PMCMC", "Estimate Mean", "95% CI", "Predictors")) %>%  # Bold when PMCMC is "<0.001"
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:25,27:30,32:34), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  autofit()
+#
+OT_table
+```
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+#### Results of the SEM
+
+_Table S8. Compiled direct, indirect, and total effects of SEM for OB/Chemical stimulus._
+```{r, table_sem_results_OB}
+#| label: table_sem_results_OB
+#| fig-cap: ""
+#
+# Table created from the df sem_results_OB (see above)
+source(here("R", "func.R"))
+#
+# Modify database
+table_semOB_df <- sem_results_OB %>%
+  mutate(`Direct effects` = paste0(mean_direct_effects, " [", q5_direct, ", ", q95_direct, "]"),
+         `Indirect effects` = paste0(mean_indirect_effects, " [", q5_indirect, ", ", q95_indirect, "]"),
+         `Total effects` = paste0(mean_total_effects, " [", q5_total, ", ", q95_total, "]")) %>%
+  dplyr::select(source, predictor_modulator, `Direct effects`, `Indirect effects`, `Total effects`) %>%
+  mutate(
+      predictor_modulator = case_when(
+        predictor_modulator == "mean_mitodensity" ~ "Mitochondrial density",
+        predictor_modulator == "mean_potential" ~ "Metabolic capacity",
+        predictor_modulator == "mean_dnadamage" ~ "DNA damage",
+        predictor_modulator == "mean_peroxidation" ~ "Lipid peroxidation",
+        predictor_modulator == "ROS" ~ "ROS",
+        TRUE ~ predictor_modulator
+      ),
+      source = case_when(
+        source == "det_results_semOB" ~ "Detection latency",
+        source == "dna_results_semOB" ~ "DNA damage",
+        source == "perox_results_semOB" ~ "Lipid peroxidation",
+        source == "ros_results_semOB" ~ "ROS",
+        TRUE ~ source
+      ),
+      `Direct effects` = case_when(`Direct effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Direct effects`),
+      `Indirect effects` = case_when(`Indirect effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Indirect effects`),
+      `Total effects` = case_when(`Total effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Total effects`)) %>%
+  rename(Predictor = predictor_modulator, Response = source) %>%
+  mutate(Response = factor(Response, levels = c("Detection latency", "DNA damage", "Lipid peroxidation", "ROS")),
+         Predictor = factor(Predictor, levels = c("Mitochondrial density",
+                                                "Metabolic capacity",
+                                                "ROS",
+                                                "DNA damage",
+                                                "Lipid peroxidation"))) %>%
+  arrange(Response, Predictor)
+#
+# Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+table_semOB <- flextable(table_semOB_df) %>%
+  align(align = "center", part = "header") %>%
+  flextable::compose(i = c(2:5,7,8,10,11,13), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(5,8,11), part = "body") %>% 
+  autofit()
+#
+table_semOB
+```
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+_Table S9. Compiled direct, indirect, and total effects  of SEM for OT/Visual stimulus._     
+```{r, table_sem_results_OT}
+#| label: table_sem_results_OT
+#| fig-cap: ""
+#
+# Table created from the df sem_results_OT (see above)
+source(here("R", "func.R"))
+#
+# Modify database
+table_semOT_df <- sem_results_OT %>%
+  mutate(`Direct effects` = paste0(mean_direct_effects, " [", q5_direct, ", ", q95_direct, "]"),
+         `Indirect effects` = paste0(mean_indirect_effects, " [", q5_indirect, ", ", q95_indirect, "]"),
+         `Total effects` = paste0(mean_total_effects, " [", q5_total, ", ", q95_total, "]")) %>%
+  dplyr::select(source, predictor_modulator, `Direct effects`, `Indirect effects`, `Total effects`) %>%
+  mutate(
+      predictor_modulator = case_when(
+        predictor_modulator == "mean_mitodensity" ~ "Mitochondrial density",
+        predictor_modulator == "mean_potential" ~ "Metabolic capacity",
+        predictor_modulator == "mean_dnadamage" ~ "DNA damage",
+        predictor_modulator == "mean_peroxidation" ~ "Lipid peroxidation",
+        predictor_modulator == "ROS" ~ "ROS",
+        TRUE ~ predictor_modulator
+      ),
+      source = case_when(
+        source == "det_results_semOT" ~ "Detection latency",
+        source == "dna_results_semOT" ~ "DNA damage",
+        source == "perox_results_semOT" ~ "Lipid peroxidation",
+        source == "ros_results_semOT" ~ "ROS",
+        TRUE ~ source
+      ),
+      `Direct effects` = case_when(`Direct effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Direct effects`),
+      `Indirect effects` = case_when(`Indirect effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Indirect effects`),
+      `Total effects` = case_when(`Total effects` == "NaN [NA, NA]" ~ " - ", TRUE ~ `Total effects`)) %>%
+  rename(Predictor = predictor_modulator, Response = source) %>%
+  mutate(Response = factor(Response, levels = c("Detection latency", "DNA damage", "Lipid peroxidation", "ROS")),
+         Predictor = factor(Predictor, levels = c("Mitochondrial density",
+                                                "Metabolic capacity",
+                                                "ROS",
+                                                "DNA damage",
+                                                "Lipid peroxidation"))) %>%
+  arrange(Response, Predictor)
+#
+# Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+table_semOT <- flextable(table_semOT_df) %>%
+  align(align = "center", part = "header") %>%
+  flextable::compose(i = c(2:5,7,8,10,11,13), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(5,8,11), part = "body") %>% 
+  autofit()
+#
+table_semOT
+```
+
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+#### Results of preliminary models 
+
+```{r, models_preliminary}
+#| label: models_preliminary
+# Fitting intial models to see if sex and age are relevant for our models
+source(here("R", "func.R"))
+#
+#
+# Run models mitochondrial physiology (each region separately)
+#
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
+regions <- c("OB", "OT")
+formula_list_ <- list()
+for (p in var_m){
+  formula_list_[[p]] <- paste0(p, "~ cort*temp + age_euthanasia + sex + (1|clutch)")
+  for (h in regions){
+    if (h == "OB"){
+      df <- clean_df %>% filter(region == "OB")
+      l <- "OB"
+    } else {
+      df <- clean_df %>% filter(region == "OT")
+      l <- "OT"
+    }
+  
+  pmodel_name <- paste0("m_prel_", p, "_", h)
+  assign(pmodel_name, fit_m(df = df,
+                             cat = "prel",
+                             var = p,
+                             formula = formula_list_[[p]],
+                             fam = gaussian(),
+                             label = l,
+                             refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+}
+#
+#
+# Run model behaviour (stimuli separated)
+beh_df <- clean_df
+stimulus <- c("Chemical", "Visual")
+formula_t_D <- t_D ~ motivation + motivation:cort + cort*temp + age_trial + sex + prey +(1|clutch) + (1|lizard_id) 
+for (k in stimulus){
+  df <- beh_df %>% filter(stimulus == k)
+  pmodel_name <- paste0("m_prel_t_D_", k)
+  assign(pmodel_name, fit_m(df = df,
+                            cat = "prel",
+                            var = "t_D",
+                            formula = formula_t_D,
+                            fam = gaussian(),
+                            label = k,
+                            refit = FALSE),
+        envir = .GlobalEnv)  # Assign to the global environment
+}
+```
+
+_Table S10. Summary of the preliminary model for Mitochondrial Density in Olfactory Bulbs._      
+```{r, results_preliminary_mitdensity_OB}
+#| tbl-cap: "Preliminary results of the models testing for Mitochondrial Density in OB"
+#| label: results_preliminary_mitdensity
+#
+sum_m_mitdensity_OB_prel <- m_prel_mean_mitodensity_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws()  %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_mitdensity_OB_prel)
+```
+
+Model formula: mean_mitodensity ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S11. Summary of the preliminary model for Mitochondrial Density in Optic Tecta._      
+```{r, results_preliminary_mitdensity_OT}
+#| tbl-cap: "Preliminary results of the models testing for Mitochondrial Density in OT"
+#| label: results_preliminary_mitdensity_OT
+#
+sum_m_mitdensity_OT_prel <- m_prel_mean_mitodensity_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_mitdensity_OT_prel)
+```
+
+Model formula: mean_mitodensity ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S12. Summary of the preliminary model for Metabolic capacity in Olfactory Bulbs._      
+```{r, results_preliminary_potential_OB}
+#| tbl-cap: "Preliminary results of the models testing for metabolic capacity in OB"
+#| label: results_preliminary_potential_OB
+#
+sum_m_potential_OB_prel <- m_prel_mean_potential_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_potential_OB_prel)
+```
+
+Model formula: mean_potential ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S13. Summary of the preliminary model for Metabolic capacity in Optic Tecta._      
+```{r, results_preliminary_potential_OT}
+#| tbl-cap: "Preliminary results of the models testing for Metabolic capacity in OT"
+#| label: results_preliminary_potential_OT
+#
+sum_m_potential_OT_prel <- m_prel_mean_potential_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_potential_OT_prel)
+```
+
+Model formula: mean_potential ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+ 
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+_Table S14. Summary of the preliminary model for Metabolic capacity/Mitochondrial Density in Olfactory Bulbs._      
+```{r, results_preliminary_conpotential_OB}
+#| tbl-cap: "Preliminary results of the models testing for Metabolic capacity/Mitochondrial Density in OB"
+#| label: results_preliminary_conpotential_OB
+#
+sum_m_conpotential_OB_prel <- m_prel_mean_conpotential_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_conpotential_OB_prel)
+```
+
+Model formula: mean_conpotential ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+_Table S15. Summary of the preliminary model for Metabolic capacity/Mitochondrial Density in Optic Tecta._      
+```{r, results_preliminary_conpotential_OT}
+#| tbl-cap: "Preliminary results of the models testing for Metabolic capacity/Mitochondrial Density in OT"
+#| label: results_preliminary_conpotential_OT
+#
+sum_m_conpotential_OT_prel <- m_prel_mean_conpotential_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_conpotential_OT_prel)
+```
+
+Model formula: mean__conpotential ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+_Table S16. Summary of the preliminary model for ROS Production in Olfactory Bulbs._      
+```{r, results_preliminary_ros_OB}
+#| tbl-cap: "Preliminary results of the models testing for ROS Production in OB"
+#| label: results_preliminary_ros_OB
+#
+sum_m_ros_OB_prel <- m_prel_mean_ros_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_ros_OB_prel)
+```
+
+Model formula: mean_ros ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S17. Summary of the preliminary model for ROS Production in Optic Tecta._      
+```{r, results_preliminary_ros_OT}
+#| tbl-cap: "Preliminary results of the models testing for ROS Production in OT"
+#| label: results_preliminary_ros_OT
+#
+sum_m_ros_OT_prel <- m_prel_mean_ros_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_ros_OT_prel)
+```
+
+Model formula: mean_ros ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S18. Summary of the preliminary model for ROS Production/Mitochondrial density in Olfactory Bulbs._      
+```{r, results_preliminary_conros_OB}
+#| tbl-cap: "Preliminary results of the models testing for ROS Production/Mitochondrial density in OB"
+#| label: results_preliminary_conros_OB
+#
+sum_m_conros_OB_prel <- m_prel_mean_conros_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_conros_OB_prel)
+```
+
+Model formula: mean_ros ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S19. Summary of the preliminary model for ROS Production/Mitochondrial density in Optic Tecta._      
+```{r, results_preliminary_conros_OT}
+#| tbl-cap: "Preliminary results of the models testing for ROS Production/mit density in OT"
+#| label: results_preliminary_conros_OT
+#
+sum_m_conros_OT_prel <- m_prel_mean_conros_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_conros_OT_prel)
+```
+
+Model formula: mean_conros ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex or age, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S20. Summary of the preliminary model for DNA Damage in Olfactory Bulbs._      
+```{r, results_preliminary_dnadamage_OB}
+#| tbl-cap: "Preliminary results of the models testing for DNA Damage in OB"
+#| label: results_preliminary_dnadamage_OB
+#
+sum_m_dnadamage_OB_prel <- m_prel_mean_dnadamage_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_dnadamage_OB_prel)
+```
+
+Model formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates an effect of sex and age, so they were included in the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S21. Summary of the preliminary model for DNA Damage in Optic Tecta._      
+```{r, results_preliminary_dnadamage_OT}
+#| tbl-cap: "Preliminary results of the models testing for DNA Damage in OT"
+#| label: results_preliminary_dnadamage_OT
+#
+sum_m_dnadamage_OT_prel <- m_prel_mean_dnadamage_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_dnadamage_OT_prel)
+```
+
+Model formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, so it was discarded from the final models. However, we saw an effect of sex and we included it in our final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S22. Summary of the preliminary model for Lipid Peroxidation in Olfactory Bulbs._      
+```{r, results_preliminary_peroxidation_OB}
+#| tbl-cap: "Preliminary results of the models testing for Lipid Peroxidation in OB"
+#| label: results_preliminary_peroxidation_OB
+#
+sum_m_peroxidation_OB_prel <- m_prel_mean_peroxidation_OB %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_peroxidation_OB_prel)
+```
+
+Model formula: mean_peroxidation ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex, so it was discarded from the final models. However, we saw an effect of age and we included it in our final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S23. Summary of the preliminary model for Lipid Peroxidation in Optic Tecta._      
+```{r, results_preliminary_peroxidation_OT}
+#| tbl-cap: "Preliminary results of the models testing for Lipid Peroxidation in OT"
+#| label: results_preliminary_peroxidation_OT
+#
+sum_m_peroxidation_OT_prel <- m_prel_mean_peroxidation_OT %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_peroxidation_OT_prel)
+```
+
+Model formula: mean_peroxidation ~ cort * temp + age_euthanasia + sex + (1|clutch).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of sex, so it was discarded from the final models. However, we saw an effect of age and we included it in our final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S24. Summary of the preliminary model for Detection Latency (t_D) of Chemical stimuli._      
+```{r, results_preliminary_t_D_Chemical}
+#| tbl-cap: "Preliminary results of the models testing for Detection Latency (t_D) of Chemical stimuli"
+#| label: results_preliminary_t_D_Chemical
+# 
+sum_m_t_D_prel_Chem <- m_prel_t_D_Chemical %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_t_D_prel_Chem)
+```
+
+Model formula: t_D~ motivation + cort:motivation + cort * temp + age_trial + sex + prey + (1|clutch) + (1|lizard_id).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, sex, familiarity with prey (prey), motivation, or the cort-motivation interaction, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+_Table S25. Summary of the preliminary model for Detection Latency (t_D) of Visual stimuli._      
+```{r, results_preliminary_t_D_Visual}
+#| tbl-cap: "Preliminary results of the models testing for Detection Latency (t_D) of Visual stimuli"
+#| label: results_preliminary_t_D_Visual
+#
+sum_m_t_D_prel_Vis <- m_prel_t_D_Visual %>%
+  dplyr::select(-starts_with("r_"), -sigma, -Intercept, -lprior, -lp__) %>%  # Removes random effect terms
+  summarise_draws() %>%
+  mutate(across(where(is.numeric), ~ as.numeric(format_dec(.x, 3))))
+#
+flextable(sum_m_t_D_prel_Vis)
+```
+
+Model formula: t_D~ motivation + cort:motivation + cort * temp + age_trial + sex + prey + (1|clutch) + (1|lizard_id).
+Model convergence was checked through rhat and ess_bulk values. Summary indicates no effect of age, sex, familiarity with prey (prey), motivation, or the cort-motivation interaction, so they were discarded from the final models.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+#### Final models diagnostics (plots)
+
+```{r , plotmod_mitdensity_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_mitdensity_OB
+#| caption: "Posterior predictive checks for the model of Mitochondrial Density in Olfactory Bulbs."
+#
+mod <- readRDS(here("output/models/mean_mitodensity_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S1.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S1.tiff")
+```
+
+Fig S1. Posterior predictive checks for the model of Mitochondrial Density in Olfactory Bulbs.
+Formula: mean_mitodensity ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_mitdensity_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_mitdensity_OT
+#| caption: "Posterior predictive checks for the model of Mitochondrial Density in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_mitodensity_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S2.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S2.tiff")
+```
+
+Fig S2. Posterior predictive checks for the model of Mitochondrial Density in Optic Tecta.
+Formula: mean_mitodensity ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_potential_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_potential_OB
+#| caption: "Posterior predictive checks for the model of Metabolic capacity in Olfactory Bulbs."
+#
+mod <- readRDS(here("output/models/mean_potential_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S3.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S3.tiff")
+```
+
+Fig S3. Posterior predictive checks for the model of Metabolic capacity in Olfactory Bulbs.
+Formula: mean_potential ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_potential_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_potential_OT
+#| caption: "Posterior predictive checks for the model of Metabolic capacity in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_potential_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S4.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S4.tiff")
+```
+
+Fig S4. Posterior predictive checks for the model of Metabolic capacity in Optic Tecta.
+Formula: mean_potential ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_conpotential_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_conpotential_OB
+#| caption: "Posterior predictive checks for the model of Metabolic capacity/Mi density in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_conpotential_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S5.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S5.tiff")
+```
+
+Fig S5. Posterior predictive checks for the model of Metabolic capacity/Mitochondrial density in Olfactory Bulbs.
+Formula: mean_potential ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_conpotential_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_conpotential_OT
+#| caption: "Posterior predictive checks for the model of Metabolic capacity/Mit density in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_conpotential_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S6.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S6.tiff")
+```
+
+Fig S6. Posterior predictive checks for the model of Metabolic capacity/Mitochondrial density in Optic Tecta.
+Formula: mean_potential ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_ros_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_ros_OB
+#| caption: "Posterior predictive checks for the model of ROS Production in Olfactory Bulbs."
+#
+mod <- readRDS(here("output/models/mean_ros_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S7.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S7.tiff")
+```
+
+Fig S7. Posterior predictive checks for the model of ROS Production in Olfactory Bulbs.
+Formula: mean_ros ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_ros_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_ros_OT
+#| caption: "Posterior predictive checks for the model of ROS Production in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_ros_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S8.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S8.tiff")
+```
+
+Fig S8. Posterior predictive checks for the model of ROS Production in Optic Tecta.
+Formula: mean_ros ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_conros_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_conros_OB
+#| caption: "Posterior predictive checks for the model of ROS Production/Mitochondrial density in Olfactory bulbs."
+#
+mod <- readRDS(here("output/models/mean_conros_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S9.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S9.tiff")
+```
+
+Fig S9. Posterior predictive checks for the model of ROS Production/Mitochondrial density in Olfactory Bulbs.
+Formula: mean_ros ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_conros_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_conros_OT
+#| caption: "Posterior predictive checks for the model of ROS Production/Mitochondrial density in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_conros_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S10.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S10.tiff")
+```
+
+Fig S10. Posterior predictive checks for the model of ROS Production/Mitochondrial density in Optic Tecta.
+Formula: mean_ros ~ cort * temp + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_dnadamage_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_dnadamage_OB
+#| caption: "Posterior predictive checks for the model of DNA Damage in Olfactory Bulbs."
+#
+mod <- readRDS(here("output/models/mean_dnadamage_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S11.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S11.tiff")
+```
+
+Fig S11. Posterior predictive checks for the model of DNA Damage in Olfactory Bulbs.
+Formula: mean_dnadamage ~ cort * temp + age_euthanasia + sex + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_dnadamage_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_dnadamage_OT
+#| caption: "Posterior predictive checks for the model of DNA Damage in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_dnadamage_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S12.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S12.tiff")
+```
+
+Fig S12. Posterior predictive checks for the model of DNA Damage in Optic Tecta.
+Formula: mean_dnadamage ~ cort * temp + sex + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_peroxidation_OB, out.width="70%", fig.align="center"}
+#| label: plotmod_peroxidation_OB
+#| caption: "Posterior predictive checks for the model of Lipid Peroxidation in Olfactory Bulbs."
+#
+mod <- readRDS(here("output/models/mean_peroxidation_def_OB.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S13.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S13.tiff")
+```
+
+Fig S13. Posterior predictive checks for the model of Lipid Peroxidation in Olfactory Bulbs.
+Formula: mean_peroxidation ~ cort * temp + age_euthanasia + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_peroxidation_OT, out.width="70%", fig.align="center"}
+#| label: plotmod_peroxidation_OT
+#| caption: "Posterior predictive checks for the model of Lipid Peroxidation in Optic Tecta."
+#
+mod <- readRDS(here("output/models/mean_peroxidation_def_OT.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S14.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S14.tiff")
+```
+
+Fig S14. Posterior predictive checks for the model of Lipid Peroxidation in Optic Tecta.
+Formula: mean_peroxidation ~ cort * temp + age_euthanasia + (1|clutch)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_tD_Chemical, out.width="70%", fig.align="center"}
+#| label: plotmod_tD_Chemical
+#| caption: "Posterior predictive checks for the model of Detection Latency (t_D) in Chemical trials."
+#
+mod <- readRDS(here("output/models/t_D_def_Chemical.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S15.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S15.tiff")
+```
+
+Fig S15. Posterior predictive checks for the model of Detection Latency (t_D) in Chemical trials.
+Formula: t_D~ cort * temp + motivation + cort:motivation + (1|clutch) + (1|lizard_id)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r , plotmod_tD_Visual, out.width="70%", fig.align="center"}
+#| label: plotmod_tD_Visual
+#| caption: "Posterior predictive checks for the model of Detection Latency (t_D) in Visual trials."
+#
+mod <- readRDS(here("output/models/t_D_def_Visual.rds"))
+plot_mod <- plot(mod, plot = FALSE)
+#
+plot_mod_1 <- plot_mod[[1]]
+plot_mod_2 <- plot_mod[[2]]
+#
+fig_mod <- plot_grid(plot_mod_1, plot_mod_2, ncol = 1)
+ggsave("./output/figures/suppl/Figure_S16.tiff", plot = fig_mod,
+       width = 20, height = 28, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_S16.tiff")
+```
+
+Fig S16. Posterior predictive checks for the model of Detection Latency (t_D) in Visual trials.
+Formula: t_D~ cort * temp + (1|clutch) + (1|lizard_id)
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+#### Brain validation
+
+To ensure that neurons were not unintentionally lost during homogenisation, we performed a pilot study where we euthanised four lizards and prepared the homogenates from the same brain regions as in the experiment. The homogenates were then dyed with a specific neuronal marker as described in Farrow et al. (2021) and Storks et al. (2023). We employed flow cytometry and fluorescence microscopy to check for the presence of neurons in the homogenates.     
+
+We followed the procedures outlined above (see _Methods: Flow cytometry_) for euthanasia and homogenisation. Cells were also fixed and permeabilised as described previously before staining them (see _Methods: Flow cytometry_). Following permeabilisation, the samples were centrifuged at 1000 RCF for 10 minutes and the resulting pellet was resuspended in 100 µL of a 1:100 dilution of NeuN + Alexa488 fluorescent conjugate to dye the neuronal nuclei (Farrow et al. 2021; Storks et al. 2023). The samples were incubated at +4 ºC overnight. 
+
+The following day we centrifuged the samples at 1000 RCF for 10 minutes and resuspended the pellet in 100 µL of PBS. Samples were split in two: 50 µL from each was reserved for examination under a Zeiss AxioObserver Z1 microscope, while the remaining 50 µL from each sample was pooled into a single tube for flow cytometry analysis, which allowed us to validate that our gating strategy was correct. 
+
+```{r, neurons_size}
+#| label: neurons_size
+# Getting the size of the neurons from the validated data
+# Olfactory Bulbs
+# A) Experiment cells
+cells_exp_OB <- mit_df %>% filter(region == "OB")
+mean_cells_size_OB <- format_dec(mean(cells_exp_OB$mean_size), 3)
+min_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.025), 3)
+max_cells_OB <- format_dec(quantile(cells_exp_OB$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OB <- read.csv(here("./data/size_neurons_OB.csv")) %>%
+  filter(X == "Olfactory Bulb_Tube_001_001.fcs")
+neurons_size_OB <- log10(neurons_OB$neurons...Geometric.Mean..FSC.A.)
+##
+##
+# Optic Tecta
+# A) Experiment cells
+cells_exp_OT <- mit_df %>% filter(region == "OT")
+mean_cells_size_OT <- format_dec(mean(cells_exp_OT$mean_size), 3)
+min_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.025), 3)
+max_cells_OT <- format_dec(quantile(cells_exp_OT$mean_size, 0.975), 3)
+# B) Neurons validation
+neurons_OT <- read.csv(here("./data/size_neurons_OT.csv")) %>%
+  filter(X == "Optical Tecta_Tube_002_002.fcs")
+neurons_size_OT <- log10(neurons_OT$cells.neurons...Geometric.Mean..FSC.A.)
+```
+
+Samples examined under the microscope showed a clear presence of neuronal nuclei in the homogenates (Fig. S13). Flow cytometry analysis also confirmed the presence of neuronal nuclei in the homogenates, that were within the size range of the cells employed in the experiment (mean size cells experiment in OB = `r mean_cells_size_OB`, 95% CI = [`r min_cells_OB`, `r max_cells_OB`], n = 80; size neurons in OB = `r neurons_size_OB`; mean size cells experiment in OT = `r mean_cells_size_OT`, 95% CI = [`r min_cells_OT`, `r max_cells_OT`], n = 80; size neurons in OB = `r neurons_size_OT`).
+
+```{r, fig-S13}
+#| label: fig-S13
+#| fig-cap: "Fluorescence microscopy image of neuron nuclei stained with NeuN-Alexa 488. The image was excited using a 488 nm wavelength, and green fluorescence corresponds to NeuN-positive cells. In panel A, NeuN-positive cells for the homogenate of the Olfactory Bulb (OB). In panel B, NeuN-positive cells for the homogenate of the Optic Tecta (OT)."
+#
+#
+imgOB <- image_read(here("output/figures/microscope/OB_neurons_black.jpg"))  %>%
+  image_resize("600x400!")
+plot_OB <- rasterGrob(imgOB, interpolate = TRUE)
+#
+imgOT <- image_read(here("output/figures/microscope/OT_neurons_black.jpg")) %>%
+  image_resize("600x400!")
+plot_OT <- rasterGrob(imgOT, interpolate = TRUE)
+#
+plot_neun <- plot_grid(plot_OB, plot_OT, nrow = 1)
+#
+fig_neun <- ggdraw(plot_neun) +
+  annotate("text", x = 0.05, y = 0.92, label = "A", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") +
+  annotate("text", x = 0.55, y = 0.92, label = "B", hjust = 1, vjust = 1, size = 4, family = "Times", color = "white") 
+ggsave(here("./output/figures/suppl/Figure_SX13.tiff"), plot = fig_neun, width = 15, height = 5, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/Figure_SX13.tiff")
+```
+
+Figure S17. Fluorescence microscopy image of neuron nuclei stained with NeuN-Alexa 488. Images were taken on a Zeiss AxioObserver Z1, equipped with Zeiss Axiocam 506 monochrome camera. A Zeiss 38HE fluorescent  filter set (450-490nm Ex, 500-550nm Em.) was used  in conjunction with a 63x 1.4 NA.
+
+
+**REFERENCES**
+
+Farrow LF, Andronicos NM, McDonald PG, Hamlin AS. 2021. Quantitative determination of neuronal size and density using flow cytometry. _Journal of Neuroscience Methods_, **352**, 109081.
+
+Storks L, Powell BJ, Leal M. 2023. Peeking inside the lizard brain: neuron numbers in Anolis and its implications for cognitive performance and vertebrate brain evolution. _Integrative and Comparative Biology_, **63(1)**, 223-237.
+
+
+#### Age interactions
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r, models_mitochondrial_age}
+#
+# Run models mitochondrial physiology (each region separately)
+#
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
+regions <- c("OB", "OT")
+for (p in var_m){
+  for (h in regions){
+    formula <- paste0(p, "~ cort*temp*age_euthanasia + (1|clutch)")
+    if (h == "OB"){
+      df <- clean_df %>% filter(region == "OB")
+      l <- "OB"
+    } else {
+      df <- clean_df %>% filter(region == "OT")
+      l <- "OT"
+    }
+
+    pmodel_name <- paste0("m_age_", p, "_", h)
+    assign(pmodel_name, fit_m(df = df,
+                              cat = "age",
+                              var = p,
+                              formula = formula,
+                              fam = gaussian(),
+                              label = l,
+                              refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+} 
+```
+
+```{r, models_behaviour_age}
+#
+# Fitting the model and extraction of posteriors for Detection Latency (log-normal).
+source(here("R", "func.R"))
+#
+#
+## Run model behaviour for both stimuli separately
+#
+beh_df <- clean_df
+stimuli <- c("Chemical", "Visual")
+for (s in stimuli){
+  df_b <- beh_df %>% filter(stimulus == s)
+  formula_t_D <- t_D ~ cort*temp*age_trial + (1|clutch) + (1|lizard_id)
+
+  pmodel_name <- paste0("m_age_t_D_", s)
+  assign(pmodel_name, fit_m(df = df_b,
+                             cat = "age",
+                             var = "t_D",
+                             formula = formula_t_D,
+                             fam = gaussian(),
+                             label = s,
+                             refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+}
+```
+
+_Table S26. Posterior means and 95% credible intervals (CI) for age and age × treatment interaction terms from models including a three-way interaction between prenatal corticosterone treatment (CORT), incubation temperature (Temperature), and age. Variables were measured in olfactory bulbs (OB) and optic tecta (OT). Age at euthanasia was used as the age metric for mitochondrial physiology variables, and age at trial for detection latency. All variables were standardised prior to analysis. Interactions whose credible intervals do not overlap zero are shown in bold._    
+ 
+```{r, table_age}
+model_name <- list(
+  "Mit density OB" = m_age_mean_mitodensity_OB,
+  "Mit density OT" = m_age_mean_mitodensity_OT,
+  "Mit potential OB" = m_age_mean_potential_OB,
+  "Mit potential OT" = m_age_mean_potential_OT,
+  "Mit potential/density OB" = m_age_mean_conpotential_OB,
+  "Mit potential/density OT" = m_age_mean_conpotential_OT,
+  "ROS OB" = m_age_mean_ros_OB,
+  "ROS OT" = m_age_mean_ros_OT,
+  "ROS/density OB" = m_age_mean_conros_OB,
+  "ROS/density OT" = m_age_mean_conros_OT,
+  "DNA damage OB" = m_age_mean_dnadamage_OB,
+  "DNA damage OT" = m_age_mean_dnadamage_OT,
+  "Lipid peroxidation OB" = m_age_mean_peroxidation_OB,
+  "Lipid peroxidation OT" = m_age_mean_peroxidation_OT,
+  "Detection latency Chemical" = m_age_t_D_Chemical,
+  "Detection latency Visual" = m_age_t_D_Visual
+)
+
+full_table <- map_dfr(names(model_name), function(name) {
+  draws <- model_name[[name]]
+  
+  draws %>%
+    dplyr::select(starts_with("b_")) %>%
+    pivot_longer(everything(), 
+                 names_to = "parameter", 
+                 values_to = "value") %>%
+    filter(str_detect(parameter, "age")) %>%
+    group_by(parameter) %>%
+    summarise(mean = round(mean(value), 3),
+      Q25 = round(quantile(value, 0.025), 3),
+      Q975 = round(quantile(value, 0.975), 3),
+      .groups = "drop") %>%
+    mutate(variable = name,
+          CI = paste0("[", Q25, ", ", Q975, "]")) %>%
+    dplyr::select(variable, parameter, mean, CI)
+})
+#
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+#
+table_age <- flextable(full_table) %>%
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:24,26:28,30:32,34:36,38:40,42:44,46:48,50:52,54:56,58:60,62:64), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(4,8,12,16,20,24,28,32,36,40,44,48,52,56,60), j = c(1:4), part = "body") %>% 
+  autofit()
+# save_as_docx(table_age, path = "table_age.docx")
+table_age
+```
+
+```{r, models_mitochondrial_age_sensitivity}
+#
+# Run models mitochondrial physiology (each region separately)
+# Convert 300 days to standardised units
+cutoff <- (300 - mean(df_merged_log$age_euthanasia)) / sd(df_merged_log$age_euthanasia)
+#
+var_m <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation")
+regions <- c("OB", "OT")
+for (p in var_m){
+  for (h in regions){
+    formula <- paste0(p, "~ cort*temp*age_euthanasia + (1|clutch)")
+    if (h == "OB"){
+      df <- clean_df %>% 
+              filter(region == "OB") %>%
+              filter(age_euthanasia < cutoff)
+      l <- "OB"
+    } else {
+      df <- clean_df %>% 
+              filter(region == "OT") %>%
+              filter(age_euthanasia < cutoff)
+      l <- "OT"
+    }
+
+    pmodel_name <- paste0("m_age_sensi_", p, "_", h)
+    assign(pmodel_name, fit_m(df = df,
+                              cat = "age_sensitivity",
+                              var = p,
+                              formula = formula,
+                              fam = gaussian(),
+                              label = l,
+                              refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+  }
+} 
+```
+
+```{r, models_behaviour_age_sensitivity}
+#
+# Fitting the model and extraction of posteriors for Detection Latency (log-normal).
+source(here("R", "func.R"))
+#
+# Convert 250 days to standardised units
+cutoff <- (250 - mean(df_merged_log$age_trial)) / sd(df_merged_log$age_trial)
+#
+## Run model behaviour for both stimuli separately
+#
+beh_df <- clean_df
+stimuli <- c("Chemical", "Visual")
+for (s in stimuli){
+  df_b <- beh_df %>% 
+            filter(stimulus == s) %>%
+            filter(age_trial < cutoff)
+  formula_t_D <- t_D ~ cort*temp*age_trial + (1|clutch) + (1|lizard_id)
+
+  pmodel_name <- paste0("m_age_sensitivity_t_D_", s)
+  assign(pmodel_name, fit_m(df = df_b,
+                             cat = "age_sensitivity",
+                             var = "t_D",
+                             formula = formula_t_D,
+                             fam = gaussian(),
+                             label = s,
+                             refit = FALSE),
+          envir = .GlobalEnv)  # Assign to the global environment
+}
+```
+
+
+_Table S27. Posterior means and 95% credible intervals (CI) for age and age × treatment interaction terms from models including a three-way interaction between prenatal corticosterone treatment (CORT), incubation temperature (Temperature), and age. Variables were measured in olfactory bulbs (OB) and optic tecta (OT). Age at euthanasia was used as the age metric for mitochondrial physiology variables, and age at trial for detection latency. Models contain only lizards were age euthanasia was lower than 300 days and day trial lower than 250 as a sensitivity analyses without potential outliers (see Fig. S18). All variables were standardised prior to analysis. Interactions whose credible intervals do not overlap zero are shown in bold._      
+
+```{r, table_age_sensitivity}
+model_name <- list(
+  "Mit density OB" = m_age_sensi_mean_mitodensity_OB,
+  "Mit density OT" = m_age_sensi_mean_mitodensity_OT,
+  "Mit potential OB" = m_age_sensi_mean_potential_OB,
+  "Mit potential OT" = m_age_sensi_mean_potential_OT,
+  "Mit potential/density OB" = m_age_sensi_mean_conpotential_OB,
+  "Mit potential/density OT" = m_age_sensi_mean_conpotential_OT,
+  "ROS OB" = m_age_sensi_mean_ros_OB,
+  "ROS OT" = m_age_sensi_mean_ros_OT,
+  "ROS/density OB" = m_age_sensi_mean_conros_OB,
+  "ROS/density OT" = m_age_sensi_mean_conros_OT,
+  "DNA damage OB" = m_age_sensi_mean_dnadamage_OB,
+  "DNA damage OT" = m_age_sensi_mean_dnadamage_OT,
+  "Lipid peroxidation OB" = m_age_sensi_mean_peroxidation_OB,
+  "Lipid peroxidation OT" = m_age_sensi_mean_peroxidation_OT,
+  "Detection latency Chemical" = m_age_sensitivity_t_D_Chemical,
+  "Detection latency Visual" = m_age_sensitivity_t_D_Visual
+)
+
+full_table_sensitivity <- map_dfr(names(model_name), function(name) {
+  draws <- model_name[[name]]
+  
+  draws %>%
+    dplyr::select(starts_with("b_")) %>%
+    pivot_longer(everything(), 
+                 names_to = "parameter", 
+                 values_to = "value") %>%
+    filter(str_detect(parameter, "age")) %>%
+    group_by(parameter) %>%
+    summarise(mean = round(mean(value), 3),
+      Q25 = round(quantile(value, 0.025), 3),
+      Q975 = round(quantile(value, 0.975), 3),
+      .groups = "drop") %>%
+    mutate(variable = name,
+          CI = paste0("[", Q25, ", ", Q975, "]")) %>%
+    dplyr::select(variable, parameter, mean, CI)
+})
+#
+## Table format
+set_flextable_defaults(
+ font.family = "Times New Roman",
+ font.size = 10)
+#
+#
+table_age_sensitivity <- flextable(full_table_sensitivity) %>%
+  flextable::compose(i = c(2:4,6:8,10:12,14:16,18:20,22:24,26:28,30:32,34:36,38:40,42:44,46:48,50:52,54:56,58:60,62:64), j = 1, value = as_paragraph(""), part = "body") %>% # To remove some of the values in the first column
+  flextable::hline(i = c(4,8,12,16,20,24,28,32,36,40,44,48,52,56,60), j = c(1:4), part = "body") %>% 
+  autofit()
+# save_as_docx(table_age_sensitivity, path = "table_age_sensitivity.docx")
+table_age_sensitivity
+```
+
+
+```{r, age_plots_raw, out.width="70%", fig.align="center"}
+#| label: age_plots_raw
+#| fig-cap: ""
+#| fig-name: "fig-age_plots_raw"
+var <- c("mean_mitodensity", "mean_potential", "mean_conpotential", "mean_ros", "mean_conros", "mean_dnadamage", "mean_peroxidation", "t_D")
+region <- c("OT", "OB")
+
+for(v in var){
+  for(r in region){
+    if(v == "mean_mitodensity"){
+      lab <- "Mitochondrial density"
+    } else if(v == "mean_potential"){
+      lab <- "Mitochondrial potential"
+    } else if(v == "mean_conpotential"){
+      lab <- "Mitochondrial potential/Mitochondrial density"
+    } else if(v == "mean_ros"){
+      lab <- "ROS production"
+    } else if(v == "mean_conros"){
+      lab <- "ROS production/Mitochondrial density"
+    } else if(v == "mean_dnadamage"){
+      lab <- "DNA damage"
+    } else if(v == "mean_peroxidation"){
+      lab <- "Lipid peroxidation"
+    } else if(v == "t_D"){
+      lab <- "Detection latency"
+    }
+    data <- df_merged_log %>% filter(region == r)    
+    age_var <- ifelse(v == "t_D", "age_trial", "age_euthanasia")
+    
+    plot <- ggplot(data, aes(x = .data[[age_var]], y = .data[[v]], colour = interaction(cort, temp), fill = interaction(cort, temp))) +
+      geom_point(alpha = 0.5) +
+      geom_smooth(method = "lm", se = TRUE, alpha = 0.15) +
+      scale_colour_manual(values = c("#68bde1", "#00008B", "#fa927d", "#b50101"),
+                          labels = c("Control-Cold", "CORT-Cold", "Control-Hot", "CORT-Hot")) +
+      scale_fill_manual(values = c("#68bde1", "#00008B", "#fa927d", "#b50101"),
+                          labels = c("Control-Cold", "CORT-Cold", "Control-Hot", "CORT-Hot")) +
+      labs(title = paste(lab, r), x = "Age", y = v, colour = "Treatment", fill = "Treatment") +
+      guides(colour = guide_legend("Treatment"), fill = guide_legend("Treatment")) +
+      theme_classic()
+    
+    assign(paste0("plot_", v, "_", r), plot)
+  }
+}
+
+# OB/Chemical plots
+plots_OB <- lapply(var, function(v) get(paste0("plot_", v, "_OB")))
+grid_OB <- plot_grid(plotlist = plots_OB, ncol = 2)
+
+# OT/Visual plots
+plots_OT <- lapply(var, function(v) get(paste0("plot_", v, "_OT")))
+grid_OT <- plot_grid(plotlist = plots_OT, ncol = 2)
+
+# Fig age
+fig_age <- plot_grid(grid_OB, grid_OT, ncol = 1)
+# Print final plot
+ggsave(here("./output/figures/suppl/age.tiff"), plot = fig_age, width = 21, height = 25, units = "cm", dpi = 600, bg = "white")
+knitr::include_graphics("./output/figures/suppl/age.tiff")
+```
+
+Figure S18. Relationships between age (days) each variable measured per region (olfactory bulbs: OB, optic tecta: OT) using raw data. Age at euthanasia was used as the age metric for mitochondrial physiology variables, and age at trial for detection latency.     
+
+
